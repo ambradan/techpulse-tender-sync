@@ -11,14 +11,43 @@ serve(async (req) => {
   }
 
   try {
-    const { role, sector, location } = await req.json();
+    const { role, contractType, sector } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    console.log("Getting RAL suggestion for:", role, sector, location);
+    const systemPrompt = `Sei un consulente del lavoro esperto. Genera raccomandazioni QUALITATIVE sulla gestione dei costi del personale.
+
+REGOLE CRITICHE:
+- MAI inventare numeri, percentuali, statistiche o valori finanziari
+- MAI suggerire RAL specifiche o range salariali numerici
+- Solo consigli qualitativi e strategici
+- Focus su rischi potenziali, considerazioni contrattuali, trend normativi
+- Usa termini come "possibile", "potenziale", "considerare", "valutare"
+- Italiano professionale
+
+FORMATO OUTPUT (JSON):
+{
+  "recommendations": [
+    "raccomandazione qualitativa 1",
+    "raccomandazione qualitativa 2",
+    "raccomandazione qualitativa 3"
+  ],
+  "contractNotes": "nota sul tipo di contratto scelto",
+  "riskFactors": "fattori di rischio qualitativi da considerare"
+}`;
+
+    const userPrompt = `Genera raccomandazioni QUALITATIVE per:
+
+Ruolo: ${role || "Non specificato"}
+Tipo contratto: ${contractType || "Non specificato"}
+Settore: ${sector || "Non specificato"}
+
+Fornisci solo consigli qualitativi senza alcun numero o valore.`;
+
+    console.log("Generating HR recommendations for role:", role);
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -29,86 +58,61 @@ serve(async (req) => {
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
-          {
-            role: "system",
-            content: `Sei un consulente HR esperto del mercato tech italiano. 
-Devi suggerire la RAL (Retribuzione Annua Lorda) appropriata per un ruolo specifico.
-
-Considera:
-- Trend salariali 2024 nel settore tech italiano
-- Scarsità di talenti tech
-- Inflazione attuale
-- Differenze geografiche (Milano/Roma vs altre città)
-- Competenze richieste dal ruolo
-
-Rispondi SOLO con un JSON nel formato:
-{
-  "suggestedRal": 45000,
-  "minRal": 40000,
-  "maxRal": 52000,
-  "reasoning": "breve spiegazione"
-}
-
-Il valore deve essere realistico per il mercato italiano 2024.`,
-          },
-          {
-            role: "user",
-            content: `Suggerisci la RAL per:
-Ruolo: ${role}
-Settore: ${sector}
-Location: ${location}`,
-          },
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
         ],
       }),
     });
 
     if (!response.ok) {
       if (response.status === 429) {
-        console.error("Rate limit exceeded");
-        return new Response(JSON.stringify({ error: "Rate limit raggiunto" }), {
-          status: 429,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        return new Response(
+          JSON.stringify({ error: "Limite richieste raggiunto, riprova tra poco." }),
+          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
       }
       if (response.status === 402) {
-        console.error("Payment required");
-        return new Response(JSON.stringify({ error: "Crediti AI esauriti" }), {
-          status: 402,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        return new Response(
+          JSON.stringify({ error: "Crediti AI esauriti." }),
+          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
       }
       const errorText = await response.text();
       console.error("AI gateway error:", response.status, errorText);
-      throw new Error("AI gateway error");
+      throw new Error("Errore gateway AI");
     }
 
     const data = await response.json();
-    const content = data.choices?.[0]?.message?.content || "";
-    
-    console.log("AI response:", content);
+    const content = data.choices?.[0]?.message?.content;
 
-    // Parse JSON from response
-    let result;
-    try {
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        result = JSON.parse(jsonMatch[0]);
-      } else {
-        throw new Error("No JSON found");
-      }
-    } catch (parseError) {
-      console.error("Failed to parse:", parseError);
-      result = null;
+    if (!content) {
+      throw new Error("Nessuna risposta dall'AI");
     }
 
-    return new Response(JSON.stringify(result), {
+    let advice;
+    try {
+      const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/) ||
+                        content.match(/```\s*([\s\S]*?)\s*```/) ||
+                        [null, content];
+      advice = JSON.parse(jsonMatch[1] || content);
+    } catch {
+      advice = {
+        recommendations: ["Consulta un professionista per una valutazione dettagliata"],
+        contractNotes: "Valutazione in corso",
+        riskFactors: "Analisi in elaborazione",
+      };
+    }
+
+    console.log("HR advice generated successfully");
+
+    return new Response(JSON.stringify({ advice }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
     console.error("Error in hr-consultant:", error);
-    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ error: error instanceof Error ? error.message : "Errore sconosciuto" }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   }
 });
