@@ -12,6 +12,7 @@ import TrendsPlaceholder from "./components/dashboard/TrendsPlaceholder";
 import PredictionsPlaceholder from "./components/dashboard/PredictionsPlaceholder";
 import PartnersPlaceholder from "./components/dashboard/PartnersPlaceholder";
 import TendersPlaceholder from "./components/dashboard/TendersPlaceholder";
+import RealityCheckPlaceholder from "./components/dashboard/RealityCheckPlaceholder";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -32,6 +33,7 @@ const App = () => (
             <Route path="predictions" element={<PredictionsPlaceholder />} />
             <Route path="partners" element={<PartnersPlaceholder />} />
             <Route path="tenders" element={<TendersPlaceholder />} />
+            <Route path="reality-check" element={<RealityCheckPlaceholder />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
