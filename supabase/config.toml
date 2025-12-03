@@ -1,0 +1,4 @@
+project_id = "oabbwjrkiekegdivzjpg"
+
+[functions.analyze-trends]
+verify_jwt = false
