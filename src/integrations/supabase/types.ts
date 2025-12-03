@@ -50,6 +50,48 @@ export type Database = {
         }
         Relationships: []
       }
+      company_partners: {
+        Row: {
+          company_id: string | null
+          id: string
+          monthly_cost: number | null
+          partner_id: string | null
+          plan_type: string | null
+          selected_at: string | null
+        }
+        Insert: {
+          company_id?: string | null
+          id?: string
+          monthly_cost?: number | null
+          partner_id?: string | null
+          plan_type?: string | null
+          selected_at?: string | null
+        }
+        Update: {
+          company_id?: string | null
+          id?: string
+          monthly_cost?: number | null
+          partner_id?: string | null
+          plan_type?: string | null
+          selected_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_partners_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_partners_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       market_trends: {
         Row: {
           category: string
@@ -85,31 +127,49 @@ export type Database = {
       }
       partners: {
         Row: {
+          benefits: string[] | null
           category: string
           created_at: string
           description: string | null
           id: string
           is_active: boolean | null
           logo_url: string | null
+          min_employees: number | null
           name: string
+          price_per_employee: number | null
+          pricing_type: string | null
+          rating: number | null
+          website_url: string | null
         }
         Insert: {
+          benefits?: string[] | null
           category: string
           created_at?: string
           description?: string | null
           id?: string
           is_active?: boolean | null
           logo_url?: string | null
+          min_employees?: number | null
           name: string
+          price_per_employee?: number | null
+          pricing_type?: string | null
+          rating?: number | null
+          website_url?: string | null
         }
         Update: {
+          benefits?: string[] | null
           category?: string
           created_at?: string
           description?: string | null
           id?: string
           is_active?: boolean | null
           logo_url?: string | null
+          min_employees?: number | null
           name?: string
+          price_per_employee?: number | null
+          pricing_type?: string | null
+          rating?: number | null
+          website_url?: string | null
         }
         Relationships: []
       }

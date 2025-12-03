@@ -4,7 +4,7 @@ import DashboardNavbar from "@/components/dashboard/DashboardNavbar";
 import CompanyHero from "@/components/dashboard/CompanyHero";
 import TrendSection from "@/components/dashboard/TrendSection";
 import PredictionsSection from "@/components/dashboard/PredictionsSection";
-import PartnersSection from "@/components/dashboard/PartnersSection";
+import PartnersWelfareSection from "@/components/dashboard/PartnersWelfareSection";
 import TendersSection from "@/components/dashboard/TendersSection";
 import RealityCheckSection from "@/components/dashboard/RealityCheckSection";
 import HRConsultantSection from "@/components/dashboard/HRConsultantSection";
@@ -34,6 +34,12 @@ interface Partner {
   category: string;
   description: string | null;
   is_active: boolean | null;
+  pricing_type: string | null;
+  price_per_employee: number | null;
+  min_employees: number | null;
+  benefits: string[] | null;
+  rating: number | null;
+  website_url: string | null;
 }
 
 interface Tender {
@@ -109,7 +115,7 @@ const Dashboard = () => {
           <PredictionsSection />
         </div>
         <div className="grid lg:grid-cols-2 gap-8">
-          <PartnersSection partners={partners || []} />
+          <PartnersWelfareSection partners={partners || []} employeeCount={company?.employees || 85} />
           <TendersSection tenders={tenders || []} />
         </div>
       </main>
