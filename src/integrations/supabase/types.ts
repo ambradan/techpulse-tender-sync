@@ -22,6 +22,7 @@ export type Database = {
           employees: number | null
           founded_year: number | null
           id: string
+          location: string | null
           name: string
           sector: string
           updated_at: string
@@ -33,6 +34,7 @@ export type Database = {
           employees?: number | null
           founded_year?: number | null
           id?: string
+          location?: string | null
           name: string
           sector: string
           updated_at?: string
@@ -44,6 +46,7 @@ export type Database = {
           employees?: number | null
           founded_year?: number | null
           id?: string
+          location?: string | null
           name?: string
           sector?: string
           updated_at?: string
@@ -92,6 +95,36 @@ export type Database = {
           },
         ]
       }
+      market_news: {
+        Row: {
+          category: string | null
+          content: string | null
+          created_at: string
+          id: string
+          published_at: string | null
+          source: string | null
+          title: string
+        }
+        Insert: {
+          category?: string | null
+          content?: string | null
+          created_at?: string
+          id?: string
+          published_at?: string | null
+          source?: string | null
+          title: string
+        }
+        Update: {
+          category?: string | null
+          content?: string | null
+          created_at?: string
+          id?: string
+          published_at?: string | null
+          source?: string | null
+          title?: string
+        }
+        Relationships: []
+      }
       market_trends: {
         Row: {
           category: string
@@ -124,6 +157,41 @@ export type Database = {
           title?: string
         }
         Relationships: []
+      }
+      partner_services: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          partner_id: string | null
+          price: number | null
+          service_name: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          partner_id?: string | null
+          price?: number | null
+          service_name: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          partner_id?: string | null
+          price?: number | null
+          service_name?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "partner_services_partner_id_fkey"
+            columns: ["partner_id"]
+            isOneToOne: false
+            referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       partners: {
         Row: {
@@ -204,6 +272,79 @@ export type Database = {
         Relationships: [
           {
             foreignKeyName: "predictions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      predictions_basic: {
+        Row: {
+          ai_output: string | null
+          company_id: string | null
+          confidence: number | null
+          created_at: string
+          id: string
+          period: string | null
+          prediction_type: string
+        }
+        Insert: {
+          ai_output?: string | null
+          company_id?: string | null
+          confidence?: number | null
+          created_at?: string
+          id?: string
+          period?: string | null
+          prediction_type: string
+        }
+        Update: {
+          ai_output?: string | null
+          company_id?: string | null
+          confidence?: number | null
+          created_at?: string
+          id?: string
+          period?: string | null
+          prediction_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "predictions_basic_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          company_id: string | null
+          created_at: string
+          full_name: string | null
+          id: string
+          role: string | null
+          updated_at: string
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string
+          full_name?: string | null
+          id: string
+          role?: string | null
+          updated_at?: string
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string
+          full_name?: string | null
+          id?: string
+          role?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "profiles_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
@@ -300,6 +441,44 @@ export type Database = {
             foreignKeyName: "tendermatch_preferences_company_id_fkey"
             columns: ["company_id"]
             isOneToOne: true
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      tenders_suggestions: {
+        Row: {
+          ai_suggestion: string | null
+          company_id: string | null
+          created_at: string
+          deadline: string | null
+          id: string
+          match_score: number | null
+          tender_title: string
+        }
+        Insert: {
+          ai_suggestion?: string | null
+          company_id?: string | null
+          created_at?: string
+          deadline?: string | null
+          id?: string
+          match_score?: number | null
+          tender_title: string
+        }
+        Update: {
+          ai_suggestion?: string | null
+          company_id?: string | null
+          created_at?: string
+          deadline?: string | null
+          id?: string
+          match_score?: number | null
+          tender_title?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tenders_suggestions_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
             referencedRelation: "companies"
             referencedColumns: ["id"]
           },
