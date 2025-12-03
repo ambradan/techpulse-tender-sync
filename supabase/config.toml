@@ -11,3 +11,6 @@ verify_jwt = false
 
 [functions.analyze-tenders]
 verify_jwt = false
+
+[functions.generate-predictions]
+verify_jwt = false
