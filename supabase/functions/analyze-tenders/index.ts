@@ -35,11 +35,11 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: `Sei un esperto di gare d'appalto e bandi pubblici italiani, specializzato nel settore tech.
-Analizza il profilo aziendale e i bandi disponibili per fornire insights strategici.
+            content: `Sei un esperto di gare d'appalto italiane, specializzato nel settore tech.
+Analizza il profilo aziendale e le gare disponibili per fornire insights strategici.
 
 Rispondi in italiano, in modo conciso (max 100 parole). Includi:
-1. Quali bandi prioritizzare e perché
+1. Quali gare prioritizzare e perché
 2. Opportunità strategiche basate sul PNRR e trend attuali
 3. Un consiglio operativo immediato
 
@@ -49,7 +49,7 @@ Sii diretto e pratico.`,
             role: "user",
             content: `Profilo aziendale: ${companyProfile}
 
-Bandi disponibili:
+Gare disponibili:
 ${tendersContext}
 
 Fornisci un'analisi strategica per questa azienda.`,

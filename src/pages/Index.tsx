@@ -32,7 +32,7 @@ const Index = () => {
           <span className="text-gradient-primary">aziende tech</span>
         </h1>
         <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-10">
-          Analisi predittive, monitoraggio trend, gestione partner welfare e suggerimenti bandi.
+          Analisi predittive, monitoraggio trend, gestione partner welfare e suggerimenti gare.
         </p>
         <div className="flex items-center justify-center gap-4">
           <Link to="/auth">
@@ -51,7 +51,7 @@ const Index = () => {
             { title: "Trend Attuali", desc: "Monitoraggio trend di mercato" },
             { title: "Previsioni", desc: "Analisi predittiva AI" },
             { title: "Partner Welfare", desc: "Servizi benefit aziendali" },
-            { title: "TenderMatch", desc: "Bandi consigliati" },
+            { title: "TenderMatch", desc: "Gare consigliate" },
           ].map((feature) => (
             <div
               key={feature.title}

@@ -2,12 +2,12 @@ import { Button } from "@/components/ui/button";
 import { ArrowRight, Search, FileCheck, Award, Zap } from "lucide-react";
 
 const TenderMatchSection = () => {
-  const steps = [
+const steps = [
     {
       icon: Search,
       step: "01",
       title: "Ricerca Intelligente",
-      description: "L'algoritmo analizza il tuo profilo aziendale e identifica i bandi più pertinenti"
+      description: "L'algoritmo analizza il tuo profilo aziendale e identifica le gare più pertinenti"
     },
     {
       icon: FileCheck,
@@ -45,7 +45,7 @@ const TenderMatchSection = () => {
 
             <p className="text-lg text-muted-foreground mb-8">
               TechPulse si integra perfettamente con TenderMatch per offrirti un ecosistema completo. 
-              Scopri bandi pertinenti, ricevi notifiche personalizzate e partecipa con un click.
+              Scopri gare pertinenti, ricevi notifiche personalizzate e partecipa con un click.
             </p>
 
             {/* Steps */}
@@ -84,7 +84,7 @@ const TenderMatchSection = () => {
             <div className="relative bg-gradient-card rounded-2xl border border-border/50 p-6 shadow-elevated">
               {/* Header */}
               <div className="flex items-center justify-between mb-6">
-                <h3 className="font-display font-semibold text-foreground">Bandi Consigliati</h3>
+                <h3 className="font-display font-semibold text-foreground">Gare Consigliate</h3>
                 <span className="text-xs text-primary bg-primary/20 px-2 py-1 rounded-full">3 nuovi</span>
               </div>
 
