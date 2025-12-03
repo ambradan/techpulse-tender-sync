@@ -6,6 +6,7 @@ import TrendSection from "@/components/dashboard/TrendSection";
 import PredictionsSection from "@/components/dashboard/PredictionsSection";
 import PartnersSection from "@/components/dashboard/PartnersSection";
 import TendersSection from "@/components/dashboard/TendersSection";
+import RealityCheckSection from "@/components/dashboard/RealityCheckSection";
 
 // Local types until DB types are synced
 interface Company {
@@ -98,6 +99,7 @@ const Dashboard = () => {
       <DashboardNavbar />
       <main className="container mx-auto px-4 py-8 space-y-8">
         <CompanyHero company={company} />
+        <RealityCheckSection />
         <div className="grid lg:grid-cols-2 gap-8">
           <TrendSection trends={trends || []} />
           <PredictionsSection />
