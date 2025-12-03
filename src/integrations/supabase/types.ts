@@ -255,6 +255,56 @@ export type Database = {
           },
         ]
       }
+      tendermatch_preferences: {
+        Row: {
+          company_id: string | null
+          created_at: string | null
+          id: string
+          is_connected: boolean | null
+          max_value: number | null
+          min_match_score: number | null
+          min_value: number | null
+          notify_email: boolean | null
+          notify_in_app: boolean | null
+          preferred_categories: string[] | null
+          updated_at: string | null
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_connected?: boolean | null
+          max_value?: number | null
+          min_match_score?: number | null
+          min_value?: number | null
+          notify_email?: boolean | null
+          notify_in_app?: boolean | null
+          preferred_categories?: string[] | null
+          updated_at?: string | null
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string | null
+          id?: string
+          is_connected?: boolean | null
+          max_value?: number | null
+          min_match_score?: number | null
+          min_value?: number | null
+          notify_email?: boolean | null
+          notify_in_app?: boolean | null
+          preferred_categories?: string[] | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tendermatch_preferences_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
