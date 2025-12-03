@@ -8,3 +8,6 @@ verify_jwt = false
 
 [functions.hr-consultant]
 verify_jwt = false
+
+[functions.analyze-tenders]
+verify_jwt = false
