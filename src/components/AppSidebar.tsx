@@ -27,6 +27,7 @@ import {
   LogOut,
   Crosshair,
   Calculator,
+  Brain,
 } from "lucide-react";
 
 const menuItems = [
@@ -34,6 +35,7 @@ const menuItems = [
   { title: "Trend Attuali", url: "/dashboard/trends", icon: TrendingUp },
   { title: "Previsioni", url: "/dashboard/predictions", icon: LineChart },
   { title: "Reality Check", url: "/dashboard/reality-check", icon: Crosshair },
+  { title: "Analisi Aziendale", url: "/dashboard/company-analysis", icon: Brain },
   { title: "HR Consultant", url: "/dashboard/hr-consultant", icon: Calculator },
   { title: "Partner", url: "/dashboard/partners", icon: Users },
   { title: "TenderMatch", url: "/dashboard/tenders", icon: FileText },
