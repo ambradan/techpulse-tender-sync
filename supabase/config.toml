@@ -5,3 +5,6 @@ verify_jwt = false
 
 [functions.reality-check]
 verify_jwt = false
+
+[functions.hr-consultant]
+verify_jwt = false
