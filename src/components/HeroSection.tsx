@@ -87,7 +87,7 @@ const HeroSection = () => {
                     <p className="text-primary text-sm mt-1">↑ vs. mese scorso</p>
                   </div>
                   <div className="bg-secondary/30 rounded-xl p-6 border border-border/30">
-                    <p className="text-muted-foreground text-sm mb-2">Bandi Disponibili</p>
+                    <p className="text-muted-foreground text-sm mb-2">Gare Disponibili</p>
                     <p className="font-display text-3xl font-bold text-foreground">847</p>
                     <p className="text-accent text-sm mt-1">23 nuovi oggi</p>
                   </div>

@@ -25,7 +25,7 @@ interface TenderSuggestion {
 const placeholderTenders: TenderSuggestion[] = [
   {
     id: "placeholder-1",
-    title: "Bando pending...",
+    title: "Gara pending...",
     category: null,
     deadline: null,
     value: null,
@@ -35,7 +35,7 @@ const placeholderTenders: TenderSuggestion[] = [
   },
   {
     id: "placeholder-2",
-    title: "Bando pending...",
+    title: "Gara pending...",
     category: null,
     deadline: null,
     value: null,
@@ -45,7 +45,7 @@ const placeholderTenders: TenderSuggestion[] = [
   },
   {
     id: "placeholder-3",
-    title: "Bando pending...",
+    title: "Gara pending...",
     category: null,
     deadline: null,
     value: null,
@@ -257,7 +257,7 @@ const TendersPlaceholder = () => {
             <FileText className="w-5 h-5 text-primary-foreground" />
           </div>
           <div>
-            <h1 className="font-display text-2xl font-bold">Bandi Consigliati</h1>
+            <h1 className="font-display text-2xl font-bold">Gare / Bandi Consigliati</h1>
             <p className="text-muted-foreground">Integrazione TenderMatch</p>
           </div>
         </div>
@@ -297,7 +297,7 @@ const TendersPlaceholder = () => {
                 Collega profilo a TenderMatch
               </Label>
               <p className="text-xs text-muted-foreground">
-                Ricevi suggerimenti automatici sui bandi compatibili
+                Ricevi suggerimenti automatici sulle gare compatibili
               </p>
             </div>
             <Switch
@@ -347,7 +347,7 @@ const TendersPlaceholder = () => {
       <Card className="border-border/50 bg-secondary/30">
         <CardContent className="py-4">
           <p className="text-sm text-muted-foreground text-center">
-            In attesa di connessione API TenderMatch. I bandi mostrati sono placeholder strutturali.
+            In attesa di connessione API TenderMatch. Le gare mostrate sono placeholder strutturali.
           </p>
         </CardContent>
       </Card>
@@ -357,7 +357,7 @@ const TendersPlaceholder = () => {
         <Card className="border-border/50 bg-card/80">
           <CardContent className="py-4 text-center">
             <p className="text-2xl font-display font-bold text-muted-foreground">--</p>
-            <p className="text-xs text-muted-foreground">Bandi disponibili</p>
+            <p className="text-xs text-muted-foreground">Gare disponibili</p>
           </CardContent>
         </Card>
         <Card className="border-border/50 bg-card/80">

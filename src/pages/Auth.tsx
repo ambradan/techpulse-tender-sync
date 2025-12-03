@@ -176,7 +176,7 @@ const Auth = () => {
                         Collega il mio profilo a TenderMatch
                       </Label>
                       <p className="text-xs text-muted-foreground">
-                        Ricevi suggerimenti automatici sui bandi compatibili. Puoi disattivare in qualsiasi momento.
+                        Ricevi suggerimenti automatici sulle gare compatibili. Puoi disattivare in qualsiasi momento.
                       </p>
                     </div>
                   </div>

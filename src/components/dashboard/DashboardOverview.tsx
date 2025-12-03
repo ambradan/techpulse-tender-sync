@@ -36,9 +36,9 @@ const DashboardOverview = ({ company }: DashboardOverviewProps) => {
     },
     {
       title: "TenderMatch",
-      description: "Bandi consigliati",
+      description: "Gare consigliate",
       icon: FileText,
-      placeholder: "Preview AI - Suggerimenti bandi in attesa",
+      placeholder: "Preview AI - Suggerimenti gare in attesa",
     },
   ];
 

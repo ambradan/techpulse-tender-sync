@@ -68,7 +68,7 @@ const TendersSection = ({ tenders }: TendersSectionProps) => {
     } catch (error) {
       console.error(error);
       // Fallback insights
-      setAiInsights("Basandoci sul tuo profilo tech, consigliamo di concentrarti sui bandi di trasformazione digitale PA e cybersecurity. Il PNRR offre ottime opportunità nel Q1 2025. Priorità: bandi con match >85% e scadenza entro 30 giorni.");
+      setAiInsights("Basandoci sul tuo profilo tech, consigliamo di concentrarti sulle gare di trasformazione digitale PA e cybersecurity. Il PNRR offre ottime opportunità nel Q1 2025. Priorità: gare con match >85% e scadenza entro 30 giorni.");
     } finally {
       setIsAnalyzing(false);
     }
@@ -92,7 +92,7 @@ const TendersSection = ({ tenders }: TendersSectionProps) => {
             <Award className="w-5 h-5 text-accent" />
           </div>
           <div>
-            <h2 className="font-display text-xl font-bold text-foreground">Bandi Consigliati</h2>
+            <h2 className="font-display text-xl font-bold text-foreground">Gare / Bandi Consigliati</h2>
             <p className="text-sm text-muted-foreground">Powered by TenderMatch AI</p>
           </div>
         </div>
@@ -122,7 +122,7 @@ const TendersSection = ({ tenders }: TendersSectionProps) => {
               <p className="text-xs text-muted-foreground">
                 {prefs.isConnected 
                   ? "Ricevi suggerimenti personalizzati e notifiche automatiche" 
-                  : "Attiva per ricevere bandi su misura per la tua azienda"}
+                  : "Attiva per ricevere gare su misura per la tua azienda"}
               </p>
             </div>
           </div>
@@ -171,7 +171,7 @@ const TendersSection = ({ tenders }: TendersSectionProps) => {
             ) : (
               <>
                 <Zap className="w-4 h-4 mr-2" />
-                Analisi AI Bandi
+                Analisi AI Gare
               </>
             )}
           </Button>
@@ -191,7 +191,7 @@ const TendersSection = ({ tenders }: TendersSectionProps) => {
       <div className="grid grid-cols-3 gap-3 mb-4">
         <div className="bg-secondary/30 rounded-lg p-3 text-center">
           <p className="text-2xl font-bold text-foreground">{filteredTenders.length}</p>
-          <p className="text-xs text-muted-foreground">Bandi compatibili</p>
+          <p className="text-xs text-muted-foreground">Gare compatibili</p>
         </div>
         <div className="bg-green-500/10 border border-green-500/30 rounded-lg p-3 text-center">
           <p className="text-2xl font-bold text-green-400">{highMatchTenders.length}</p>
@@ -279,7 +279,7 @@ const TendersSection = ({ tenders }: TendersSectionProps) => {
       {/* Free Service Note */}
       <div className="mt-4 p-3 bg-green-500/10 border border-green-500/30 rounded-lg">
         <p className="text-xs text-foreground text-center">
-          🎁 <strong>Servizio completamente gratuito</strong> • I bandi consigliati sono selezionati dall'AI di TenderMatch in base al tuo profilo aziendale
+          🎁 <strong>Servizio completamente gratuito</strong> • Le gare consigliate sono selezionate dall'AI di TenderMatch in base al tuo profilo aziendale
         </p>
       </div>
 
@@ -288,7 +288,7 @@ const TendersSection = ({ tenders }: TendersSectionProps) => {
         <DialogContent>
           <DialogHeader>
             <DialogTitle>Impostazioni TenderMatch</DialogTitle>
-            <DialogDescription>Personalizza le notifiche e i filtri per i bandi</DialogDescription>
+            <DialogDescription>Personalizza le notifiche e i filtri per le gare</DialogDescription>
           </DialogHeader>
 
           <div className="space-y-6 mt-4">
@@ -296,7 +296,7 @@ const TendersSection = ({ tenders }: TendersSectionProps) => {
             <div className="flex items-center justify-between">
               <div>
                 <p className="font-medium text-foreground">Collegamento TenderMatch</p>
-                <p className="text-sm text-muted-foreground">Ricevi bandi personalizzati per la tua azienda</p>
+                <p className="text-sm text-muted-foreground">Ricevi gare personalizzate per la tua azienda</p>
               </div>
               <Switch checked={prefs.isConnected} onCheckedChange={(v) => setPrefs(p => ({ ...p, isConnected: v }))} />
             </div>
@@ -307,7 +307,7 @@ const TendersSection = ({ tenders }: TendersSectionProps) => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="font-medium text-foreground">Notifiche Email</p>
-                    <p className="text-sm text-muted-foreground">Ricevi email quando escono nuovi bandi compatibili</p>
+                    <p className="text-sm text-muted-foreground">Ricevi email quando escono nuove gare compatibili</p>
                   </div>
                   <Switch checked={prefs.notifyEmail} onCheckedChange={(v) => setPrefs(p => ({ ...p, notifyEmail: v }))} />
                 </div>
@@ -335,7 +335,7 @@ const TendersSection = ({ tenders }: TendersSectionProps) => {
                     step={5}
                   />
                   <p className="text-xs text-muted-foreground mt-2">
-                    Mostra solo bandi con compatibilità superiore a questa soglia
+                    Mostra solo gare con compatibilità superiore a questa soglia
                   </p>
                 </div>
               </>
