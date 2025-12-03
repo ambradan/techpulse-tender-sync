@@ -2,3 +2,6 @@ project_id = "oabbwjrkiekegdivzjpg"
 
 [functions.analyze-trends]
 verify_jwt = false
+
+[functions.reality-check]
+verify_jwt = false
