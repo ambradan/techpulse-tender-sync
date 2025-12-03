@@ -11,14 +11,45 @@ serve(async (req) => {
   }
 
   try {
-    const { companyContext, sector } = await req.json();
+    const { company } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
 
     if (!LOVABLE_API_KEY) {
       throw new Error("LOVABLE_API_KEY is not configured");
     }
 
-    console.log("Running Reality Check analysis for:", companyContext);
+    const systemPrompt = `Sei un consulente strategico. Genera un'analisi SWOT QUALITATIVA basata ESCLUSIVAMENTE sui dati aziendali forniti.
+
+REGOLE CRITICHE:
+- MAI inventare numeri, percentuali, statistiche o valori finanziari
+- MAI aggiungere informazioni non presenti nei dati forniti
+- Se mancano dati, indica "Dati insufficienti per questa analisi"
+- Usa linguaggio qualitativo: "possibile", "potenziale", "tendenza"
+- Risposte brevi e focalizzate
+- Italiano professionale
+
+FORMATO OUTPUT (JSON):
+{
+  "strengths": ["punto di forza 1", "punto di forza 2"],
+  "weaknesses": ["punto debole 1", "punto debole 2"],
+  "opportunities": ["opportunità 1", "opportunità 2"],
+  "threats": ["minaccia 1", "minaccia 2"],
+  "summary": "breve sintesi qualitativa dell'analisi"
+}
+
+Se i dati sono insufficienti, restituisci array con singolo elemento "Dati insufficienti per analisi dettagliata".`;
+
+    const userPrompt = `Genera analisi SWOT QUALITATIVA per:
+
+Azienda: ${company.name || "Non specificato"}
+Settore: ${company.sector || "Non specificato"}
+Dipendenti: ${company.employees || "Non specificato"}
+Descrizione: ${company.description || "Non disponibile"}
+Sede: ${company.location || "Non specificata"}
+
+Basati SOLO su questi dati. Non inventare informazioni.`;
+
+    console.log("Generating SWOT analysis for:", company.name);
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -29,104 +60,63 @@ serve(async (req) => {
       body: JSON.stringify({
         model: "google/gemini-2.5-flash",
         messages: [
-          {
-            role: "system",
-            content: `Sei un consulente strategico esperto per aziende tech italiane. Genera un'analisi Reality Check completa in formato JSON.
-
-Il JSON deve seguire ESATTAMENTE questa struttura:
-{
-  "swot": {
-    "strengths": ["punto1", "punto2", "punto3"],
-    "weaknesses": ["punto1", "punto2", "punto3"],
-    "opportunities": ["punto1", "punto2", "punto3"],
-    "threats": ["punto1", "punto2", "punto3"]
-  },
-  "resilience": 72,
-  "suggestions": [
-    {"area": "Investimenti IT", "suggestion": "descrizione", "priority": "high"},
-    {"area": "Crescita Team", "suggestion": "descrizione", "priority": "medium"},
-    {"area": "Rischi Operativi", "suggestion": "descrizione", "priority": "high"}
-  ],
-  "benchmarks": [
-    {"name": "Innovazione", "score": 78, "benchmark": 65, "status": "green"},
-    {"name": "Efficienza Operativa", "score": 62, "benchmark": 70, "status": "yellow"},
-    {"name": "Solidità Finanziaria", "score": 55, "benchmark": 72, "status": "red"},
-    {"name": "Competenze Digitali", "score": 85, "benchmark": 68, "status": "green"},
-    {"name": "Customer Satisfaction", "score": 71, "benchmark": 75, "status": "yellow"}
-  ]
-}
-
-Note:
-- resilience è un numero da 0 a 100
-- priority può essere solo: "high", "medium", "low"
-- status può essere solo: "green", "yellow", "red" (green se score > benchmark, yellow se vicino, red se molto sotto)
-- Genera dati realistici basati sul contesto aziendale e settore forniti
-- Considera trend macroeconomici italiani ed europei attuali
-
-Rispondi SOLO con il JSON, senza markdown o altro testo.`,
-          },
-          {
-            role: "user",
-            content: `Genera un'analisi Reality Check strategica per questa azienda:
-
-Contesto: ${companyContext}
-Settore: ${sector}
-
-Considera i trend di mercato attuali: PNRR, NIS2 cybersecurity, crescita cloud, carenza talenti tech, inflazione.`,
-          },
+          { role: "system", content: systemPrompt },
+          { role: "user", content: userPrompt },
         ],
       }),
     });
 
     if (!response.ok) {
       if (response.status === 429) {
-        console.error("Rate limit exceeded");
-        return new Response(JSON.stringify({ error: "Rate limit raggiunto, riprova tra poco." }), {
-          status: 429,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        return new Response(
+          JSON.stringify({ error: "Limite richieste raggiunto, riprova tra poco." }),
+          { status: 429, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
       }
       if (response.status === 402) {
-        console.error("Payment required");
-        return new Response(JSON.stringify({ error: "Crediti AI esauriti." }), {
-          status: 402,
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-        });
+        return new Response(
+          JSON.stringify({ error: "Crediti AI esauriti." }),
+          { status: 402, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+        );
       }
       const errorText = await response.text();
       console.error("AI gateway error:", response.status, errorText);
-      throw new Error("AI gateway error");
+      throw new Error("Errore gateway AI");
     }
 
     const data = await response.json();
-    const content = data.choices?.[0]?.message?.content || "";
-    
-    console.log("AI response content:", content);
+    const content = data.choices?.[0]?.message?.content;
 
-    // Parse JSON from response
-    let analysis;
-    try {
-      // Try to extract JSON from the response
-      const jsonMatch = content.match(/\{[\s\S]*\}/);
-      if (jsonMatch) {
-        analysis = JSON.parse(jsonMatch[0]);
-      } else {
-        throw new Error("No JSON found in response");
-      }
-    } catch (parseError) {
-      console.error("Failed to parse AI response:", parseError);
-      // Return default data if parsing fails
-      analysis = null;
+    if (!content) {
+      throw new Error("Nessuna risposta dall'AI");
     }
 
-    return new Response(JSON.stringify({ analysis }), {
+    let swotAnalysis;
+    try {
+      const jsonMatch = content.match(/```json\s*([\s\S]*?)\s*```/) ||
+                        content.match(/```\s*([\s\S]*?)\s*```/) ||
+                        [null, content];
+      swotAnalysis = JSON.parse(jsonMatch[1] || content);
+    } catch {
+      swotAnalysis = {
+        strengths: ["Analisi in elaborazione"],
+        weaknesses: ["Analisi in elaborazione"],
+        opportunities: ["Analisi in elaborazione"],
+        threats: ["Analisi in elaborazione"],
+        summary: content.substring(0, 300),
+      };
+    }
+
+    console.log("SWOT analysis generated successfully");
+
+    return new Response(JSON.stringify({ swot: swotAnalysis }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
   } catch (error) {
     console.error("Error in reality-check:", error);
-    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "Unknown error" }), {
-      status: 500,
-      headers: { ...corsHeaders, "Content-Type": "application/json" },
-    });
+    return new Response(
+      JSON.stringify({ error: error instanceof Error ? error.message : "Errore sconosciuto" }),
+      { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
+    );
   }
 });

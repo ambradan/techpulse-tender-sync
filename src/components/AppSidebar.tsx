@@ -25,13 +25,14 @@ import {
   FileText,
   Building2,
   LogOut,
-  Settings,
+  Crosshair,
 } from "lucide-react";
 
 const menuItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Trend Attuali", url: "/dashboard/trends", icon: TrendingUp },
   { title: "Previsioni", url: "/dashboard/predictions", icon: LineChart },
+  { title: "Reality Check", url: "/dashboard/reality-check", icon: Crosshair },
   { title: "Partner", url: "/dashboard/partners", icon: Users },
   { title: "TenderMatch", url: "/dashboard/tenders", icon: FileText },
 ];
