@@ -22,6 +22,7 @@ import HRConsultantPlaceholder from "./components/dashboard/HRConsultantPlacehol
 import CompanyAnalysisSection from "./components/dashboard/CompanyAnalysis";
 import AIPredictiveDashboard from "./pages/AIPredictiveDashboard";
 import NotFound from "./pages/NotFound";
+import TestPredict from "./pages/TestPredict";
 
 const queryClient = new QueryClient();
 
@@ -38,6 +39,7 @@ const App = () => (
           <Route path="/freelance" element={<Freelance />} />
           <Route path="/about" element={<About />} />
           <Route path="/contatti" element={<Contatti />} />
+          <Route path="/test-predict" element={<TestPredict />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/profile" element={<CompanyProfile />} />
           <Route path="/dashboard" element={<DashboardLayout />}>
