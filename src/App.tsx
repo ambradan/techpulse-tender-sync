@@ -6,6 +6,9 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
 import CompanyProfile from "./pages/CompanyProfile";
+import Aziende from "./pages/Aziende";
+import Privati from "./pages/Privati";
+import Freelance from "./pages/Freelance";
 import DashboardLayout from "./layouts/DashboardLayout";
 import DashboardHome from "./pages/DashboardHome";
 import TrendsPlaceholder from "./components/dashboard/TrendsPlaceholder";
@@ -28,6 +31,9 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/" element={<Index />} />
+          <Route path="/aziende" element={<Aziende />} />
+          <Route path="/privati" element={<Privati />} />
+          <Route path="/freelance" element={<Freelance />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/profile" element={<CompanyProfile />} />
           <Route path="/dashboard" element={<DashboardLayout />}>
