@@ -24,6 +24,32 @@ export type RealityCheckPayload = {
   timeframe_months?: number;
 };
 
+export type SkillsRoadmapPayload = {
+  current_role: string;
+  target_role: string;
+  experience_years?: number;
+  skills: string[];
+  constraints?: string;
+};
+
+export async function getSkillsRoadmap(
+  payload: SkillsRoadmapPayload
+): Promise<string> {
+  const res = await fetch(`${BASE_URL}/skills/roadmap`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Errore /skills/roadmap ${res.status}: ${text}`);
+  }
+
+  const data = await res.json();
+  return data.roadmap;
+}
+
 export async function runRealityCheck(
   payload: RealityCheckPayload
 ): Promise<string> {
