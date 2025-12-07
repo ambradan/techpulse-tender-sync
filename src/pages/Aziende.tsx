@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import MainNavbar from "@/components/MainNavbar";
+import MainFooter from "@/components/MainFooter";
 import { 
-  Activity, 
   ArrowRight, 
   Building2,
   LineChart,
@@ -15,7 +16,6 @@ import {
   Brain,
   Gauge,
   AlertTriangle,
-  BarChart3,
   Layers,
   Settings,
   UserPlus,
@@ -31,37 +31,8 @@ import {
 
 const Aziende = () => {
   return (
-    <main className="min-h-screen bg-gradient-hero">
-      {/* Header */}
-      <header className="border-b border-border/50 bg-background/50 backdrop-blur-xl sticky top-0 z-50">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center">
-              <Activity className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <span className="font-display text-xl font-bold text-foreground">TechPulse</span>
-          </Link>
-          <nav className="hidden md:flex items-center gap-6">
-            <Link to="/aziende" className="text-sm text-primary font-medium">
-              Aziende
-            </Link>
-            <Link to="/privati" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Privati
-            </Link>
-            <Link to="/freelance" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Freelance
-            </Link>
-          </nav>
-          <div className="flex items-center gap-3">
-            <Link to="/auth">
-              <Button variant="ghost">Accedi</Button>
-            </Link>
-            <Link to="/auth">
-              <Button>Registrati</Button>
-            </Link>
-          </div>
-        </div>
-      </header>
+    <main className="min-h-screen bg-gradient-hero flex flex-col">
+      <MainNavbar />
 
       {/* Hero */}
       <section className="container mx-auto px-4 py-20 md:py-28">
@@ -419,14 +390,7 @@ const Aziende = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-border/50">
-        <div className="container mx-auto px-4 py-8 text-center text-sm text-muted-foreground">
-          <Link to="/" className="hover:text-foreground transition-colors">
-            © 2024 TechPulse. Tutti i diritti riservati.
-          </Link>
-        </div>
-      </footer>
+      <MainFooter />
     </main>
   );
 };
