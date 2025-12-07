@@ -1,20 +1,27 @@
-const BASE_URL = "https://fifty-ducks-brake.loca.lt";
+const BASE_URL = "http://127.0.0.1:8001";
 
 export async function callTechPulsePredict(prompt: string): Promise<string> {
-  const url = `${BASE_URL}/predict?prompt=${encodeURIComponent(prompt)}`;
-  
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: {
-      'Content-Type': 'application/json',
-      'bypass-tunnel-reminder': 'true', // Bypassa la pagina interstitial di localtunnel
-    },
+  const res = await fetch(`${BASE_URL}/predict`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ prompt }),
   });
 
-  if (!response.ok) {
-    throw new Error(`Errore API: ${response.status} ${response.statusText}`);
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Errore backend ${res.status}: ${text}`);
   }
 
-  const data = await response.json();
+  const data = await res.json();
   return data.response;
+}
+
+// Health check per verificare che il backend sia attivo
+export async function checkBackendHealth(): Promise<boolean> {
+  try {
+    const res = await fetch(`${BASE_URL}/`);
+    return res.ok;
+  } catch {
+    return false;
+  }
 }
