@@ -1,8 +1,9 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import MainNavbar from "@/components/MainNavbar";
+import MainFooter from "@/components/MainFooter";
 import { 
-  Activity, 
   ArrowRight, 
   Building2, 
   User, 
@@ -16,42 +17,14 @@ import {
   Zap,
   Shield,
   Clock,
-  Play
+  Play,
+  CheckCircle
 } from "lucide-react";
 
 const Index = () => {
   return (
-    <main className="min-h-screen bg-gradient-hero">
-      {/* Header */}
-      <header className="border-b border-border/50 bg-background/50 backdrop-blur-xl sticky top-0 z-50">
-        <div className="container mx-auto px-4 h-16 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center">
-              <Activity className="w-5 h-5 text-primary-foreground" />
-            </div>
-            <span className="font-display text-xl font-bold text-foreground">TechPulse</span>
-          </div>
-          <nav className="hidden md:flex items-center gap-6">
-            <Link to="/aziende" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Aziende
-            </Link>
-            <Link to="/privati" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Privati
-            </Link>
-            <Link to="/freelance" className="text-sm text-muted-foreground hover:text-foreground transition-colors">
-              Freelance
-            </Link>
-          </nav>
-          <div className="flex items-center gap-3">
-            <Link to="/auth">
-              <Button variant="ghost">Accedi</Button>
-            </Link>
-            <Link to="/auth">
-              <Button>Registrati</Button>
-            </Link>
-          </div>
-        </div>
-      </header>
+    <main className="min-h-screen bg-gradient-hero flex flex-col">
+      <MainNavbar />
 
       {/* Hero Section */}
       <section className="container mx-auto px-4 py-20 md:py-32 text-center">
@@ -360,50 +333,7 @@ const Index = () => {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="border-t border-border/50 mt-auto">
-        <div className="container mx-auto px-4 py-12">
-          <div className="grid md:grid-cols-4 gap-8">
-            <div>
-              <div className="flex items-center gap-2 mb-4">
-                <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center">
-                  <Activity className="w-5 h-5 text-primary-foreground" />
-                </div>
-                <span className="font-display text-xl font-bold text-foreground">TechPulse</span>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Il Consulente in Tasca per il Futuro del Lavoro
-              </p>
-            </div>
-            <div>
-              <h4 className="font-semibold text-foreground mb-4">Prodotti</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><Link to="/aziende" className="hover:text-foreground transition-colors">Per le Aziende</Link></li>
-                <li><Link to="/privati" className="hover:text-foreground transition-colors">Per i Privati</Link></li>
-                <li><Link to="/freelance" className="hover:text-foreground transition-colors">Per i Freelance</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-foreground mb-4">Risorse</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="#" className="hover:text-foreground transition-colors">Documentazione</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">Blog</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">FAQ</a></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold text-foreground mb-4">Contatti</h4>
-              <ul className="space-y-2 text-sm text-muted-foreground">
-                <li><a href="#" className="hover:text-foreground transition-colors">Supporto</a></li>
-                <li><a href="#" className="hover:text-foreground transition-colors">info@techpulse.ai</a></li>
-              </ul>
-            </div>
-          </div>
-          <div className="border-t border-border/50 mt-8 pt-8 text-center text-sm text-muted-foreground">
-            © 2024 TechPulse. Tutti i diritti riservati.
-          </div>
-        </div>
-      </footer>
+      <MainFooter />
     </main>
   );
 };

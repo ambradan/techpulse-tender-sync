@@ -9,6 +9,8 @@ import CompanyProfile from "./pages/CompanyProfile";
 import Aziende from "./pages/Aziende";
 import Privati from "./pages/Privati";
 import Freelance from "./pages/Freelance";
+import About from "./pages/About";
+import Contatti from "./pages/Contatti";
 import DashboardLayout from "./layouts/DashboardLayout";
 import DashboardHome from "./pages/DashboardHome";
 import TrendsPlaceholder from "./components/dashboard/TrendsPlaceholder";
@@ -34,6 +36,8 @@ const App = () => (
           <Route path="/aziende" element={<Aziende />} />
           <Route path="/privati" element={<Privati />} />
           <Route path="/freelance" element={<Freelance />} />
+          <Route path="/about" element={<About />} />
+          <Route path="/contatti" element={<Contatti />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/profile" element={<CompanyProfile />} />
           <Route path="/dashboard" element={<DashboardLayout />}>
