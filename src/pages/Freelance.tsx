@@ -1,474 +1,346 @@
+import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
+import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import MainNavbar from "@/components/MainNavbar";
 import MainFooter from "@/components/MainFooter";
+import { DashboardCard } from "@/components/dashboard/shared/DashboardCard";
+import { FreelancePrediction } from "@/types/predictions";
 import { 
   ArrowRight, 
   Briefcase,
-  Brain,
-  TrendingUp,
   Target,
+  TrendingUp,
   DollarSign,
   Users,
-  LineChart,
-  Layers,
-  Zap,
-  Globe,
+  Building2,
   MessageSquare,
-  Mail,
-  Sparkles,
-  PieChart,
-  BarChart3,
-  Award,
-  Radar,
   Send,
-  Play,
-  Eye,
-  Wallet,
-  TrendingDown
+  Globe,
+  Sparkles
 } from "lucide-react";
 
 const Freelance = () => {
+  // State for API data - will be populated by external API calls
+  const [freelancePrediction] = useState<FreelancePrediction | null>(null);
+
+  // Transform demand trend data for chart
+  const chartData = freelancePrediction?.demand_trend?.reduce((acc, item) => {
+    const existing = acc.find(d => d.month === item.month);
+    if (existing) {
+      existing[item.service_name] = item.demand_index;
+    } else {
+      acc.push({ month: item.month, [item.service_name]: item.demand_index });
+    }
+    return acc;
+  }, [] as Array<Record<string, string | number>>) ?? [];
+
+  const serviceNames = [...new Set(freelancePrediction?.demand_trend?.map(d => d.service_name) ?? [])];
+  const colors = ['hsl(var(--primary))', 'hsl(var(--accent))', '#22c55e', '#eab308'];
+
   return (
     <main className="min-h-screen bg-gradient-hero flex flex-col">
       <MainNavbar />
 
-      {/* Hero */}
-      <section className="container mx-auto px-4 py-20 md:py-28">
-        <div className="max-w-4xl mx-auto text-center">
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-8">
-            <Briefcase className="w-4 h-4 text-primary" />
-            <span className="text-sm text-primary font-medium">Per i Freelance</span>
-          </div>
-          
-          <h1 className="font-display text-4xl md:text-6xl font-bold text-foreground mb-6">
-            Il tuo business advisor<br />
-            <span className="text-gradient-primary">predittivo</span>
-          </h1>
-          
-          <p className="text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto mb-10">
-            Scopri dove andrà la domanda, quali clienti avranno budget e come posizionarti.
-          </p>
-          
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <Link to="/auth">
-              <Button size="lg" className="gap-2">
-                Ottieni il Tuo Posizionamento Predittivo
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-            </Link>
-            <Button size="lg" variant="outline" className="gap-2">
-              <Users className="w-4 h-4" />
-              Scopri i Lead della Tua Nicchia
-            </Button>
-          </div>
-        </div>
-      </section>
-
-      {/* Sezione 1: Analisi del Profilo */}
-      <section className="container mx-auto px-4 py-20 border-t border-border/50">
-        <div className="text-center mb-16">
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Analisi del Tuo Profilo Freelance
-          </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Comprendiamo il tuo business per ottimizzare il posizionamento
-          </p>
-        </div>
-        
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[
-            { icon: Sparkles, title: "Competenze", desc: "Skill tecniche e trasversali, livello di expertise" },
-            { icon: Users, title: "Clienti", desc: "Tipologia clienti, settori serviti, dimensioni aziende" },
-            { icon: Eye, title: "Portfolio", desc: "Progetti realizzati, casi studio, risultati ottenuti" },
-            { icon: DollarSign, title: "Pricing", desc: "Tariffe attuali, modello di pricing, margini" },
-          ].map((item, index) => (
-            <Card key={index} className="bg-gradient-card border-border/50 hover:border-primary/30 transition-all">
-              <CardContent className="p-6 text-center">
-                <div className="w-14 h-14 rounded-xl bg-primary/10 flex items-center justify-center mb-4 mx-auto">
-                  <item.icon className="w-7 h-7 text-primary" />
-                </div>
-                <h3 className="font-display text-lg font-semibold text-foreground mb-2">
-                  {item.title}
-                </h3>
-                <p className="text-sm text-muted-foreground">{item.desc}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </section>
-
-      {/* Sezione 2: Previsione Domanda */}
-      <section className="container mx-auto px-4 py-20 border-t border-border/50">
-        <div className="grid lg:grid-cols-2 gap-12 items-center">
+      {/* Hero Dashboard Header */}
+      <section className="container mx-auto px-4 py-8 md:py-12">
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 mb-6">
-              <Brain className="w-4 h-4 text-primary" />
-              <span className="text-sm text-primary font-medium">AI Predittiva</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-4">
+              <Briefcase className="w-4 h-4 text-primary" />
+              <span className="text-sm text-primary font-medium">Dashboard Freelance</span>
             </div>
-            <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-6">
-              Previsione della Domanda
-            </h2>
-            <p className="text-muted-foreground mb-8 text-lg">
-              Anticipa il mercato: scopri quali servizi saranno richiesti, in quali settori 
-              ci sarà budget e dove la concorrenza sta saturando.
-            </p>
-            
-            <div className="space-y-4">
-              {[
-                { icon: Zap, label: "Servizi in Crescita", desc: "I servizi più richiesti nei prossimi 12 mesi" },
-                { icon: Globe, label: "Settori con Budget", desc: "Industrie che investiranno di più" },
-                { icon: Wallet, label: "Budget Previsti", desc: "Stime di spesa per tipologia di progetto" },
-                { icon: TrendingDown, label: "Saturazione Mercato", desc: "Aree con troppa concorrenza da evitare" },
-              ].map((item, i) => (
-                <div key={i} className="flex items-start gap-4 p-4 rounded-lg bg-secondary/50">
-                  <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
-                    <item.icon className="w-5 h-5 text-primary" />
-                  </div>
-                  <div>
-                    <h4 className="font-semibold text-foreground">{item.label}</h4>
-                    <p className="text-sm text-muted-foreground">{item.desc}</p>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-          
-          <div className="bg-gradient-card rounded-2xl border border-border/50 p-8">
-            <div className="flex items-center gap-3 mb-6">
-              <TrendingUp className="w-6 h-6 text-primary" />
-              <span className="font-display text-lg font-semibold text-foreground">
-                Trend Domanda 12 Mesi
-              </span>
-            </div>
-            
-            <div className="space-y-4">
-              {[
-                { service: "AI/ML Integration", trend: "+45%", demand: "Alta", color: "text-green-500" },
-                { service: "UX/UI Design", trend: "+22%", demand: "Alta", color: "text-green-500" },
-                { service: "Web Development", trend: "+8%", demand: "Media", color: "text-yellow-500" },
-                { service: "Copywriting", trend: "-5%", demand: "Bassa", color: "text-red-500" },
-              ].map((item, i) => (
-                <div key={i} className="p-4 rounded-lg bg-secondary/50">
-                  <div className="flex items-center justify-between mb-2">
-                    <span className="font-semibold text-foreground">{item.service}</span>
-                    <span className={`font-bold ${item.color}`}>{item.trend}</span>
-                  </div>
-                  <div className="flex items-center justify-between text-sm">
-                    <span className="text-muted-foreground">Domanda: {item.demand}</span>
-                    <div className={`w-2 h-2 rounded-full ${
-                      item.demand === "Alta" ? "bg-green-500" :
-                      item.demand === "Media" ? "bg-yellow-500" : "bg-red-500"
-                    }`} />
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Sezione 3: Posizionamento Consigliato */}
-      <section className="container mx-auto px-4 py-20 border-t border-border/50">
-        <div className="text-center mb-16">
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Posizionamento Consigliato
-          </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            La tua strategia di differenziazione per emergere nel mercato
-          </p>
-        </div>
-        
-        <div className="grid md:grid-cols-3 gap-6">
-          <Card className="bg-gradient-card border-border/50 hover:border-primary/30 transition-all">
-            <CardHeader>
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-2">
-                <Target className="w-6 h-6 text-primary" />
-              </div>
-              <CardTitle>La Tua Nicchia</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="p-4 rounded-lg bg-secondary/50 mb-4">
-                <span className="text-lg font-bold text-primary">SaaS B2B Tech</span>
-                <p className="text-sm text-muted-foreground mt-1">
-                  Aziende software 10-50 dipendenti
-                </p>
-              </div>
-              <p className="text-sm text-muted-foreground">
-                Nicchia con alta domanda, budget consistenti e bassa saturazione per il tuo profilo.
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-card border-border/50 hover:border-primary/30 transition-all">
-            <CardHeader>
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-2">
-                <Sparkles className="w-6 h-6 text-primary" />
-              </div>
-              <CardTitle>I Tuoi Differenziali</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <ul className="space-y-3">
-                {[
-                  "Esperienza specifica nel settore",
-                  "Approccio data-driven",
-                  "Delivery veloce e affidabile",
-                  "Comunicazione proattiva",
-                ].map((diff, i) => (
-                  <li key={i} className="flex items-center gap-2 text-sm">
-                    <div className="w-1.5 h-1.5 rounded-full bg-primary" />
-                    <span className="text-foreground">{diff}</span>
-                  </li>
-                ))}
-              </ul>
-            </CardContent>
-          </Card>
-
-          <Card className="bg-gradient-card border-border/50 hover:border-primary/30 transition-all">
-            <CardHeader>
-              <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-2">
-                <DollarSign className="w-6 h-6 text-primary" />
-              </div>
-              <CardTitle>Proposta di Valore</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="p-4 rounded-lg bg-secondary/50 mb-4">
-                <p className="text-sm text-foreground italic">
-                  "Aiuto le SaaS B2B a convertire il 30% in più con UX basata sui dati"
-                </p>
-              </div>
-              <div className="flex items-center justify-between text-sm">
-                <span className="text-muted-foreground">Pricing consigliato</span>
-                <span className="font-bold text-primary">€95/ora</span>
-              </div>
-            </CardContent>
-          </Card>
-        </div>
-      </section>
-
-      {/* Sezione 4: Strategia Commerciale */}
-      <section className="container mx-auto px-4 py-20 border-t border-border/50">
-        <div className="text-center mb-16">
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Strategia Commerciale AI-Powered
-          </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Lead ideali, canali efficaci e messaggi personalizzati generati dall'AI
-          </p>
-        </div>
-        
-        <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[
-            { 
-              icon: Users, 
-              title: "Lead Ideali", 
-              desc: "Profilo del cliente perfetto basato sui tuoi successi passati",
-              example: "CTO di SaaS in scaling"
-            },
-            { 
-              icon: Globe, 
-              title: "Canali", 
-              desc: "Dove trovare i tuoi clienti ideali con il miglior ROI",
-              example: "LinkedIn, Indie Hackers"
-            },
-            { 
-              icon: MessageSquare, 
-              title: "Messaggi", 
-              desc: "Template di comunicazione ottimizzati per il tuo target",
-              example: "3 template testati"
-            },
-            { 
-              icon: Mail, 
-              title: "Cold Intro AI", 
-              desc: "Email di primo contatto generate dall'AI per ogni lead",
-              example: "Personalizzazione auto"
-            },
-          ].map((item, index) => (
-            <Card key={index} className="bg-gradient-card border-border/50 hover:border-primary/30 transition-all">
-              <CardContent className="p-6">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center mb-4">
-                  <item.icon className="w-6 h-6 text-primary" />
-                </div>
-                <h3 className="font-display text-lg font-semibold text-foreground mb-2">
-                  {item.title}
-                </h3>
-                <p className="text-sm text-muted-foreground mb-3">{item.desc}</p>
-                <div className="inline-flex items-center gap-1 text-xs text-primary bg-primary/10 px-2 py-1 rounded">
-                  <Zap className="w-3 h-3" />
-                  {item.example}
-                </div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Cold Intro AI Demo */}
-        <div className="mt-12 max-w-3xl mx-auto">
-          <div className="bg-gradient-card rounded-2xl border border-border/50 p-8">
-            <div className="flex items-center gap-3 mb-6">
-              <Send className="w-6 h-6 text-primary" />
-              <span className="font-display text-lg font-semibold text-foreground">
-                Esempio Cold Intro AI
-              </span>
-            </div>
-            <div className="p-4 rounded-lg bg-secondary/50 font-mono text-sm">
-              <p className="text-muted-foreground mb-2">Oggetto: Quick thought on [Company] conversion</p>
-              <p className="text-foreground">
-                Ciao [Name],<br /><br />
-                Ho notato che [Company] sta scalando rapidamente (congrats per il round!). 
-                Lavorando con SaaS simili come [Similar Company], ho visto che 
-                un redesign UX data-driven può portare +30% conversioni in 3 mesi.<br /><br />
-                Ti va un caffè virtuale per esplorare se ha senso per voi?<br /><br />
-                [Your Name]
-              </p>
-            </div>
-            <p className="text-xs text-muted-foreground mt-4 text-center">
-              * Generato automaticamente in base al profilo del lead
+            <h1 className="font-display text-3xl md:text-4xl font-bold text-foreground">
+              Il tuo business advisor predittivo
+            </h1>
+            <p className="text-muted-foreground mt-2">
+              Scopri dove andrà la domanda, quali clienti avranno budget e come posizionarti
             </p>
           </div>
-        </div>
-      </section>
-
-      {/* Sezione 5: Dashboard Freelance */}
-      <section className="container mx-auto px-4 py-20 border-t border-border/50">
-        <div className="text-center mb-16">
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-4">
-            Dashboard Freelance
-          </h2>
-          <p className="text-muted-foreground max-w-2xl mx-auto">
-            Tutti i KPI del tuo mercato in un'unica vista
-          </p>
-        </div>
-        
-        <div className="grid md:grid-cols-3 gap-6 mb-8">
-          {[
-            { 
-              title: "Trend Domanda/Offerta", 
-              icon: LineChart,
-              value: "Domanda > Offerta",
-              subtext: "+18% gap favorevole",
-              color: "text-green-500"
-            },
-            { 
-              title: "Skill Premium", 
-              icon: Award,
-              value: "AI Integration",
-              subtext: "+45% pricing premium",
-              color: "text-primary"
-            },
-            { 
-              title: "Pricing Medio Mercato", 
-              icon: PieChart,
-              value: "€75/ora",
-              subtext: "Tu: €85 (top 25%)",
-              color: "text-accent"
-            },
-          ].map((item, index) => (
-            <Card key={index} className="bg-gradient-card border-border/50">
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-sm text-muted-foreground">{item.title}</span>
-                  <item.icon className="w-5 h-5 text-muted-foreground" />
-                </div>
-                <div className={`text-2xl font-bold ${item.color}`}>{item.value}</div>
-                <div className="text-sm text-muted-foreground mt-1">{item.subtext}</div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-
-        {/* Chart placeholder */}
-        <div className="bg-gradient-card rounded-2xl border border-border/50 p-8">
-          <div className="flex items-center justify-between mb-6">
-            <div className="flex items-center gap-3">
-              <BarChart3 className="w-6 h-6 text-primary" />
-              <span className="font-display text-lg font-semibold text-foreground">
-                Domanda vs Offerta - Tua Nicchia
-              </span>
-            </div>
-            <div className="flex items-center gap-4 text-sm">
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded bg-primary" />
-                <span className="text-muted-foreground">Domanda</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <div className="w-3 h-3 rounded bg-accent" />
-                <span className="text-muted-foreground">Offerta</span>
-              </div>
-            </div>
-          </div>
-          <div className="flex items-end justify-between gap-4 h-48">
-            {[
-              { month: "Gen", demand: 60, supply: 50 },
-              { month: "Feb", demand: 65, supply: 52 },
-              { month: "Mar", demand: 70, supply: 55 },
-              { month: "Apr", demand: 75, supply: 58 },
-              { month: "Mag", demand: 72, supply: 60 },
-              { month: "Giu", demand: 80, supply: 62 },
-              { month: "Lug", demand: 78, supply: 65 },
-              { month: "Ago", demand: 70, supply: 60 },
-              { month: "Set", demand: 85, supply: 68 },
-              { month: "Ott", demand: 90, supply: 70 },
-              { month: "Nov", demand: 88, supply: 72 },
-              { month: "Dic", demand: 82, supply: 68 },
-            ].map((data, i) => (
-              <div key={i} className="flex-1 flex flex-col items-center gap-1">
-                <div className="w-full flex gap-1 items-end h-40">
-                  <div 
-                    className="flex-1 bg-primary/60 rounded-t"
-                    style={{ height: `${data.demand}%` }}
-                  />
-                  <div 
-                    className="flex-1 bg-accent/60 rounded-t"
-                    style={{ height: `${data.supply}%` }}
-                  />
-                </div>
-                <span className="text-xs text-muted-foreground">{data.month}</span>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
-      {/* Beneficio Finale */}
-      <section className="container mx-auto px-4 py-20 border-t border-border/50">
-        <div className="max-w-4xl mx-auto">
-          <div className="bg-gradient-card rounded-2xl border border-primary/30 p-8 md:p-12 text-center">
-            <Radar className="w-16 h-16 text-primary mx-auto mb-6" />
-            <h2 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-4">
-              "Un radar predittivo sul mercato freelance."
-            </h2>
-            <p className="text-muted-foreground text-lg max-w-2xl mx-auto">
-              Mentre altri freelance navigano a vista, tu vedi dove sta andando il mercato. 
-              Anticipa la domanda, posizionati prima, vinci.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* CTA Finale */}
-      <section className="container mx-auto px-4 py-20 border-t border-border/50">
-        <div className="max-w-3xl mx-auto text-center">
-          <h2 className="font-display text-3xl md:text-4xl font-bold text-foreground mb-6">
-            Pronto a Dominare il Tuo Mercato?
-          </h2>
-          <p className="text-lg text-muted-foreground mb-10">
-            Inizia oggi e ottieni il tuo posizionamento predittivo personalizzato.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+          <div className="flex gap-3">
+            <Button variant="outline" className="gap-2">
+              <Users className="w-4 h-4" />
+              Scopri i Lead
+            </Button>
             <Link to="/auth">
-              <Button size="lg" className="gap-2">
-                Ottieni il Tuo Posizionamento Predittivo
+              <Button className="gap-2">
+                Inizia Ora
                 <ArrowRight className="w-4 h-4" />
               </Button>
             </Link>
-            <Button size="lg" variant="outline" className="gap-2">
-              <Users className="w-4 h-4" />
-              Scopri i Lead della Tua Nicchia
-            </Button>
           </div>
         </div>
+
+        {/* SEZIONE A: Riepilogo Posizionamento */}
+        <DashboardCard 
+          icon={Target}
+          title="Il Tuo Posizionamento"
+          subtitle="Strategia consigliata per il tuo business"
+          className="mb-8"
+        >
+          <div className="grid md:grid-cols-3 gap-6">
+            <div className="bg-primary/5 border border-primary/20 rounded-xl p-6">
+              <div className="flex items-center gap-2 mb-3 text-primary">
+                <Target className="w-5 h-5" />
+                <span className="text-sm font-medium">Nicchia Consigliata</span>
+              </div>
+              {freelancePrediction?.positioning?.niche ? (
+                <h3 className="font-display text-xl font-bold text-foreground">
+                  {freelancePrediction.positioning.niche}
+                </h3>
+              ) : (
+                <p className="text-muted-foreground italic">
+                  In attesa dei dati...
+                </p>
+              )}
+            </div>
+
+            <div className="bg-accent/5 border border-accent/20 rounded-xl p-6">
+              <div className="flex items-center gap-2 mb-3 text-accent">
+                <Sparkles className="w-5 h-5" />
+                <span className="text-sm font-medium">Proposta di Valore</span>
+              </div>
+              {freelancePrediction?.positioning?.value_prop ? (
+                <p className="text-foreground font-medium">
+                  "{freelancePrediction.positioning.value_prop}"
+                </p>
+              ) : (
+                <p className="text-muted-foreground italic">
+                  In attesa dei dati...
+                </p>
+              )}
+            </div>
+
+            <div className="bg-secondary/50 rounded-xl p-6">
+              <div className="flex items-center gap-2 mb-3 text-foreground">
+                <MessageSquare className="w-5 h-5" />
+                <span className="text-sm font-medium">Sintesi</span>
+              </div>
+              {freelancePrediction?.commentary?.summary ? (
+                <p className="text-sm text-foreground">
+                  {freelancePrediction.commentary.summary}
+                </p>
+              ) : (
+                <p className="text-muted-foreground italic text-sm">
+                  La sintesi del tuo posizionamento apparirà qui...
+                </p>
+              )}
+            </div>
+          </div>
+        </DashboardCard>
+
+        {/* SEZIONE B: Domanda Futura per Servizi */}
+        <DashboardCard 
+          icon={TrendingUp}
+          title="Domanda Futura per Servizi"
+          subtitle="Trend di domanda previsto per i prossimi mesi"
+          className="mb-8"
+        >
+          {chartData.length > 0 ? (
+            <ResponsiveContainer width="100%" height={350}>
+              <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
+                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
+                <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
+                <Tooltip
+                  contentStyle={{
+                    backgroundColor: 'hsl(var(--card))',
+                    border: '1px solid hsl(var(--border))',
+                    borderRadius: '8px',
+                  }}
+                />
+                <Legend />
+                {serviceNames.map((service, index) => (
+                  <Bar 
+                    key={service} 
+                    dataKey={service} 
+                    fill={colors[index % colors.length]} 
+                    radius={[4, 4, 0, 0]}
+                  />
+                ))}
+              </BarChart>
+            </ResponsiveContainer>
+          ) : (
+            <div className="bg-secondary/30 rounded-xl p-12 text-center">
+              <TrendingUp className="w-12 h-12 text-muted-foreground/50 mx-auto mb-3" />
+              <p className="text-muted-foreground">
+                Il grafico della domanda apparirà qui quando i dati predittivi saranno disponibili.
+              </p>
+            </div>
+          )}
+        </DashboardCard>
+
+        {/* SEZIONE C: Settori con Più Budget */}
+        <DashboardCard 
+          icon={Globe}
+          title="Settori con Più Budget"
+          subtitle="Dove investire il tuo tempo per massimizzare i guadagni"
+          className="mb-8"
+        >
+          {freelancePrediction?.sectors && freelancePrediction.sectors.length > 0 ? (
+            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              {freelancePrediction.sectors.map((sector, index) => (
+                <Card key={index} className="bg-secondary/30 border-border/50">
+                  <CardContent className="p-5">
+                    <div className="flex items-center justify-between mb-3">
+                      <h4 className="font-semibold text-foreground">{sector.sector_name}</h4>
+                      <span className={`text-xs px-2 py-1 rounded font-medium ${
+                        sector.budget_level === 'Alto' ? 'bg-green-500/10 text-green-500' :
+                        sector.budget_level === 'Medio' ? 'bg-yellow-500/10 text-yellow-500' :
+                        'bg-red-500/10 text-red-500'
+                      }`}>
+                        Budget {sector.budget_level}
+                      </span>
+                    </div>
+                    <p className="text-sm text-muted-foreground">{sector.opportunity_note}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          ) : (
+            <div className="bg-secondary/30 rounded-xl p-8 text-center">
+              <Building2 className="w-12 h-12 text-muted-foreground/50 mx-auto mb-3" />
+              <p className="text-muted-foreground">
+                I settori con più budget appariranno qui quando i dati predittivi saranno disponibili.
+              </p>
+            </div>
+          )}
+        </DashboardCard>
+
+        {/* SEZIONE D: Pricing Suggerito */}
+        <DashboardCard 
+          icon={DollarSign}
+          title="Pricing Suggerito"
+          subtitle="Tariffe ottimali per i tuoi servizi"
+          className="mb-8"
+        >
+          {freelancePrediction?.pricing && freelancePrediction.pricing.length > 0 ? (
+            <div className="overflow-x-auto">
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Servizio</TableHead>
+                    <TableHead>Prezzo Suggerito</TableHead>
+                    <TableHead>Modello Pricing</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {freelancePrediction.pricing.map((item, index) => (
+                    <TableRow key={index}>
+                      <TableCell className="font-medium">{item.service_name}</TableCell>
+                      <TableCell className="text-primary font-bold">
+                        €{item.suggested_price.toLocaleString()}
+                      </TableCell>
+                      <TableCell>
+                        <span className="text-xs bg-secondary px-2 py-1 rounded capitalize">
+                          {item.pricing_model === 'hourly' ? 'Orario' :
+                           item.pricing_model === 'retainer' ? 'Retainer' : 'Progetto'}
+                        </span>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            </div>
+          ) : (
+            <div className="bg-secondary/30 rounded-xl p-8 text-center">
+              <DollarSign className="w-12 h-12 text-muted-foreground/50 mx-auto mb-3" />
+              <p className="text-muted-foreground">
+                Le tariffe suggerite appariranno qui quando i dati predittivi saranno disponibili.
+              </p>
+            </div>
+          )}
+        </DashboardCard>
+
+        {/* SEZIONE E: Lead & Outreach */}
+        <DashboardCard 
+          icon={Send}
+          title="Lead & Outreach"
+          subtitle="Aziende target e strategia di contatto"
+          className="mb-8"
+        >
+          <div className="grid md:grid-cols-2 gap-6 mb-6">
+            {/* Target Companies */}
+            <Card className="bg-primary/5 border-primary/20">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Building2 className="w-5 h-5 text-primary" />
+                  Tipi di Aziende Target
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {freelancePrediction?.leads?.target_companies && 
+                 freelancePrediction.leads.target_companies.length > 0 ? (
+                  <ul className="space-y-2">
+                    {freelancePrediction.leads.target_companies.map((company, index) => (
+                      <li key={index} className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-primary" />
+                        <span className="text-foreground">{company}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-muted-foreground italic">
+                    Le aziende target appariranno qui...
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Target Roles */}
+            <Card className="bg-accent/5 border-accent/20">
+              <CardHeader className="pb-3">
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Users className="w-5 h-5 text-accent" />
+                  Ruoli con cui Parlare
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                {freelancePrediction?.leads?.target_roles && 
+                 freelancePrediction.leads.target_roles.length > 0 ? (
+                  <ul className="space-y-2">
+                    {freelancePrediction.leads.target_roles.map((role, index) => (
+                      <li key={index} className="flex items-center gap-2">
+                        <div className="w-2 h-2 rounded-full bg-accent" />
+                        <span className="text-foreground">{role}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : (
+                  <p className="text-muted-foreground italic">
+                    I ruoli target appariranno qui...
+                  </p>
+                )}
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Sample Message */}
+          <Card className="bg-secondary/30 border-border/50">
+            <CardHeader className="pb-3">
+              <CardTitle className="flex items-center gap-2 text-lg">
+                <MessageSquare className="w-5 h-5 text-primary" />
+                Messaggio Consigliato
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              {freelancePrediction?.leads?.sample_message ? (
+                <div className="bg-background/50 rounded-lg p-4 font-mono text-sm whitespace-pre-wrap">
+                  {freelancePrediction.leads.sample_message}
+                </div>
+              ) : (
+                <div className="bg-background/50 rounded-lg p-6 text-center">
+                  <Send className="w-8 h-8 text-muted-foreground/50 mx-auto mb-2" />
+                  <p className="text-muted-foreground italic">
+                    Il messaggio di outreach consigliato apparirà qui quando i dati saranno disponibili.
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </DashboardCard>
       </section>
 
       <MainFooter />
