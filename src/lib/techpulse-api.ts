@@ -1,4 +1,4 @@
-const BASE_URL = "https://social-crabs-buy.loca.lt";
+const BASE_URL = "https://fifty-ducks-brake.loca.lt";
 
 export async function callTechPulsePredict(prompt: string): Promise<string> {
   const url = `${BASE_URL}/predict?prompt=${encodeURIComponent(prompt)}`;
