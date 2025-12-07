@@ -5,6 +5,7 @@ export async function callTechPulsePredict(prompt: string): Promise<string> {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
+      'bypass-tunnel-reminder': 'true', // Bypassa la pagina interstitial di localtunnel
     },
   });
 
