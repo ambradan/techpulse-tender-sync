@@ -15,6 +15,7 @@ import TendersPlaceholder from "./components/dashboard/TendersPlaceholder";
 import RealityCheckPlaceholder from "./components/dashboard/RealityCheckPlaceholder";
 import HRConsultantPlaceholder from "./components/dashboard/HRConsultantPlaceholder";
 import CompanyAnalysisSection from "./components/dashboard/CompanyAnalysis";
+import AIPredictiveDashboard from "./pages/AIPredictiveDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -38,6 +39,7 @@ const App = () => (
             <Route path="reality-check" element={<RealityCheckPlaceholder />} />
             <Route path="hr-consultant" element={<HRConsultantPlaceholder />} />
             <Route path="company-analysis" element={<CompanyAnalysisSection />} />
+            <Route path="ai-predictive" element={<AIPredictiveDashboard />} />
           </Route>
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />

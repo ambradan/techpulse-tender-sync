@@ -34,6 +34,7 @@ const menuItems = [
   { title: "Dashboard", url: "/dashboard", icon: LayoutDashboard },
   { title: "Trend Attuali", url: "/dashboard/trends", icon: TrendingUp },
   { title: "Previsioni", url: "/dashboard/predictions", icon: LineChart },
+  { title: "AI Predictive", url: "/dashboard/ai-predictive", icon: Activity },
   { title: "Reality Check", url: "/dashboard/reality-check", icon: Crosshair },
   { title: "Analisi Aziendale", url: "/dashboard/company-analysis", icon: Brain },
   { title: "HR Consultant", url: "/dashboard/hr-consultant", icon: Calculator },
