@@ -1,5 +1,7 @@
+const BASE_URL = "https://social-crabs-buy.loca.lt";
+
 export async function callTechPulsePredict(prompt: string): Promise<string> {
-  const url = `https://smooth-crabs-raise.loca.lt/predict?prompt=${encodeURIComponent(prompt)}`;
+  const url = `${BASE_URL}/predict?prompt=${encodeURIComponent(prompt)}`;
   
   const response = await fetch(url, {
     method: 'POST',
