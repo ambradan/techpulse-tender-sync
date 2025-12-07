@@ -18,6 +18,30 @@ export type CompanyAnalysisPayload = {
   notes?: string;
 };
 
+export type RealityCheckPayload = {
+  idea_description: string;
+  target_audience?: string;
+  timeframe_months?: number;
+};
+
+export async function runRealityCheck(
+  payload: RealityCheckPayload
+): Promise<string> {
+  const res = await fetch(`${BASE_URL}/reality-check`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Errore /reality-check ${res.status}: ${text}`);
+  }
+
+  const data = await res.json();
+  return data.reality_check;
+}
+
 export async function analyzeCompany(
   payload: CompanyAnalysisPayload
 ): Promise<string> {

@@ -25,6 +25,7 @@ import NotFound from "./pages/NotFound";
 import TestPredict from "./pages/TestPredict";
 import TestCompanyPredictions from "./pages/TestCompanyPredictions";
 import TestCompanyAnalyze from "./pages/TestCompanyAnalyze";
+import TestRealityCheck from "./pages/TestRealityCheck";
 
 const queryClient = new QueryClient();
 
@@ -44,6 +45,7 @@ const App = () => (
           <Route path="/test-predict" element={<TestPredict />} />
           <Route path="/test-company-predictions" element={<TestCompanyPredictions />} />
           <Route path="/test-company-analyze" element={<TestCompanyAnalyze />} />
+          <Route path="/test-reality-check" element={<TestRealityCheck />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/profile" element={<CompanyProfile />} />
           <Route path="/dashboard" element={<DashboardLayout />}>
