@@ -9,6 +9,33 @@ export type CompanyForecastPayload = {
   notes?: string;
 };
 
+export type CompanyAnalysisPayload = {
+  name: string;
+  sector: string;
+  country: string;
+  size: string;
+  current_strategy?: string;
+  notes?: string;
+};
+
+export async function analyzeCompany(
+  payload: CompanyAnalysisPayload
+): Promise<string> {
+  const res = await fetch(`${BASE_URL}/company/analyze`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Errore /company/analyze ${res.status}: ${text}`);
+  }
+
+  const data = await res.json();
+  return data.analysis;
+}
+
 export async function getCompanyPredictions(
   payload: CompanyForecastPayload
 ): Promise<string> {
