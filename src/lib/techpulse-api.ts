@@ -1,5 +1,32 @@
 const BASE_URL = "http://127.0.0.1:8001";
 
+export type CompanyForecastPayload = {
+  name: string;
+  sector: string;
+  country: string;
+  size: string;              // es: "10-50", "50-250", "250+"
+  timeframe_months: number;  // 12, 36 o 60
+  notes?: string;
+};
+
+export async function getCompanyPredictions(
+  payload: CompanyForecastPayload
+): Promise<string> {
+  const res = await fetch(`${BASE_URL}/company/predictions`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Errore /company/predictions ${res.status}: ${text}`);
+  }
+
+  const data = await res.json();
+  return data.forecast;
+}
+
 export async function callTechPulsePredict(prompt: string): Promise<string> {
   const res = await fetch(`${BASE_URL}/predict`, {
     method: "POST",
