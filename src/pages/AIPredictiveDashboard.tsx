@@ -54,6 +54,10 @@ export default function AIPredictiveDashboard() {
     setResult(null);
 
     try {
+      // Get current session for authentication
+      const { data: sessionData } = await supabase.auth.getSession();
+      const accessToken = sessionData?.session?.access_token;
+
       const revenueArray = formData.revenueHistory
         .split(",")
         .map((v) => parseFloat(v.trim()))
@@ -64,27 +68,42 @@ export default function AIPredictiveDashboard() {
         .map((v) => parseInt(v.trim()))
         .filter((v) => !isNaN(v));
 
-      const { data, error } = await supabase.functions.invoke("predict", {
-        body: {
-          company: {
-            size: parseInt(formData.companySize) || 0,
-            industry: formData.industry,
-            revenue_history: revenueArray,
-            employees_history: employeesArray,
-            country: formData.country,
-            partners: parseInt(formData.partnerCount) || 0,
-          },
+      const requestBody = {
+        company: {
+          size: parseInt(formData.companySize) || 0,
+          industry: formData.industry,
+          revenue_history: revenueArray,
+          employees_history: employeesArray,
+          country: formData.country,
+          partners: parseInt(formData.partnerCount) || 0,
         },
-      });
+      };
 
-      if (error) {
-        throw new Error(error.message);
+      // POST to edge function with explicit auth header
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/predict`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            ...(accessToken && { Authorization: `Bearer ${accessToken}` }),
+          },
+          body: JSON.stringify(requestBody),
+        }
+      );
+
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || `Errore HTTP: ${response.status}`);
       }
+
+      const data = await response.json();
 
       if (data.error) {
         throw new Error(data.error);
       }
 
+      // Store result in state (prediction_result)
       setResult(data);
       toast({
         title: "Previsione generata",
