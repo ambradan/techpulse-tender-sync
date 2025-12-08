@@ -1,4 +1,4 @@
-const BASE_URL = "http://127.0.0.1:8000";
+const BASE_URL = "https://web-production-3f45d.up.railway.app";
 
 export type CompanyForecastPayload = {
   name: string;
