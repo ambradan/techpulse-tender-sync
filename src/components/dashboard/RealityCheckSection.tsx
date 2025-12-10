@@ -78,17 +78,40 @@ const RealityCheckSection = () => {
   const runAnalysis = async () => {
     setIsAnalyzing(true);
     try {
+      // First get the current user's company
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        toast.error("Devi essere autenticato per eseguire l'analisi");
+        setIsAnalyzing(false);
+        return;
+      }
+
+      const { data: companyData } = await supabase
+        .from("companies")
+        .select("*")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      // Use company data or fallback
+      const company = companyData || {
+        name: "Azienda Demo",
+        sector: "Software & IT Services",
+        employees: null,
+        description: "PMI tech",
+        location: "Italia"
+      };
+
       const { data: result, error } = await supabase.functions.invoke("reality-check", {
-        body: { 
-          companyContext: "TechCorp Italia - PMI tech specializzata in software enterprise e consulenza IT per PA",
-          sector: "Software & IT Services"
-        },
+        body: { company },
       });
       
       if (error) throw error;
       
-      if (result?.analysis) {
-        setData(result.analysis);
+      if (result?.swot) {
+        setData(prev => ({
+          ...prev,
+          swot: result.swot
+        }));
         setLastUpdate(new Date());
         toast.success("Analisi Reality Check completata");
       }

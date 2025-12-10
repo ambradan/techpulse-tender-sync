@@ -1,7 +1,7 @@
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import MainNavbar from "@/components/MainNavbar";
+import ConditionalNavbar from "@/components/ConditionalNavbar";
 import MainFooter from "@/components/MainFooter";
 import { 
   Target,
@@ -16,7 +16,7 @@ import {
 const About = () => {
   return (
     <main className="min-h-screen bg-gradient-hero flex flex-col">
-      <MainNavbar />
+      <ConditionalNavbar />
 
       {/* Hero */}
       <section className="container mx-auto px-4 py-20 md:py-28">

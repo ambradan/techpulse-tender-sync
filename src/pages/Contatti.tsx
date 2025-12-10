@@ -4,7 +4,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import MainNavbar from "@/components/MainNavbar";
+import ConditionalNavbar from "@/components/ConditionalNavbar";
 import MainFooter from "@/components/MainFooter";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
@@ -80,7 +80,7 @@ const Contatti = () => {
 
   return (
     <main className="min-h-screen bg-gradient-hero flex flex-col">
-      <MainNavbar />
+      <ConditionalNavbar />
 
       {/* Hero */}
       <section className="container mx-auto px-4 py-20 md:py-28">
