@@ -55,13 +55,16 @@ const Dashboard = () => {
   const { data: company } = useQuery({
     queryKey: ["company"],
     queryFn: async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return null;
+      
       const { data, error } = await supabase
         .from("companies" as any)
         .select("*")
-        .limit(1)
-        .single();
+        .eq("user_id", user.id)
+        .maybeSingle();
       if (error) throw error;
-      return data as unknown as Company;
+      return data as unknown as Company | null;
     },
   });
 
