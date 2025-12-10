@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useCompanyProfile } from "@/hooks/useCompanyProfile";
 import { supabase } from "@/integrations/supabase/client";
+import CompanyContextBanner from "@/components/dashboard/CompanyContextBanner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -281,6 +283,7 @@ const PartnerDetailDialog = ({
 const PartnersPlaceholder = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { company, hasProfile } = useCompanyProfile();
   const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null);
   const [detailOpen, setDetailOpen] = useState(false);
 
@@ -297,36 +300,19 @@ const PartnersPlaceholder = () => {
     },
   });
 
-  // Fetch user's company
-  const { data: userCompany } = useQuery({
-    queryKey: ["userCompanyPartners"],
-    queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
-
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("company_id")
-        .eq("id", user.id)
-        .single();
-
-      return profile?.company_id || null;
-    },
-  });
-
   // Fetch selected partners for company
   const { data: selectedPartners } = useQuery({
-    queryKey: ["companyPartners", userCompany],
+    queryKey: ["companyPartners", company?.id],
     queryFn: async () => {
-      if (!userCompany) return [];
+      if (!company?.id) return [];
       const { data, error } = await supabase
         .from("company_partners")
         .select("partner_id")
-        .eq("company_id", userCompany);
+        .eq("company_id", company.id);
       if (error) throw error;
       return data.map((cp) => cp.partner_id);
     },
-    enabled: !!userCompany,
+    enabled: !!company?.id,
   });
 
   // Fetch services for selected partner detail
@@ -347,11 +333,11 @@ const PartnersPlaceholder = () => {
   // Add/remove partner mutation
   const togglePartner = useMutation({
     mutationFn: async ({ partnerId, action }: { partnerId: string; action: "add" | "remove" }) => {
-      if (!userCompany) throw new Error("Configura prima il profilo azienda");
+      if (!company?.id) throw new Error("Configura prima il profilo azienda");
 
       if (action === "add") {
         const { error } = await supabase.from("company_partners").insert({
-          company_id: userCompany,
+          company_id: company.id,
           partner_id: partnerId,
         });
         if (error) throw error;
@@ -359,7 +345,7 @@ const PartnersPlaceholder = () => {
         const { error } = await supabase
           .from("company_partners")
           .delete()
-          .eq("company_id", userCompany)
+          .eq("company_id", company.id)
           .eq("partner_id", partnerId);
         if (error) throw error;
       }

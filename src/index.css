@@ -6,63 +6,65 @@
 
 @layer base {
   :root {
-    --background: 222 47% 6%;
-    --foreground: 210 40% 98%;
+    /* TechPulse Design System - Dark Theme */
+    --background: 222 47% 6%;  /* #0F172A - Blue-900 */
+    --foreground: 210 40% 96%; /* #F1F5F9 - Slate-100 */
 
-    --card: 222 47% 8%;
-    --card-foreground: 210 40% 98%;
+    --card: 222 47% 11%;       /* #1E293B - Blue-800 */
+    --card-foreground: 210 40% 96%;
 
-    --popover: 222 47% 8%;
-    --popover-foreground: 210 40% 98%;
+    --popover: 222 47% 11%;
+    --popover-foreground: 210 40% 96%;
 
-    /* Blue Tech Primary - #1f6feb style */
-    --primary: 212 92% 52%;
-    --primary-foreground: 210 40% 98%;
+    /* Primary - Cyan/Tech accent */
+    --primary: 188 95% 42%;    /* #06B6D4 - Cyan-500 */
+    --primary-foreground: 222 47% 6%;
 
-    --secondary: 222 30% 14%;
-    --secondary-foreground: 210 40% 98%;
+    --secondary: 217 33% 17%;  /* #334155 - Slate-700 */
+    --secondary-foreground: 210 40% 96%;
 
-    --muted: 222 30% 18%;
-    --muted-foreground: 215 20% 55%;
+    --muted: 217 33% 17%;      /* #334155 */
+    --muted-foreground: 215 20% 65%; /* #94A3B8 - Slate-400 */
 
-    /* Accent - Teal/Cyan complement */
-    --accent: 180 70% 45%;
-    --accent-foreground: 210 40% 98%;
+    /* Accent - Sky blue */
+    --accent: 199 89% 60%;     /* #38BDF8 - Sky-400 */
+    --accent-foreground: 222 47% 6%;
 
     --destructive: 0 84% 60%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 210 40% 96%;
 
-    --border: 222 30% 18%;
-    --input: 222 30% 18%;
-    --ring: 212 92% 52%;
+    --border: 217 33% 22%;     /* #475569 - Slate-600 */
+    --input: 217 33% 17%;
+    --ring: 188 95% 42%;
 
-    --radius: 0.75rem;
+    --radius: 0.875rem;
 
-    /* Custom tokens - Blue Tech theme */
-    --gradient-primary: linear-gradient(135deg, hsl(212 92% 52%), hsl(200 90% 48%));
-    --gradient-accent: linear-gradient(135deg, hsl(180 70% 45%), hsl(165 75% 40%));
-    --gradient-card: linear-gradient(145deg, hsl(222 47% 10%), hsl(222 47% 6%));
-    --gradient-hero: radial-gradient(ellipse at top, hsl(222 47% 12%), hsl(222 47% 6%));
+    /* Custom Design Tokens */
+    --gradient-primary: linear-gradient(135deg, hsl(188 95% 42%), hsl(199 89% 60%));
+    --gradient-accent: linear-gradient(135deg, hsl(199 89% 60%), hsl(217 91% 60%));
+    --gradient-card: linear-gradient(145deg, hsl(222 47% 13%), hsl(222 47% 9%));
+    --gradient-hero: radial-gradient(ellipse at top, hsl(222 47% 14%), hsl(222 47% 6%));
     
-    --glow-primary: 0 0 60px hsl(212 92% 52% / 0.3);
-    --glow-accent: 0 0 40px hsl(180 70% 45% / 0.25);
+    --glow-primary: 0 0 60px hsl(188 95% 42% / 0.25);
+    --glow-accent: 0 0 40px hsl(199 89% 60% / 0.2);
     
-    --shadow-card: 0 4px 24px -4px hsl(222 47% 4% / 0.5);
-    --shadow-elevated: 0 8px 32px -8px hsl(222 47% 4% / 0.6);
+    --shadow-card: 0 4px 24px -4px hsl(0 0% 0% / 0.4);
+    --shadow-elevated: 0 8px 32px -8px hsl(0 0% 0% / 0.5);
+    --shadow-hover: 0 12px 40px -8px hsl(0 0% 0% / 0.6);
 
-    --sidebar-background: 222 47% 8%;
-    --sidebar-foreground: 210 40% 98%;
-    --sidebar-primary: 212 92% 52%;
-    --sidebar-primary-foreground: 210 40% 98%;
-    --sidebar-accent: 222 30% 14%;
-    --sidebar-accent-foreground: 210 40% 98%;
-    --sidebar-border: 222 30% 18%;
-    --sidebar-ring: 212 92% 52%;
+    --sidebar-background: 222 47% 9%;
+    --sidebar-foreground: 210 40% 96%;
+    --sidebar-primary: 188 95% 42%;
+    --sidebar-primary-foreground: 222 47% 6%;
+    --sidebar-accent: 217 33% 17%;
+    --sidebar-accent-foreground: 210 40% 96%;
+    --sidebar-border: 217 33% 22%;
+    --sidebar-ring: 188 95% 42%;
   }
 
   .dark {
     --background: 222 47% 6%;
-    --foreground: 210 40% 98%;
+    --foreground: 210 40% 96%;
   }
 }
 
@@ -78,6 +80,56 @@
 
   h1, h2, h3, h4, h5, h6 {
     font-family: 'Space Grotesk', sans-serif;
+  }
+}
+
+@layer components {
+  /* TechPulse Card System */
+  .tp-card {
+    @apply bg-card border border-border rounded-[18px] p-6 md:p-8;
+    box-shadow: var(--shadow-card);
+  }
+
+  .tp-card-hover {
+    @apply tp-card transition-all duration-300;
+  }
+
+  .tp-card-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: var(--shadow-hover);
+  }
+
+  /* TechPulse Button System */
+  .tp-btn-primary {
+    @apply bg-primary text-primary-foreground rounded-xl px-6 py-3 font-medium;
+    @apply hover:brightness-110 transition-all duration-200;
+  }
+
+  .tp-btn-secondary {
+    @apply bg-secondary text-secondary-foreground border border-border rounded-xl px-6 py-3 font-medium;
+    @apply hover:bg-secondary/80 transition-all duration-200;
+  }
+
+  /* Section Spacing */
+  .tp-section {
+    @apply py-12 md:py-16 lg:py-20;
+  }
+
+  .tp-container {
+    @apply max-w-[1200px] mx-auto px-4 md:px-6 lg:px-8;
+  }
+
+  /* Page Header */
+  .tp-page-header {
+    @apply mb-8 md:mb-12;
+  }
+
+  .tp-page-title {
+    @apply text-2xl md:text-3xl lg:text-4xl font-bold mb-2;
+  }
+
+  .tp-page-subtitle {
+    @apply text-muted-foreground text-base md:text-lg;
   }
 }
 
@@ -122,6 +174,10 @@
 
   .shadow-elevated {
     box-shadow: var(--shadow-elevated);
+  }
+
+  .shadow-hover {
+    box-shadow: var(--shadow-hover);
   }
 
   .animate-float {

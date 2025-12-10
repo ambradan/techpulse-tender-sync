@@ -1,6 +1,8 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useCompanyProfile, getSizeRange } from "@/hooks/useCompanyProfile";
 import { supabase } from "@/integrations/supabase/client";
+import CompanyProfileGate from "@/components/dashboard/CompanyProfileGate";
+import CompanyContextBanner from "@/components/dashboard/CompanyContextBanner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -28,6 +30,7 @@ interface CompanyAnalysis {
 
 const CompanyAnalysisSection = () => {
   const { toast } = useToast();
+  const { company, isLoading, hasProfile } = useCompanyProfile();
   const [analysis, setAnalysis] = useState<CompanyAnalysis | null>(null);
   const [generating, setGenerating] = useState(false);
   
@@ -37,30 +40,6 @@ const CompanyAnalysisSection = () => {
   const [perceivedRisks, setPerceivedRisks] = useState("");
   const [perceivedOpportunities, setPerceivedOpportunities] = useState("");
   const [techKeywords, setTechKeywords] = useState("");
-
-  const { data: company } = useQuery({
-    queryKey: ["companyForAnalysis"],
-    queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
-
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("company_id")
-        .eq("id", user.id)
-        .single();
-
-      if (!profile?.company_id) return null;
-
-      const { data: company } = await supabase
-        .from("companies")
-        .select("*")
-        .eq("id", profile.company_id)
-        .single();
-
-      return company;
-    },
-  });
 
   const generateAnalysis = async () => {
     if (!company) {
