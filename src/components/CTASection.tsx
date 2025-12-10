@@ -35,7 +35,7 @@ const CTASection = () => {
               </Button>
             </Link>
             <Button variant="glass" size="xl" asChild>
-              <a href="mailto:info@techpulse.ai?subject=Richiesta Demo TechPulse">
+              <a href="mailto:ambradan91@gmail.com?subject=Richiesta Demo TechPulse">
                 Prenota una Demo
               </a>
             </Button>

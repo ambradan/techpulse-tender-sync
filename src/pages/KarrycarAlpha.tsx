@@ -533,7 +533,7 @@ function CTASection() {
           Ogni feedback è prezioso per migliorare il prodotto prima del lancio ufficiale.
         </p>
         <Button asChild size="lg" className="tp-btn-primary text-lg px-8 py-6">
-          <a href="mailto:ambra.danesin@critical-work.com">
+          <a href="mailto:ambradan91@gmail.com">
             <Mail className="w-5 h-5 mr-2" />
             Contatta Ambra
           </a>

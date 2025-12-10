@@ -132,8 +132,7 @@ const Contatti = () => {
 
             <div className="space-y-4">
               {[
-                { icon: Mail, label: "Email", value: "info@techpulse.ai", href: "mailto:info@techpulse.ai" },
-                { icon: Phone, label: "Telefono", value: "+39 02 1234 5678", href: "tel:+390212345678" },
+                { icon: Phone, label: "Telefono", value: "338.908.5894", href: "tel:+393389085894" },
                 { icon: MapPin, label: "Sede", value: "Milano, Italia", href: "#" },
                 { icon: Clock, label: "Orari", value: "Lun-Ven 9:00-18:00", href: "#" },
               ].map((item, i) => (
@@ -163,7 +162,7 @@ const Contatti = () => {
                   Consulta la nostra sezione FAQ per trovare risposte immediate alle domande più comuni.
                 </p>
                 <Button variant="outline" size="sm" asChild>
-                  <a href="mailto:info@techpulse.ai?subject=FAQ TechPulse">
+                  <a href="mailto:ambradan91@gmail.com?subject=FAQ TechPulse">
                     Contattaci per FAQ
                   </a>
                 </Button>
