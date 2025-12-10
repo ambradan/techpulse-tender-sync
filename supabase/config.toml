@@ -20,3 +20,9 @@ verify_jwt = true
 
 [functions.predict]
 verify_jwt = true
+
+[functions.send-contact-email]
+verify_jwt = false
+
+[functions.validate-karrycar-code]
+verify_jwt = false

@@ -42,6 +42,7 @@ import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
 import KarrycarProposal from "./pages/KarrycarProposal";
 import KarrycarAlpha from "./pages/KarrycarAlpha";
+import KarrycarDashboard from "./pages/KarrycarDashboard";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -93,6 +94,7 @@ const App = () => (
           {/* Special */}
           <Route path="/karrycar-proposal" element={<KarrycarProposal />} />
           <Route path="/karrycar" element={<KarrycarAlpha />} />
+          <Route path="/karrycar-dashboard" element={<KarrycarDashboard />} />
           
           {/* 404 */}
           <Route path="*" element={<NotFound />} />
