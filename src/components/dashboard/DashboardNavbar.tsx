@@ -22,9 +22,13 @@ const DashboardNavbar = () => {
   const isActive = (path: string) => location.pathname === path;
 
   const handleLogout = async () => {
+    // Clear localStorage and sessionStorage
+    localStorage.clear();
+    sessionStorage.clear();
+    
     await supabase.auth.signOut();
-    toast({ title: "Logout effettuato" });
-    navigate("/");
+    toast({ title: "Logout effettuato", description: "A presto!" });
+    navigate("/auth");
   };
 
   return (
@@ -65,8 +69,14 @@ const DashboardNavbar = () => {
                 <User className="w-5 h-5" />
               </Button>
             </Link>
-            <Button variant="ghost" size="icon" onClick={handleLogout} title="Logout">
-              <LogOut className="w-5 h-5" />
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleLogout} 
+              className="text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/30"
+            >
+              <LogOut className="w-4 h-4 mr-2" />
+              Esci
             </Button>
           </div>
 
@@ -99,9 +109,14 @@ const DashboardNavbar = () => {
               </Link>
             ))}
             <div className="flex gap-3 mt-4 pt-4 border-t border-border/50">
-              <Button variant="outline" size="sm" className="flex-1" onClick={handleLogout}>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                className="flex-1 text-destructive hover:text-destructive hover:bg-destructive/10 border-destructive/30" 
+                onClick={() => { setMobileMenuOpen(false); handleLogout(); }}
+              >
                 <LogOut className="w-4 h-4 mr-2" />
-                Logout
+                Esci
               </Button>
             </div>
           </div>
