@@ -1,22 +1,22 @@
 project_id = "oabbwjrkiekegdivzjpg"
 
 [functions.analyze-trends]
-verify_jwt = false
+verify_jwt = true
 
 [functions.reality-check]
-verify_jwt = false
+verify_jwt = true
 
 [functions.hr-consultant]
-verify_jwt = false
+verify_jwt = true
 
 [functions.analyze-tenders]
-verify_jwt = false
+verify_jwt = true
 
 [functions.generate-predictions]
-verify_jwt = false
+verify_jwt = true
 
 [functions.analyze-company]
-verify_jwt = false
+verify_jwt = true
 
 [functions.predict]
-verify_jwt = false
+verify_jwt = true

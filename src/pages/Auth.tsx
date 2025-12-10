@@ -9,6 +9,36 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { Activity } from "lucide-react";
+import { z } from "zod";
+
+// Validation schemas
+const emailSchema = z.string()
+  .trim()
+  .email("Inserisci un indirizzo email valido")
+  .max(255, "Email troppo lunga");
+
+const passwordSchema = z.string()
+  .min(10, "La password deve avere almeno 10 caratteri")
+  .max(72, "Password troppo lunga")
+  .regex(/[a-zA-Z]/, "La password deve contenere almeno una lettera")
+  .regex(/[0-9]/, "La password deve contenere almeno un numero");
+
+const fullNameSchema = z.string()
+  .trim()
+  .min(2, "Il nome deve avere almeno 2 caratteri")
+  .max(100, "Nome troppo lungo")
+  .regex(/^[a-zA-ZàèéìòùÀÈÉÌÒÙ\s'-]+$/, "Il nome contiene caratteri non validi");
+
+const loginSchema = z.object({
+  email: emailSchema,
+  password: z.string().min(1, "Inserisci la password"),
+});
+
+const signupSchema = z.object({
+  email: emailSchema,
+  password: passwordSchema,
+  fullName: fullNameSchema,
+});
 
 const Auth = () => {
   const navigate = useNavigate();
@@ -20,13 +50,65 @@ const Auth = () => {
   const [signupPassword, setSignupPassword] = useState("");
   const [fullName, setFullName] = useState("");
   const [connectTenderMatch, setConnectTenderMatch] = useState(true);
+  const [errors, setErrors] = useState<Record<string, string>>({});
+
+  const validateLogin = () => {
+    const result = loginSchema.safeParse({
+      email: loginEmail,
+      password: loginPassword,
+    });
+
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      result.error.errors.forEach((err) => {
+        if (err.path[0]) {
+          fieldErrors[`login-${err.path[0]}`] = err.message;
+        }
+      });
+      setErrors(fieldErrors);
+      return false;
+    }
+    setErrors({});
+    return true;
+  };
+
+  const validateSignup = () => {
+    const result = signupSchema.safeParse({
+      email: signupEmail,
+      password: signupPassword,
+      fullName: fullName,
+    });
+
+    if (!result.success) {
+      const fieldErrors: Record<string, string> = {};
+      result.error.errors.forEach((err) => {
+        if (err.path[0]) {
+          fieldErrors[`signup-${err.path[0]}`] = err.message;
+        }
+      });
+      setErrors(fieldErrors);
+      return false;
+    }
+    setErrors({});
+    return true;
+  };
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateLogin()) {
+      toast({
+        variant: "destructive",
+        title: "Dati non validi",
+        description: "Controlla i campi evidenziati",
+      });
+      return;
+    }
+
     setLoading(true);
 
     const { error } = await supabase.auth.signInWithPassword({
-      email: loginEmail,
+      email: loginEmail.trim(),
       password: loginPassword,
     });
 
@@ -34,7 +116,9 @@ const Auth = () => {
       toast({
         variant: "destructive",
         title: "Errore di accesso",
-        description: error.message,
+        description: error.message === "Invalid login credentials" 
+          ? "Email o password non corretti" 
+          : error.message,
       });
     } else {
       navigate("/dashboard");
@@ -44,27 +128,44 @@ const Auth = () => {
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
+    
+    if (!validateSignup()) {
+      toast({
+        variant: "destructive",
+        title: "Dati non validi",
+        description: "Controlla i campi evidenziati",
+      });
+      return;
+    }
+
     setLoading(true);
 
     const redirectUrl = `${window.location.origin}/dashboard`;
 
     const { error } = await supabase.auth.signUp({
-      email: signupEmail,
+      email: signupEmail.trim(),
       password: signupPassword,
       options: {
         emailRedirectTo: redirectUrl,
         data: {
-          full_name: fullName,
+          full_name: fullName.trim(),
           connect_tendermatch: connectTenderMatch,
         },
       },
     });
 
     if (error) {
+      let errorMessage = error.message;
+      if (error.message.includes("already registered")) {
+        errorMessage = "Questo indirizzo email è già registrato";
+      } else if (error.message.includes("Password should be")) {
+        errorMessage = "La password non soddisfa i requisiti di sicurezza";
+      }
+      
       toast({
         variant: "destructive",
         title: "Errore di registrazione",
-        description: error.message,
+        description: errorMessage,
       });
     } else {
       toast({
@@ -92,7 +193,7 @@ const Auth = () => {
             <CardDescription>Dashboard intelligente per aziende tech</CardDescription>
           </CardHeader>
           <CardContent>
-            <Tabs defaultValue="login" className="w-full">
+            <Tabs defaultValue="login" className="w-full" onValueChange={() => setErrors({})}>
               <TabsList className="grid w-full grid-cols-2 mb-6">
                 <TabsTrigger value="login">Accedi</TabsTrigger>
                 <TabsTrigger value="signup">Registrati</TabsTrigger>
@@ -109,7 +210,11 @@ const Auth = () => {
                       onChange={(e) => setLoginEmail(e.target.value)}
                       placeholder="nome@azienda.it"
                       required
+                      className={errors["login-email"] ? "border-destructive" : ""}
                     />
+                    {errors["login-email"] && (
+                      <p className="text-xs text-destructive">{errors["login-email"]}</p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="login-password">Password</Label>
@@ -120,7 +225,11 @@ const Auth = () => {
                       onChange={(e) => setLoginPassword(e.target.value)}
                       placeholder="••••••••"
                       required
+                      className={errors["login-password"] ? "border-destructive" : ""}
                     />
+                    {errors["login-password"] && (
+                      <p className="text-xs text-destructive">{errors["login-password"]}</p>
+                    )}
                   </div>
                   <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? "Accesso in corso..." : "Accedi"}
@@ -139,7 +248,11 @@ const Auth = () => {
                       onChange={(e) => setFullName(e.target.value)}
                       placeholder="Mario Rossi"
                       required
+                      className={errors["signup-fullName"] ? "border-destructive" : ""}
                     />
+                    {errors["signup-fullName"] && (
+                      <p className="text-xs text-destructive">{errors["signup-fullName"]}</p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signup-email">Email aziendale</Label>
@@ -150,7 +263,11 @@ const Auth = () => {
                       onChange={(e) => setSignupEmail(e.target.value)}
                       placeholder="nome@azienda.it"
                       required
+                      className={errors["signup-email"] ? "border-destructive" : ""}
                     />
+                    {errors["signup-email"] && (
+                      <p className="text-xs text-destructive">{errors["signup-email"]}</p>
+                    )}
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signup-password">Password</Label>
@@ -160,9 +277,15 @@ const Auth = () => {
                       value={signupPassword}
                       onChange={(e) => setSignupPassword(e.target.value)}
                       placeholder="••••••••"
-                      minLength={6}
                       required
+                      className={errors["signup-password"] ? "border-destructive" : ""}
                     />
+                    {errors["signup-password"] && (
+                      <p className="text-xs text-destructive">{errors["signup-password"]}</p>
+                    )}
+                    <p className="text-xs text-muted-foreground">
+                      Min. 10 caratteri, almeno una lettera e un numero
+                    </p>
                   </div>
                   
                   <div className="flex items-start space-x-2 p-3 rounded-lg bg-secondary/50">
