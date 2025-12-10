@@ -74,19 +74,14 @@ const MainFooter = () => {
             <h4 className="font-display font-semibold text-foreground mb-4">Legale</h4>
             <ul className="space-y-2 text-sm text-muted-foreground">
               <li>
-                <a href="#" className="hover:text-foreground transition-colors">
+                <Link to="/privacy" className="hover:text-foreground transition-colors">
                   Privacy Policy
-                </a>
+                </Link>
               </li>
               <li>
-                <a href="#" className="hover:text-foreground transition-colors">
+                <Link to="/terms" className="hover:text-foreground transition-colors">
                   Termini di Servizio
-                </a>
-              </li>
-              <li>
-                <a href="#" className="hover:text-foreground transition-colors">
-                  Cookie Policy
-                </a>
+                </Link>
               </li>
             </ul>
           </div>
