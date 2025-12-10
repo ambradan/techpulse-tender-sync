@@ -48,19 +48,30 @@ const handler = async (req: Request): Promise<Response> => {
       );
     }
 
-    // Send email to admin
+    // Get current timestamp
+    const timestamp = new Date().toLocaleString('it-IT', { 
+      timeZone: 'Europe/Rome',
+      dateStyle: 'full',
+      timeStyle: 'short'
+    });
+
+    // Send email to admin using verified domain
+    const fromEmail = Deno.env.get("RESEND_FROM_EMAIL") || "a.danesin@techpulselab.io";
+    
     const emailResponse = await resend.emails.send({
-      from: "TechPulse <onboarding@resend.dev>",
+      from: `TechPulse <${fromEmail}>`,
       to: ["a.danesin@critical-work.com"],
-      subject: `[TechPulse Contatto] ${subject}`,
+      reply_to: email,
+      subject: `Nuovo messaggio dal sito TechPulse: ${subject}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #0ea5e9;">Nuovo messaggio da TechPulse</h2>
+          <h2 style="color: #0ea5e9;">Nuovo messaggio dal sito TechPulse</h2>
           
           <div style="background: #f4f4f4; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <p><strong>Nome:</strong> ${name}</p>
-            <p><strong>Email:</strong> ${email}</p>
+            <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
             <p><strong>Oggetto:</strong> ${subject}</p>
+            <p><strong>Data/Ora:</strong> ${timestamp}</p>
           </div>
           
           <div style="padding: 20px; background: #fafafa; border-left: 4px solid #0ea5e9; margin: 20px 0;">
@@ -69,7 +80,7 @@ const handler = async (req: Request): Promise<Response> => {
           
           <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
           <p style="color: #888; font-size: 12px;">
-            Messaggio inviato tramite il form di contatto di TechPulse.
+            Messaggio inviato tramite il form di contatto di techpulselab.io
           </p>
         </div>
       `,
