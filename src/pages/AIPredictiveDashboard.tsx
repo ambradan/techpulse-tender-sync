@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,6 +9,8 @@ import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContai
 import { Brain, TrendingUp, TrendingDown, Loader2, Gauge, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
+import { useCompanyProfile, sectorToIndustryValue } from "@/hooks/useCompanyProfile";
+import CompanyContextBanner from "@/components/dashboard/CompanyContextBanner";
 
 interface PredictionResult {
   trend: number[];
@@ -36,6 +38,7 @@ const countries = [
 
 export default function AIPredictiveDashboard() {
   const { toast } = useToast();
+  const { company, partnerCount, hasProfile } = useCompanyProfile();
   const [isLoading, setIsLoading] = useState(false);
   const [result, setResult] = useState<PredictionResult | null>(null);
   
@@ -48,13 +51,25 @@ export default function AIPredictiveDashboard() {
     partnerCount: "",
   });
 
+  // Pre-fill form when company data is available
+  useEffect(() => {
+    if (company) {
+      setFormData((prev) => ({
+        ...prev,
+        companySize: company.employees?.toString() || prev.companySize,
+        industry: sectorToIndustryValue(company.sector) || prev.industry,
+        country: company.location?.includes("Italia") ? "IT" : prev.country,
+        partnerCount: partnerCount.toString() || prev.partnerCount,
+      }));
+    }
+  }, [company, partnerCount]);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
     setResult(null);
 
     try {
-      // Get current session for authentication
       const { data: sessionData } = await supabase.auth.getSession();
       const accessToken = sessionData?.session?.access_token;
 
@@ -79,7 +94,6 @@ export default function AIPredictiveDashboard() {
         },
       };
 
-      // POST to edge function with explicit auth header
       const response = await fetch(
         `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/predict`,
         {
@@ -103,7 +117,6 @@ export default function AIPredictiveDashboard() {
         throw new Error(data.error);
       }
 
-      // Store result in state (prediction_result)
       setResult(data);
       toast({
         title: "Previsione generata",
@@ -127,9 +140,9 @@ export default function AIPredictiveDashboard() {
   })) || [];
 
   const getScoreColor = (score: number) => {
-    if (score >= 70) return "text-green-500";
-    if (score >= 40) return "text-yellow-500";
-    return "text-red-500";
+    if (score >= 70) return "text-emerald-500";
+    if (score >= 40) return "text-amber-500";
+    return "text-rose-500";
   };
 
   return (
@@ -143,6 +156,11 @@ export default function AIPredictiveDashboard() {
         </p>
       </div>
 
+      {/* Company Context Banner */}
+      {hasProfile && company && (
+        <CompanyContextBanner company={company} partnerCount={partnerCount} />
+      )}
+
       <div className="grid gap-6 lg:grid-cols-2">
         {/* Form */}
         <Card>
@@ -152,7 +170,10 @@ export default function AIPredictiveDashboard() {
               Dati Aziendali
             </CardTitle>
             <CardDescription>
-              Inserisci i dati per generare una previsione AI
+              {hasProfile 
+                ? "Dati pre-compilati dal profilo aziendale. Modifica se necessario."
+                : "Inserisci i dati per generare una previsione AI"
+              }
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -328,7 +349,7 @@ export default function AIPredictiveDashboard() {
               <div className="grid gap-4 sm:grid-cols-2">
                 <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="flex items-center gap-2 text-lg text-green-600">
+                    <CardTitle className="flex items-center gap-2 text-lg text-emerald-600">
                       <TrendingUp className="h-5 w-5" />
                       Driver Positivi
                     </CardTitle>
@@ -337,7 +358,7 @@ export default function AIPredictiveDashboard() {
                     <ul className="space-y-2">
                       {result.commentary.drivers_positive.map((driver, i) => (
                         <li key={i} className="flex items-start gap-2 text-sm">
-                          <span className="text-green-500 mt-1">•</span>
+                          <span className="text-emerald-500 mt-1">•</span>
                           <span className="text-muted-foreground">{driver}</span>
                         </li>
                       ))}
@@ -347,7 +368,7 @@ export default function AIPredictiveDashboard() {
 
                 <Card>
                   <CardHeader className="pb-2">
-                    <CardTitle className="flex items-center gap-2 text-lg text-red-600">
+                    <CardTitle className="flex items-center gap-2 text-lg text-rose-600">
                       <TrendingDown className="h-5 w-5" />
                       Driver Negativi
                     </CardTitle>
@@ -356,7 +377,7 @@ export default function AIPredictiveDashboard() {
                     <ul className="space-y-2">
                       {result.commentary.drivers_negative.map((driver, i) => (
                         <li key={i} className="flex items-start gap-2 text-sm">
-                          <span className="text-red-500 mt-1">•</span>
+                          <span className="text-rose-500 mt-1">•</span>
                           <span className="text-muted-foreground">{driver}</span>
                         </li>
                       ))}

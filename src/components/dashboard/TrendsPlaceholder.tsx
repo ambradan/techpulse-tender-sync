@@ -2,6 +2,9 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import { TrendingUp, Calendar, ExternalLink, Sparkles } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useCompanyProfile } from "@/hooks/useCompanyProfile";
+import CompanyContextBanner from "@/components/dashboard/CompanyContextBanner";
+import CompanyProfileGate from "@/components/dashboard/CompanyProfileGate";
 
 // Placeholder data structure - ready for API integration
 interface MarketNews {
@@ -11,7 +14,7 @@ interface MarketNews {
   source: string;
   category: "economia" | "tech" | "normativa" | "mercato";
   publishedAt: string;
-  impactScore: number | null; // 0-100, null = non valutato
+  impactScore: number | null;
 }
 
 const CATEGORY_CONFIG: Record<string, { label: string; className: string }> = {
@@ -21,45 +24,50 @@ const CATEGORY_CONFIG: Record<string, { label: string; className: string }> = {
   mercato: { label: "Mercato", className: "bg-emerald-500/20 text-emerald-400 border-emerald-500/30" },
 };
 
-// Placeholder news - replace with real API data
-const placeholderNews: MarketNews[] = [
-  {
-    id: "1",
-    title: "[Placeholder] Titolo notizia economia",
-    summary: "Sintesi della notizia in attesa di integrazione API esterna. Questo contenuto verrà sostituito con dati reali.",
-    source: "Fonte API",
-    category: "economia",
-    publishedAt: new Date().toISOString(),
-    impactScore: null,
-  },
-  {
-    id: "2",
-    title: "[Placeholder] Titolo notizia tecnologia",
-    summary: "Sintesi della notizia in attesa di integrazione API esterna. Questo contenuto verrà sostituito con dati reali.",
-    source: "Fonte API",
-    category: "tech",
-    publishedAt: new Date().toISOString(),
-    impactScore: null,
-  },
-  {
-    id: "3",
-    title: "[Placeholder] Titolo notizia normativa",
-    summary: "Sintesi della notizia in attesa di integrazione API esterna. Questo contenuto verrà sostituito con dati reali.",
-    source: "Fonte API",
-    category: "normativa",
-    publishedAt: new Date().toISOString(),
-    impactScore: null,
-  },
-  {
-    id: "4",
-    title: "[Placeholder] Titolo notizia mercato",
-    summary: "Sintesi della notizia in attesa di integrazione API esterna. Questo contenuto verrà sostituito con dati reali.",
-    source: "Fonte API",
-    category: "mercato",
-    publishedAt: new Date().toISOString(),
-    impactScore: null,
-  },
-];
+// Function to fetch trends - ready for future API integration
+const fetchTrendsForCompany = (company: { sector: string; location?: string | null }) => {
+  const sector = company.sector || "Tech";
+  const location = company.location || "Italia";
+  
+  return [
+    {
+      id: "1",
+      title: `[Placeholder] Trend economia per il settore ${sector}`,
+      summary: `Sintesi della notizia in attesa di integrazione API esterna. Contenuto relativo al settore ${sector} in ${location}.`,
+      source: "Fonte API",
+      category: "economia" as const,
+      publishedAt: new Date().toISOString(),
+      impactScore: null,
+    },
+    {
+      id: "2",
+      title: `[Placeholder] Novità tecnologiche per ${sector}`,
+      summary: `Aggiornamenti tecnologici rilevanti per aziende del settore ${sector}. Contenuto in attesa di dati reali.`,
+      source: "Fonte API",
+      category: "tech" as const,
+      publishedAt: new Date().toISOString(),
+      impactScore: null,
+    },
+    {
+      id: "3",
+      title: `[Placeholder] Normativa ${sector} - Aggiornamenti`,
+      summary: `Cambiamenti normativi che impattano il settore ${sector}. In attesa di integrazione API esterna.`,
+      source: "Fonte API",
+      category: "normativa" as const,
+      publishedAt: new Date().toISOString(),
+      impactScore: null,
+    },
+    {
+      id: "4",
+      title: `[Placeholder] Andamento mercato ${sector}`,
+      summary: `Analisi di mercato per il settore ${sector} in ${location}. Contenuto placeholder.`,
+      source: "Fonte API",
+      category: "mercato" as const,
+      publishedAt: new Date().toISOString(),
+      impactScore: null,
+    },
+  ];
+};
 
 const formatDate = (dateString: string) => {
   return new Date(dateString).toLocaleDateString("it-IT", {
@@ -143,6 +151,26 @@ const NewsCard = ({ news }: { news: MarketNews }) => {
 };
 
 const TrendsPlaceholder = () => {
+  const { company, hasProfile, isLoading } = useCompanyProfile();
+  
+  // Generate trends based on company data
+  const placeholderNews = hasProfile && company 
+    ? fetchTrendsForCompany(company)
+    : fetchTrendsForCompany({ sector: "Tech" });
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6 animate-pulse">
+        <div className="h-12 bg-secondary/50 rounded-lg w-1/3" />
+        <div className="grid gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-48 bg-secondary/50 rounded-lg" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -162,11 +190,21 @@ const TrendsPlaceholder = () => {
         </Button>
       </div>
 
+      {/* Company Context */}
+      {hasProfile && company && (
+        <CompanyContextBanner company={company} compact />
+      )}
+
+      {/* Gating for non-configured companies */}
+      {!hasProfile && (
+        <CompanyProfileGate message="Configura il profilo aziendale per ricevere trend personalizzati per il tuo settore" />
+      )}
+
       {/* Info Banner */}
       <Card className="border-border/50 bg-secondary/30">
         <CardContent className="py-4">
           <p className="text-sm text-muted-foreground text-center">
-            In attesa di integrazione API esterne. I contenuti mostrati sono placeholder statici.
+            In attesa di integrazione API esterne. I contenuti mostrati sono placeholder basati sul settore {company?.sector || "generico"}.
           </p>
         </CardContent>
       </Card>
@@ -199,7 +237,7 @@ const TrendsPlaceholder = () => {
             Sintesi AI
           </CardTitle>
           <CardDescription>
-            Analisi automatica dei trend più rilevanti per il tuo settore
+            Analisi automatica dei trend più rilevanti per il tuo settore {company?.sector && `(${company.sector})`}
           </CardDescription>
         </CardHeader>
         <CardContent>

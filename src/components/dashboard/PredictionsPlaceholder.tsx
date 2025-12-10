@@ -1,11 +1,13 @@
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { LineChart, Sparkles, RefreshCw, TrendingUp, Target, AlertTriangle, Compass } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
+import { useCompanyProfile } from "@/hooks/useCompanyProfile";
+import CompanyContextBanner from "@/components/dashboard/CompanyContextBanner";
+import CompanyProfileGate from "@/components/dashboard/CompanyProfileGate";
 
 interface Predictions {
   marketTrend: string;
@@ -103,33 +105,9 @@ const PredictionCard = ({
 
 const PredictionsPlaceholder = () => {
   const { toast } = useToast();
+  const { company, hasProfile, isLoading } = useCompanyProfile();
   const [predictions, setPredictions] = useState<Predictions | null>(null);
   const [generating, setGenerating] = useState(false);
-
-  // Fetch user's company data
-  const { data: company } = useQuery({
-    queryKey: ["userCompanyPredictions"],
-    queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
-
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("company_id")
-        .eq("id", user.id)
-        .single();
-
-      if (!profile?.company_id) return null;
-
-      const { data: company } = await supabase
-        .from("companies")
-        .select("*")
-        .eq("id", profile.company_id)
-        .single();
-
-      return company;
-    },
-  });
 
   const generatePredictions = async () => {
     if (!company) {
@@ -171,10 +149,23 @@ const PredictionsPlaceholder = () => {
     }
   };
 
-  const hasCompany = !!company;
   const confidenceConfig = predictions?.confidence
     ? CONFIDENCE_CONFIG[predictions.confidence]
     : null;
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6 animate-pulse">
+        <div className="h-12 bg-secondary/50 rounded-lg w-1/3" />
+        <div className="h-48 bg-secondary/50 rounded-lg" />
+        <div className="grid md:grid-cols-2 gap-4">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-32 bg-secondary/50 rounded-lg" />
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
@@ -191,7 +182,7 @@ const PredictionsPlaceholder = () => {
         </div>
         <Button
           onClick={generatePredictions}
-          disabled={generating || !hasCompany}
+          disabled={generating || !hasProfile}
           className="gap-2"
         >
           {generating ? (
@@ -203,83 +194,81 @@ const PredictionsPlaceholder = () => {
         </Button>
       </div>
 
-      {/* Company Context */}
-      {!hasCompany && (
-        <Card className="border-amber-500/30 bg-amber-500/10">
-          <CardContent className="py-4">
-            <p className="text-sm text-amber-400 text-center">
-              Configura il profilo azienda per abilitare le previsioni AI personalizzate.
-            </p>
-          </CardContent>
-        </Card>
-      )}
+      {/* Company Context / Gating */}
+      {!hasProfile ? (
+        <CompanyProfileGate message="Configura il profilo azienda per abilitare le previsioni AI personalizzate" />
+      ) : (
+        <>
+          {/* Company Context Banner */}
+          {company && (
+            <Card className="border-border/50 bg-secondary/30">
+              <CardContent className="py-3">
+                <div className="flex items-center justify-between">
+                  <p className="text-sm text-muted-foreground">
+                    Analisi per: <span className="text-foreground font-medium">{company.name}</span>
+                    {company.sector && <span className="ml-2">• {company.sector}</span>}
+                    {company.employees && <span className="ml-2">• {company.employees} dipendenti</span>}
+                  </p>
+                  {confidenceConfig && (
+                    <Badge variant="outline" className={confidenceConfig.className}>
+                      {confidenceConfig.label}
+                    </Badge>
+                  )}
+                </div>
+              </CardContent>
+            </Card>
+          )}
 
-      {hasCompany && (
-        <Card className="border-border/50 bg-secondary/30">
-          <CardContent className="py-3">
-            <div className="flex items-center justify-between">
-              <p className="text-sm text-muted-foreground">
-                Analisi per: <span className="text-foreground font-medium">{company.name}</span>
-                {company.sector && <span className="ml-2">• {company.sector}</span>}
+          {/* Placeholder Chart */}
+          <Card className="border-border/50 bg-card/80">
+            <CardHeader>
+              <CardTitle className="font-display">Trend Previsto</CardTitle>
+              <CardDescription>Proiezione qualitativa (nessun valore numerico reale)</CardDescription>
+            </CardHeader>
+            <CardContent>
+              <PlaceholderChart />
+            </CardContent>
+          </Card>
+
+          {/* Predictions Grid */}
+          <div className="grid md:grid-cols-2 gap-4">
+            <PredictionCard
+              icon={TrendingUp}
+              title="Trend di Mercato"
+              content={predictions?.marketTrend || "Preview AI - In attesa di analisi"}
+              loading={generating}
+            />
+            <PredictionCard
+              icon={Target}
+              title="Opportunità Identificate"
+              content={predictions?.opportunities || "Preview AI - In attesa di analisi"}
+              loading={generating}
+            />
+            <PredictionCard
+              icon={AlertTriangle}
+              title="Sfide Potenziali"
+              content={predictions?.challenges || "Preview AI - In attesa di analisi"}
+              loading={generating}
+            />
+            <PredictionCard
+              icon={Compass}
+              title="Focus Strategico"
+              content={predictions?.strategicFocus || "Preview AI - In attesa di analisi"}
+              loading={generating}
+            />
+          </div>
+
+          {/* Disclaimer */}
+          <Card className="border-border/50 bg-secondary/20">
+            <CardContent className="py-4">
+              <p className="text-xs text-muted-foreground text-center">
+                Le previsioni sono generate da AI in modo qualitativo. Non contengono valori numerici, 
+                percentuali o dati finanziari. Utilizzare come supporto decisionale, non come fonte primaria.
               </p>
-              {confidenceConfig && (
-                <Badge variant="outline" className={confidenceConfig.className}>
-                  {confidenceConfig.label}
-                </Badge>
-              )}
-            </div>
-          </CardContent>
-        </Card>
+            </CardContent>
+          </Card>
+        </>
       )}
-
-      {/* Placeholder Chart */}
-      <Card className="border-border/50 bg-card/80">
-        <CardHeader>
-          <CardTitle className="font-display">Trend Previsto</CardTitle>
-          <CardDescription>Proiezione qualitativa (nessun valore numerico reale)</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <PlaceholderChart />
-        </CardContent>
-      </Card>
-
-      {/* Predictions Grid */}
-      <div className="grid md:grid-cols-2 gap-4">
-        <PredictionCard
-          icon={TrendingUp}
-          title="Trend di Mercato"
-          content={predictions?.marketTrend || "Preview AI - In attesa di analisi"}
-          loading={generating}
-        />
-        <PredictionCard
-          icon={Target}
-          title="Opportunità Identificate"
-          content={predictions?.opportunities || "Preview AI - In attesa di analisi"}
-          loading={generating}
-        />
-        <PredictionCard
-          icon={AlertTriangle}
-          title="Sfide Potenziali"
-          content={predictions?.challenges || "Preview AI - In attesa di analisi"}
-          loading={generating}
-        />
-        <PredictionCard
-          icon={Compass}
-          title="Focus Strategico"
-          content={predictions?.strategicFocus || "Preview AI - In attesa di analisi"}
-          loading={generating}
-        />
-      </div>
-
-      {/* Disclaimer */}
-      <Card className="border-border/50 bg-secondary/20">
-        <CardContent className="py-4">
-          <p className="text-xs text-muted-foreground text-center">
-            Le previsioni sono generate da AI in modo qualitativo. Non contengono valori numerici, 
-            percentuali o dati finanziari. Utilizzare come supporto decisionale, non come fonte primaria.
-          </p>
-        </CardContent>
-      </Card>
     </div>
   );
 };
