@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, TrendingUp, Bell, Zap } from "lucide-react";
 
@@ -36,11 +37,17 @@ const HeroSection = () => {
 
           {/* CTA Buttons */}
           <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-16 animate-fade-in" style={{ animationDelay: '0.3s' }}>
-            <Button variant="hero" size="xl">
-              Inizia Gratuitamente
-              <ArrowRight className="w-5 h-5" />
-            </Button>
-            <Button variant="glass" size="xl">
+            <Link to="/auth">
+              <Button variant="hero" size="xl">
+                Inizia Gratuitamente
+                <ArrowRight className="w-5 h-5" />
+              </Button>
+            </Link>
+            <Button 
+              variant="glass" 
+              size="xl"
+              onClick={() => document.getElementById('features')?.scrollIntoView({ behavior: 'smooth' })}
+            >
               Scopri le Funzionalità
             </Button>
           </div>

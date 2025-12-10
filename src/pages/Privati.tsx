@@ -47,7 +47,11 @@ const Privati = () => {
             </p>
           </div>
           <div className="flex gap-3">
-            <Button variant="outline" className="gap-2">
+            <Button 
+              variant="outline" 
+              className="gap-2"
+              onClick={() => document.getElementById('roadmap-section')?.scrollIntoView({ behavior: 'smooth' })}
+            >
               <FileText className="w-4 h-4" />
               Esempio Roadmap
             </Button>
@@ -203,6 +207,7 @@ const Privati = () => {
 
         {/* SEZIONE D: Roadmap Formativa */}
         <DashboardCard 
+          id="roadmap-section"
           icon={GraduationCap}
           title="Roadmap Formativa"
           subtitle="Il tuo percorso di apprendimento personalizzato"

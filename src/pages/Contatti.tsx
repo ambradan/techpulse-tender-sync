@@ -162,8 +162,10 @@ const Contatti = () => {
                 <p className="text-sm text-muted-foreground mb-4">
                   Consulta la nostra sezione FAQ per trovare risposte immediate alle domande più comuni.
                 </p>
-                <Button variant="outline" size="sm">
-                  Vai alle FAQ
+                <Button variant="outline" size="sm" asChild>
+                  <a href="mailto:info@techpulse.ai?subject=FAQ TechPulse">
+                    Contattaci per FAQ
+                  </a>
                 </Button>
               </CardContent>
             </Card>
