@@ -73,11 +73,12 @@ function HeroSection() {
           Proposta Riservata
         </Badge>
         <h1 className="text-3xl md:text-5xl font-bold mb-6">
-          Proposta HR & Tech
-          <span className="block text-primary mt-2">KarryCar</span>
+          TechPulse AI Suite
+          <span className="block text-primary mt-2">Previsioni. Strategie. Futuro.</span>
         </h1>
         <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-          Soluzione completa per ricerca, selezione, analisi e supporto HR.
+          La piattaforma intelligente per aziende, privati e freelance: analisi predittive, 
+          identificazione competenze critiche e gestione rischi normativi.
         </p>
       </div>
     </section>
