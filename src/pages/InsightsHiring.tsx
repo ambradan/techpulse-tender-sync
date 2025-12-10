@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/hooks/useAuth";
@@ -6,7 +6,7 @@ import { useCompanyProfile } from "@/hooks/useCompanyProfile";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { ArrowLeft, Users, Target, Lightbulb } from "lucide-react";
+import { Users, Target, Lightbulb, ChevronRight, Home } from "lucide-react";
 
 interface HiringData {
   ruoli_prioritari: string[];
@@ -62,16 +62,18 @@ const InsightsHiring = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      {/* Header */}
+      {/* Header with Breadcrumb */}
       <header className="border-b border-border/40 bg-card/50 backdrop-blur-sm sticky top-0 z-50">
-        <div className="max-w-5xl mx-auto px-6 py-4 flex items-center gap-4">
-          <Button 
-            variant="ghost" 
-            size="icon"
-            onClick={() => navigate("/dashboard")}
-          >
-            <ArrowLeft className="h-5 w-5" />
-          </Button>
+        <div className="max-w-5xl mx-auto px-6 py-4">
+          {/* Breadcrumb */}
+          <nav className="flex items-center gap-2 text-sm text-muted-foreground mb-2">
+            <Link to="/dashboard" className="flex items-center gap-1 hover:text-foreground transition-colors">
+              <Home className="h-4 w-4" />
+              <span>Dashboard</span>
+            </Link>
+            <ChevronRight className="h-4 w-4" />
+            <span className="text-foreground">Hiring & Competenze</span>
+          </nav>
           <div>
             <h1 className="text-xl font-semibold text-foreground">Hiring & Competenze</h1>
             <p className="text-sm text-muted-foreground">Ruoli e skill per la crescita aziendale</p>
