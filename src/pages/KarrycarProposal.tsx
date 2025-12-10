@@ -218,68 +218,6 @@ export default function KarrycarProposal() {
         </div>
       </section>
 
-      {/* Section 4 - Prezzi Fissi */}
-      <section className="py-16 border-b border-border/40 bg-muted/30">
-        <div className="max-w-4xl mx-auto px-6">
-          <h2 className="text-2xl md:text-3xl font-bold mb-4 text-center">
-            Pricing trasparente
-          </h2>
-          <p className="text-muted-foreground text-center mb-10 max-w-2xl mx-auto">
-            Chiarezza totale, nessuna sorpresa. I costi sono modulabili in base alle esigenze reali.
-          </p>
-          
-          <div className="bg-card border border-border/40 rounded-xl overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
-                  <tr className="border-b border-border bg-muted/50">
-                    <th className="text-left p-4 font-semibold">Servizio</th>
-                    <th className="text-left p-4 font-semibold">Cosa include</th>
-                    <th className="text-right p-4 font-semibold">Investimento</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr className="border-b border-border/50">
-                    <td className="p-4 font-medium">Recruiting One-Shot</td>
-                    <td className="p-4 text-muted-foreground text-sm">
-                      Selezione completa per singolo ruolo, dalla ricerca alla shortlist finale
-                    </td>
-                    <td className="p-4 text-right">
-                      <span className="font-bold text-primary text-lg">3.000 €</span>
-                      <span className="text-muted-foreground text-sm block">per ruolo</span>
-                    </td>
-                  </tr>
-                  <tr className="border-b border-border/50">
-                    <td className="p-4 font-medium">Fractional HR</td>
-                    <td className="p-4 text-muted-foreground text-sm">
-                      Presenza HR continuativa a pieno ritmo con selezione attiva
-                    </td>
-                    <td className="p-4 text-right">
-                      <span className="font-bold text-primary text-lg">3.000–5.000 €</span>
-                      <span className="text-muted-foreground text-sm block">al mese</span>
-                    </td>
-                  </tr>
-                  <tr>
-                    <td className="p-4 font-medium">Maintenance</td>
-                    <td className="p-4 text-muted-foreground text-sm">
-                      Operatività HR, amministrazione, onboarding, gestione (senza selezione attiva)
-                    </td>
-                    <td className="p-4 text-right">
-                      <span className="font-bold text-primary text-lg">1.000–2.000 €</span>
-                      <span className="text-muted-foreground text-sm block">al mese</span>
-                    </td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-            <div className="p-4 bg-muted/30 border-t border-border/50">
-              <p className="text-sm text-muted-foreground text-center">
-                La fascia dipende esclusivamente da complessità e carico di lavoro effettivo.
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
 
       {/* Section 5 - Pacchetti */}
       <section className="py-16 border-b border-border/40">
