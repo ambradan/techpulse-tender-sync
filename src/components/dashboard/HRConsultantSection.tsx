@@ -186,6 +186,18 @@ const HRConsultantSection = () => {
     setPredictions(generatePredictions(calculatedCosts.costoMensile));
   };
 
+  const handleReset = () => {
+    setSelectedRole("");
+    setCustomRole("");
+    setIsCustomRole(false);
+    setRal(40000);
+    setContractType("indeterminato");
+    setSuggestedRal(null);
+    setCosts(null);
+    setPredictions([]);
+    toast.info("Dati resettati");
+  };
+
   const formatCurrency = (value: number) => {
     return new Intl.NumberFormat("it-IT", {
       style: "currency",
@@ -318,11 +330,17 @@ const HRConsultantSection = () => {
             )}
           </div>
 
-          <Button onClick={handleCalculate} className="w-full" variant="hero">
-            <Calculator className="w-4 h-4 mr-2" />
-            Calcola Costo Totale
-          </Button>
-
+          <div className="flex gap-2">
+            <Button onClick={handleCalculate} className="flex-1" variant="hero">
+              <Calculator className="w-4 h-4 mr-2" />
+              Calcola Costo Totale
+            </Button>
+            {costs && (
+              <Button onClick={handleReset} variant="outline" size="icon" title="Reset dati">
+                <RefreshCw className="w-4 h-4" />
+              </Button>
+            )}
+          </div>
           {selectedRole && !isCustomRole && (
             <div className="p-3 bg-secondary/30 rounded-lg border border-border/30">
               <p className="text-xs text-muted-foreground">Range di mercato per {roles.find(r => r.value === selectedRole)?.label}:</p>
