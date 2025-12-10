@@ -4,7 +4,6 @@ import { Badge } from "@/components/ui/badge";
 import { 
   Users, 
   TrendingUp, 
-  Calendar, 
   ExternalLink, 
   Mail, 
   CheckCircle2,
@@ -32,8 +31,8 @@ export default function KarrycarProposal() {
               <span className="text-xl font-semibold">TechPulse</span>
             </div>
             <Button variant="outline" size="sm" asChild>
-              <a href="https://calendly.com/ambra-danesin/karrycar" target="_blank" rel="noopener noreferrer">
-                Prenota una call
+              <a href="mailto:a.danesin@critical-work.com">
+                Contattami
               </a>
             </Button>
           </div>
@@ -378,17 +377,20 @@ export default function KarrycarProposal() {
       {/* Section 6 - TechPulse Block */}
       <section className="py-16 border-b border-border/40 bg-gradient-to-br from-primary/10 via-background to-background">
         <div className="max-w-4xl mx-auto px-6 text-center">
-          <div className="flex items-center justify-center gap-2 mb-4">
+          <div className="flex items-center justify-center gap-3 mb-4">
             <Sparkles className="w-6 h-6 text-primary" />
             <span className="text-sm font-medium text-primary uppercase tracking-wider">TechPulse Insight</span>
+            <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30">
+              Omaggio
+            </Badge>
           </div>
           <h2 className="text-2xl md:text-3xl font-semibold mb-4">
             Analisi predittiva del mercato Tech
           </h2>
           <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
-            Dashboard dedicata con trend di competenze, rischi e opportunità di mercato, 
-            evoluzione ruoli target su orizzonte 12–36 mesi. Insights qualitativi basati 
-            sul profilo aziendale dichiarato.
+            <strong className="text-foreground">Incluso gratuitamente</strong> nella proposta: dashboard dedicata con trend di competenze, 
+            rischi e opportunità di mercato, evoluzione ruoli target su orizzonte 12–36 mesi. 
+            Insights qualitativi basati sul profilo aziendale dichiarato.
           </p>
           
           {/* Mini Dashboard Preview */}
@@ -428,12 +430,12 @@ export default function KarrycarProposal() {
             Iniziamo a lavorare insieme
           </h2>
           <p className="text-muted-foreground mb-8 max-w-xl mx-auto">
-            Fissiamo una call per capire le tue esigenze e costruire un percorso su misura.
+            Scrivimi per capire le tue esigenze e costruire un percorso su misura.
           </p>
           <Button size="lg" className="text-lg px-8 py-6" asChild>
-            <a href="https://calendly.com/ambra-danesin/karrycar" target="_blank" rel="noopener noreferrer">
-              <Calendar className="w-5 h-5 mr-2" />
-              Prenota una call con Ambra Danesin
+            <a href="mailto:a.danesin@critical-work.com">
+              <Mail className="w-5 h-5 mr-2" />
+              Contatta Ambra Danesin
             </a>
           </Button>
         </div>
