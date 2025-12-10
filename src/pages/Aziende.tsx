@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import MainNavbar from "@/components/MainNavbar";
+import ConditionalNavbar from "@/components/ConditionalNavbar";
 import MainFooter from "@/components/MainFooter";
 import { DashboardCard } from "@/components/dashboard/shared/DashboardCard";
 import { ScoreGauge } from "@/components/dashboard/shared/ScoreGauge";
@@ -33,7 +33,7 @@ const Aziende = () => {
 
   return (
     <main className="min-h-screen bg-gradient-hero flex flex-col">
-      <MainNavbar />
+      <ConditionalNavbar />
 
       {/* Hero Dashboard Header */}
       <section className="container mx-auto px-4 py-8 md:py-12">

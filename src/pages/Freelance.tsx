@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
-import MainNavbar from "@/components/MainNavbar";
+import ConditionalNavbar from "@/components/ConditionalNavbar";
 import MainFooter from "@/components/MainFooter";
 import { DashboardCard } from "@/components/dashboard/shared/DashboardCard";
 import { FreelancePrediction } from "@/types/predictions";
@@ -42,7 +42,7 @@ const Freelance = () => {
 
   return (
     <main className="min-h-screen bg-gradient-hero flex flex-col">
-      <MainNavbar />
+      <ConditionalNavbar />
 
       {/* Hero Dashboard Header */}
       <section className="container mx-auto px-4 py-8 md:py-12">
