@@ -114,39 +114,35 @@ const NewsCard = ({ news }: { news: MarketNews }) => {
   const categoryConfig = CATEGORY_CONFIG[news.category];
 
   return (
-    <Card className="border-border/50 bg-card/80 hover:bg-card/90 transition-colors">
-      <CardHeader className="pb-3">
-        <div className="flex items-start justify-between gap-2">
-          <Badge variant="outline" className={categoryConfig.className}>
-            {categoryConfig.label}
-          </Badge>
-          <div className="flex items-center gap-1 text-xs text-muted-foreground">
-            <Calendar className="w-3 h-3" />
-            {formatDate(news.publishedAt)}
-          </div>
+    <div className="tp-card-hover">
+      <div className="flex items-start justify-between gap-2 mb-3">
+        <Badge variant="outline" className={categoryConfig.className}>
+          {categoryConfig.label}
+        </Badge>
+        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+          <Calendar className="w-3 h-3" />
+          {formatDate(news.publishedAt)}
         </div>
-        <CardTitle className="font-display text-base leading-tight mt-2">
-          {news.title}
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
-        <p className="text-sm text-muted-foreground leading-relaxed">
-          {news.summary}
-        </p>
-        
-        <ImpactBar score={news.impactScore} />
-        
-        <div className="flex items-center justify-between pt-2 border-t border-border/50">
-          <span className="text-xs text-muted-foreground">
-            Fonte: {news.source}
-          </span>
-          <Button variant="ghost" size="sm" className="h-7 text-xs" disabled>
-            <ExternalLink className="w-3 h-3 mr-1" />
-            Dettagli
-          </Button>
-        </div>
-      </CardContent>
-    </Card>
+      </div>
+      <h3 className="font-display text-base font-medium leading-tight mb-3">
+        {news.title}
+      </h3>
+      <p className="text-sm text-muted-foreground leading-relaxed mb-4">
+        {news.summary}
+      </p>
+      
+      <ImpactBar score={news.impactScore} />
+      
+      <div className="flex items-center justify-between pt-4 mt-4 border-t border-border/50">
+        <span className="text-xs text-muted-foreground">
+          Fonte: {news.source}
+        </span>
+        <Button variant="ghost" size="sm" className="h-7 text-xs" disabled>
+          <ExternalLink className="w-3 h-3 mr-1" />
+          Dettagli
+        </Button>
+      </div>
+    </div>
   );
 };
 
@@ -172,22 +168,24 @@ const TrendsPlaceholder = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="tp-section space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-gradient-primary flex items-center justify-center">
-            <TrendingUp className="w-5 h-5 text-primary-foreground" />
+      <div className="tp-page-header">
+        <div className="flex items-center justify-between flex-wrap gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-gradient-primary flex items-center justify-center glow-primary">
+              <TrendingUp className="w-6 h-6 text-primary-foreground" />
+            </div>
+            <div>
+              <h1 className="tp-page-title">Trend Attuali</h1>
+              <p className="tp-page-subtitle">Monitoraggio trend di mercato</p>
+            </div>
           </div>
-          <div>
-            <h1 className="font-display text-2xl font-bold">Trend Attuali</h1>
-            <p className="text-muted-foreground">Monitoraggio trend di mercato</p>
-          </div>
+          <Button className="tp-btn-primary" disabled>
+            <Sparkles className="w-4 h-4 mr-2" />
+            Analizza con AI
+          </Button>
         </div>
-        <Button variant="outline" size="sm" disabled>
-          <Sparkles className="w-4 h-4 mr-2" />
-          Analizza con AI
-        </Button>
       </div>
 
       {/* Company Context */}
@@ -201,13 +199,11 @@ const TrendsPlaceholder = () => {
       )}
 
       {/* Info Banner */}
-      <Card className="border-border/50 bg-secondary/30">
-        <CardContent className="py-4">
-          <p className="text-sm text-muted-foreground text-center">
-            In attesa di integrazione API esterne. I contenuti mostrati sono placeholder basati sul settore {company?.sector || "generico"}.
-          </p>
-        </CardContent>
-      </Card>
+      <div className="tp-card bg-secondary/30 py-4">
+        <p className="text-sm text-muted-foreground text-center">
+          In attesa di integrazione API esterne. I contenuti mostrati sono placeholder basati sul settore {company?.sector || "generico"}.
+        </p>
+      </div>
 
       {/* Filter Tags */}
       <div className="flex flex-wrap gap-2">
@@ -223,31 +219,27 @@ const TrendsPlaceholder = () => {
       </div>
 
       {/* News Grid */}
-      <div className="grid gap-4">
+      <div className="grid gap-6">
         {placeholderNews.map((news) => (
           <NewsCard key={news.id} news={news} />
         ))}
       </div>
 
       {/* AI Summary Placeholder */}
-      <Card className="border-border/50 bg-gradient-card">
-        <CardHeader>
-          <CardTitle className="font-display flex items-center gap-2">
-            <Sparkles className="w-5 h-5 text-primary" />
-            Sintesi AI
-          </CardTitle>
-          <CardDescription>
-            Analisi automatica dei trend più rilevanti per il tuo settore {company?.sector && `(${company.sector})`}
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="p-4 rounded-lg border border-dashed border-border bg-secondary/20">
-            <p className="text-sm text-muted-foreground text-center">
-              Preview AI - Sintesi in attesa di dati reali
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="tp-card bg-gradient-card">
+        <div className="flex items-center gap-2 mb-4">
+          <Sparkles className="w-5 h-5 text-primary" />
+          <h2 className="font-display text-xl font-semibold">Sintesi AI</h2>
+        </div>
+        <p className="text-sm text-muted-foreground mb-4">
+          Analisi automatica dei trend più rilevanti per il tuo settore {company?.sector && `(${company.sector})`}
+        </p>
+        <div className="p-6 rounded-xl border border-dashed border-border bg-secondary/20">
+          <p className="text-sm text-muted-foreground text-center">
+            Preview AI - Sintesi in attesa di dati reali
+          </p>
+        </div>
+      </div>
     </div>
   );
 };

@@ -230,39 +230,37 @@ const HRConsultantPlaceholder = () => {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="tp-section space-y-8">
       {/* Header */}
-      <div className="flex items-center gap-3">
-        <div className="w-10 h-10 rounded-lg bg-gradient-primary flex items-center justify-center">
-          <Calculator className="w-5 h-5 text-primary-foreground" />
-        </div>
-        <div>
-          <h1 className="font-display text-2xl font-bold">Consulente del Lavoro in Tasca</h1>
-          <p className="text-muted-foreground">Simulatore costo assunzione</p>
+      <div className="tp-page-header">
+        <div className="flex items-center gap-4">
+          <div className="w-12 h-12 rounded-xl bg-gradient-primary flex items-center justify-center glow-primary">
+            <Calculator className="w-6 h-6 text-primary-foreground" />
+          </div>
+          <div>
+            <h1 className="tp-page-title">Consulente del Lavoro in Tasca</h1>
+            <p className="tp-page-subtitle">Simulatore costo assunzione</p>
+          </div>
         </div>
       </div>
 
       {/* Info Banner */}
-      <Card className="border-border/50 bg-secondary/30">
-        <CardContent className="py-4">
-          <div className="flex items-start gap-2">
-            <Info className="w-4 h-4 text-muted-foreground mt-0.5" />
-            <p className="text-sm text-muted-foreground">
-              I calcoli utilizzano formule standard italiane basate esclusivamente sui valori inseriti. 
-              Nessun dato è predefinito o inventato.
-            </p>
-          </div>
-        </CardContent>
-      </Card>
+      <div className="tp-card bg-secondary/30 py-4">
+        <div className="flex items-start gap-3">
+          <Info className="w-5 h-5 text-muted-foreground mt-0.5" />
+          <p className="text-sm text-muted-foreground">
+            I calcoli utilizzano formule standard italiane basate esclusivamente sui valori inseriti. 
+            Nessun dato è predefinito o inventato.
+          </p>
+        </div>
+      </div>
 
-      <div className="grid lg:grid-cols-2 gap-6">
+      <div className="grid lg:grid-cols-2 gap-8">
         {/* Input Form */}
-        <Card className="border-border/50 bg-card/80">
-          <CardHeader>
-            <CardTitle className="font-display">Dati Assunzione</CardTitle>
-            <CardDescription>Inserisci i parametri per il calcolo</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+        <div className="tp-card">
+          <h2 className="font-display text-xl font-semibold mb-2">Dati Assunzione</h2>
+          <p className="text-sm text-muted-foreground mb-6">Inserisci i parametri per il calcolo</p>
+          <div className="space-y-5">
             {/* Role */}
             <div className="space-y-2">
               <Label htmlFor="role">Ruolo *</Label>
@@ -345,13 +343,13 @@ const HRConsultantPlaceholder = () => {
             </div>
 
             {/* Actions */}
-            <div className="flex gap-2 pt-4">
-              <Button onClick={handleCalculate} className="flex-1">
+            <div className="flex gap-3 pt-6">
+              <Button onClick={handleCalculate} className="tp-btn-primary flex-1">
                 <Calculator className="w-4 h-4 mr-2" />
                 Calcola Costi
               </Button>
               <Button
-                variant="outline"
+                className="tp-btn-secondary"
                 onClick={handleGetAdvice}
                 disabled={generating}
               >
@@ -362,22 +360,20 @@ const HRConsultantPlaceholder = () => {
                 )}
               </Button>
             </div>
-          </CardContent>
-        </Card>
+          </div>
+        </div>
 
         {/* Results Panel */}
-        <div className="space-y-6">
+        <div className="space-y-8">
           {/* Cost Breakdown */}
-          <Card className="border-border/50 bg-card/80">
-            <CardHeader>
-              <CardTitle className="font-display">Riepilogo Costi</CardTitle>
-              <CardDescription>Calcolati dai valori inseriti</CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-6">
+          <div className="tp-card">
+            <h2 className="font-display text-xl font-semibold mb-2">Riepilogo Costi</h2>
+            <p className="text-sm text-muted-foreground mb-6">Calcolati dai valori inseriti</p>
+            <div className="space-y-6">
               {costs ? (
                 <>
                   {/* Summary */}
-                  <div className="p-4 rounded-lg bg-primary/10 border border-primary/20">
+                  <div className="p-4 rounded-xl bg-primary/10 border border-primary/20">
                     <div className="flex justify-between items-center">
                       <span className="text-sm font-medium">Costo Totale Annuo</span>
                       <span className="text-xl font-display font-bold text-primary">
@@ -423,44 +419,38 @@ const HRConsultantPlaceholder = () => {
                   </div>
                 </>
               ) : (
-                <div className="h-48 flex items-center justify-center border border-dashed border-border rounded-lg bg-secondary/20">
+                <div className="h-48 flex items-center justify-center border border-dashed border-border rounded-xl bg-secondary/20">
                   <p className="text-sm text-muted-foreground">
                     Compila il form per vedere il riepilogo costi
                   </p>
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </div>
+          </div>
 
           {/* Cost Chart */}
-          <Card className="border-border/50 bg-card/80">
-            <CardHeader>
-              <CardTitle className="font-display text-base">Composizione Costi</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <CostBarChart costs={costs} />
-            </CardContent>
-          </Card>
+          <div className="tp-card">
+            <h3 className="font-display text-base font-semibold mb-4">Composizione Costi</h3>
+            <CostBarChart costs={costs} />
+          </div>
         </div>
       </div>
 
       {/* AI Recommendations */}
       {advice && (
-        <Card className="border-border/50 bg-gradient-card">
-          <CardHeader>
-            <CardTitle className="font-display flex items-center gap-2">
-              <Sparkles className="w-5 h-5 text-primary" />
-              Raccomandazioni AI
-            </CardTitle>
-            <CardDescription>Consigli qualitativi (senza valori numerici)</CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-4">
+        <div className="tp-card bg-gradient-card">
+          <div className="flex items-center gap-2 mb-4">
+            <Sparkles className="w-5 h-5 text-primary" />
+            <h2 className="font-display text-xl font-semibold">Raccomandazioni AI</h2>
+          </div>
+          <p className="text-sm text-muted-foreground mb-4">Consigli qualitativi (senza valori numerici)</p>
+          <div className="space-y-4">
             {/* Recommendations */}
             <div className="space-y-2">
               {advice.recommendations.map((rec, index) => (
                 <div
                   key={index}
-                  className="flex items-start gap-2 p-3 rounded-lg bg-secondary/30"
+                  className="flex items-start gap-2 p-3 rounded-xl bg-secondary/30"
                 >
                   <span className="w-5 h-5 rounded-full bg-primary/20 text-primary text-xs flex items-center justify-center flex-shrink-0 mt-0.5">
                     {index + 1}
@@ -472,7 +462,7 @@ const HRConsultantPlaceholder = () => {
 
             {/* Contract Notes */}
             {advice.contractNotes && (
-              <div className="p-3 rounded-lg bg-blue-500/10 border border-blue-500/20">
+              <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/20">
                 <p className="text-sm">
                   <span className="font-medium text-blue-400">Nota contrattuale: </span>
                   <span className="text-muted-foreground">{advice.contractNotes}</span>
@@ -482,7 +472,7 @@ const HRConsultantPlaceholder = () => {
 
             {/* Risk Factors */}
             {advice.riskFactors && (
-              <div className="p-3 rounded-lg bg-amber-500/10 border border-amber-500/20">
+              <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/20">
                 <div className="flex items-start gap-2">
                   <AlertTriangle className="w-4 h-4 text-amber-400 mt-0.5" />
                   <p className="text-sm">
@@ -492,19 +482,17 @@ const HRConsultantPlaceholder = () => {
                 </div>
               </div>
             )}
-          </CardContent>
-        </Card>
+          </div>
+        </div>
       )}
 
       {/* Disclaimer */}
-      <Card className="border-border/50 bg-secondary/20">
-        <CardContent className="py-4">
-          <p className="text-xs text-muted-foreground text-center">
-            I calcoli utilizzano formule standard (contributi INPS ~30%, INAIL ~0.4%, TFR ~6.91%). 
-            Per valutazioni precise consultare un professionista. Nessun valore è inventato o predefinito.
-          </p>
-        </CardContent>
-      </Card>
+      <div className="tp-card bg-secondary/20 py-4">
+        <p className="text-xs text-muted-foreground text-center">
+          I calcoli utilizzano formule standard (contributi INPS ~30%, INAIL ~0.4%, TFR ~6.91%). 
+          Per valutazioni precise consultare un professionista. Nessun valore è inventato o predefinito.
+        </p>
+      </div>
     </div>
   );
 };
