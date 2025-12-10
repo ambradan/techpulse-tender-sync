@@ -25,28 +25,30 @@ serve(async (req) => {
 
 Ricevi dati aziendali e produci previsioni strutturate.
 
-REGOLE CRITICHE:
-- Genera SOLO dati derivabili logicamente dagli input forniti
-- NON inventare numeri specifici di fatturato o crescita percentuale esatta
-- Usa scale qualitative (1-100) per gli score
-- I trend devono essere coerenti con la storia fornita
+REGOLE CRITICHE - DIVIETO ASSOLUTO DI INVENTARE NUMERI:
+- MAI inventare statistiche, percentuali di crescita, fatturati, valori finanziari specifici
+- MAI scrivere cifre come "crescita del 15%", "fatturato di 2M€", "aumento del 20%"
+- La sintesi deve usare SOLO termini qualitativi: "in crescita", "stabile", "a rischio", "promettente"
+- I driver positivi/negativi devono essere descrittivi, MAI numerici
+- Usa scale qualitative (1-100) SOLO per overall_score e trend (questi sono scale relative, non dati reali)
 - Le analisi devono essere prudenziali e realistiche
+- Se mancano dati, scrivi "Dati insufficienti" invece di inventare
 
 OUTPUT RICHIESTO (JSON valido):
 {
-  "trend": [array di 6 numeri da 0-100 rappresentanti l'andamento previsto nei prossimi 6 mesi],
-  "overall_score": numero da 0-100 che rappresenta la salute complessiva prevista,
+  "trend": [array di 6 numeri da 0-100 rappresentanti l'andamento qualitativo previsto],
+  "overall_score": numero da 0-100 come indice qualitativo relativo,
   "commentary": {
-    "summary": "breve sintesi qualitativa delle prospettive aziendali (max 200 caratteri)",
-    "drivers_positive": ["lista di 2-4 fattori positivi identificati"],
-    "drivers_negative": ["lista di 2-4 fattori di rischio identificati"]
+    "summary": "breve sintesi QUALITATIVA senza numeri inventati (max 200 caratteri)",
+    "drivers_positive": ["fattore qualitativo 1", "fattore qualitativo 2"],
+    "drivers_negative": ["rischio qualitativo 1", "rischio qualitativo 2"]
   }
 }
 
 IMPORTANTE:
-- Rispondi SOLO con JSON valido, nessun testo aggiuntivo
-- I trend devono avere esattamente 6 valori numerici
-- Score e trend devono essere coerenti tra loro`;
+- Rispondi SOLO con JSON valido
+- I trend sono scale relative 0-100, NON percentuali reali
+- Commentary deve essere SOLO qualitativo, MAI numerico`;
 
     const userPrompt = `Analizza questa azienda e genera previsioni:
 

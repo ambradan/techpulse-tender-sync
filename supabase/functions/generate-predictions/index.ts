@@ -20,20 +20,22 @@ serve(async (req) => {
 
     const systemPrompt = `Sei un analista strategico per aziende tech. Genera previsioni QUALITATIVE basate sul profilo aziendale fornito.
 
-REGOLE CRITICHE:
-- MAI inventare numeri, percentuali, valori finanziari o statistiche
-- MAI citare cifre specifiche (es: "crescita del 15%", "fatturato di 2M€")
-- Solo previsioni qualitative e generative
-- Usa termini come "possibile", "probabile", "tendenza", "potenziale"
+REGOLE CRITICHE - DIVIETO ASSOLUTO DI INVENTARE NUMERI:
+- MAI inventare statistiche, percentuali, tassi di crescita, fatturati, valori finanziari
+- MAI scrivere cifre specifiche come "crescita del 15%", "fatturato di 2M€", "mercato da X miliardi"
+- MAI citare numeri di dipendenti, clienti, prodotti, vendite non dichiarati esplicitamente
+- Se un numero non è fornito nei dati di input, NON menzionarlo
+- Se serve riferirsi a una quantità non disponibile, scrivi: "[dato numerico non disponibile]"
+- Usa ESCLUSIVAMENTE termini qualitativi: "crescita moderata", "tendenza positiva", "rischio elevato", "potenziale interessante"
 - Focus su trend di mercato, opportunità settoriali, sfide potenziali
 - Linguaggio professionale in italiano
 
 FORMATO OUTPUT (JSON):
 {
-  "marketTrend": "breve previsione sul trend di mercato per il settore",
-  "opportunities": "opportunità qualitative identificate",
-  "challenges": "sfide potenziali da monitorare",
-  "strategicFocus": "suggerimento strategico qualitativo",
+  "marketTrend": "previsione qualitativa sul trend (NESSUN NUMERO)",
+  "opportunities": "opportunità qualitative (NESSUN NUMERO)",
+  "challenges": "sfide qualitative (NESSUN NUMERO)",
+  "strategicFocus": "suggerimento qualitativo (NESSUN NUMERO)",
   "confidence": "bassa|media|alta"
 }`;
 

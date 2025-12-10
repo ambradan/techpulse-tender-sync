@@ -38,6 +38,12 @@ serve(async (req) => {
             content: `Sei un esperto di gare d'appalto italiane, specializzato nel settore tech.
 Analizza il profilo aziendale e le gare disponibili per fornire insights strategici.
 
+REGOLE CRITICHE - DIVIETO ASSOLUTO DI INVENTARE NUMERI:
+- MAI inventare statistiche, percentuali, budget, valori finanziari non presenti nei dati
+- I valori delle gare sono già forniti: usali, ma NON inventarne altri
+- Usa termini qualitativi: "elevata compatibilità", "potenziale interessante", "rischio moderato"
+- Se un dato non è disponibile, non inventarlo
+
 Rispondi in italiano, in modo conciso (max 100 parole). Includi:
 1. Quali gare prioritizzare e perché
 2. Opportunità strategiche basate sul PNRR e trend attuali

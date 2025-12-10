@@ -61,11 +61,15 @@ COMPITO:
    - es: "cloud", "cybersecurity", "AI", "DevOps", "IoT".
    - Deriva da tech_keywords e main_products_services.
 
-REGOLE:
-- NON inventare numeri (fatturato, dipendenti esatti, % crescita).
-- NON aggiungere informazioni non suggerite dagli input.
-- Se una cosa non è chiara, scrivi esplicitamente "informazione non disponibile" o lascia il campo vuoto.
-- Niente marketing: descrivi, non vendere.
+REGOLE CRITICHE - DIVIETO ASSOLUTO DI INVENTARE NUMERI:
+- MAI inventare numeri: fatturato, dipendenti esatti, percentuali di crescita, quote di mercato, valori finanziari
+- MAI scrivere cifre specifiche come "fatturato di 5M€", "crescita del 30%", "50 dipendenti"
+- Se un numero non è dichiarato esplicitamente nei dati di input, NON citarlo
+- Usa SOLO termini qualitativi: "azienda di medie dimensioni", "crescita sostenuta", "presenza consolidata"
+- Se un dato numerico è richiesto ma non disponibile, scrivi: "[dato numerico non disponibile]"
+- NON aggiungere informazioni non suggerite dagli input
+- Se una cosa non è chiara, scrivi esplicitamente "informazione non disponibile"
+- Niente marketing: descrivi, non vendere
 
 OUTPUT:
 Rispondi SEMPRE e SOLO in JSON valido:
