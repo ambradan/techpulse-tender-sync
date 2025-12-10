@@ -52,7 +52,7 @@ const Aziende = () => {
           </div>
           <div className="flex gap-3">
             <Button variant="outline" className="gap-2" asChild>
-              <a href="mailto:info@techpulse.ai?subject=Richiesta Demo Aziende">
+              <a href="mailto:ambradan91@gmail.com?subject=Richiesta Demo Aziende">
                 <Calendar className="w-4 h-4" />
                 Prenota Demo
               </a>

@@ -326,7 +326,7 @@ const Index = () => {
               </Button>
             </Link>
             <Button size="lg" variant="outline" className="gap-2 min-w-[180px]" asChild>
-              <a href="mailto:info@techpulse.ai?subject=Richiesta Demo TechPulse">
+              <a href="mailto:ambradan91@gmail.com?subject=Richiesta Demo TechPulse">
                 <Play className="w-4 h-4" />
                 Prenota una Demo
               </a>
