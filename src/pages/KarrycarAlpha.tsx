@@ -1,4 +1,5 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useNavigate } from "react-router-dom";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -6,7 +7,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
-import { Loader2, Lock, Send, Mail, Sparkles, TrendingUp, Building2, Lightbulb, GraduationCap, Calculator } from "lucide-react";
+import { Loader2, Lock, Send, Mail, Sparkles, TrendingUp, Building2, Lightbulb, GraduationCap, Calculator, ShieldCheck } from "lucide-react";
+import { supabase } from "@/integrations/supabase/client";
 import {
   callTechPulsePredict,
   getCompanyPredictions,
@@ -21,84 +23,94 @@ import {
   type HRCostCheckPayload,
 } from "@/lib/techpulse-api";
 
-const PASSCODE = "KARRY24-ALPHA";
-
 export default function KarrycarAlpha() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
-  const [passcodeInput, setPasscodeInput] = useState("");
-  const [passcodeError, setPasscodeError] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [userEmail, setUserEmail] = useState<string | null>(null);
+  const navigate = useNavigate();
 
-  const handlePasscodeSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (passcodeInput === PASSCODE) {
-      setIsAuthenticated(true);
-      setPasscodeError(false);
-    } else {
-      setPasscodeError(true);
-    }
-  };
+  useEffect(() => {
+    // Check authentication status
+    const checkAuth = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      
+      if (session?.user) {
+        setIsAuthenticated(true);
+        setUserEmail(session.user.email || null);
+      } else {
+        setIsAuthenticated(false);
+      }
+      setIsLoading(false);
+    };
 
-  if (!isAuthenticated) {
-    return <PasscodePage 
-      passcodeInput={passcodeInput}
-      setPasscodeInput={setPasscodeInput}
-      passcodeError={passcodeError}
-      onSubmit={handlePasscodeSubmit}
-    />;
+    checkAuth();
+
+    // Listen for auth changes
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
+      if (session?.user) {
+        setIsAuthenticated(true);
+        setUserEmail(session.user.email || null);
+      } else {
+        setIsAuthenticated(false);
+        setUserEmail(null);
+      }
+    });
+
+    return () => subscription.unsubscribe();
+  }, []);
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-teal-900 flex items-center justify-center">
+        <Loader2 className="w-8 h-8 text-teal-400 animate-spin" />
+      </div>
+    );
   }
 
-  return <MainPage />;
+  if (!isAuthenticated) {
+    return <AuthRequiredPage onNavigateToAuth={() => navigate("/auth")} />;
+  }
+
+  return <MainPage userEmail={userEmail} />;
 }
 
-function PasscodePage({ 
-  passcodeInput, 
-  setPasscodeInput, 
-  passcodeError, 
-  onSubmit 
-}: {
-  passcodeInput: string;
-  setPasscodeInput: (v: string) => void;
-  passcodeError: boolean;
-  onSubmit: (e: React.FormEvent) => void;
-}) {
+function AuthRequiredPage({ onNavigateToAuth }: { onNavigateToAuth: () => void }) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-slate-800 to-teal-900 flex items-center justify-center p-4">
       <Card className="w-full max-w-md bg-white/10 backdrop-blur-lg border-white/20 text-white">
         <CardHeader className="text-center space-y-4">
           <div className="mx-auto w-16 h-16 rounded-full bg-teal-500/20 flex items-center justify-center">
-            <Lock className="w-8 h-8 text-teal-400" />
+            <ShieldCheck className="w-8 h-8 text-teal-400" />
           </div>
-          <CardTitle className="text-2xl font-bold">Inserisci il codice di accesso</CardTitle>
+          <CardTitle className="text-2xl font-bold">Accesso Riservato</CardTitle>
           <CardDescription className="text-slate-300">
             Private Alpha 0.1 – Karrycar Team Only
           </CardDescription>
         </CardHeader>
-        <CardContent>
-          <form onSubmit={onSubmit} className="space-y-4">
-            <Input
-              type="password"
-              placeholder="Codice di accesso"
-              value={passcodeInput}
-              onChange={(e) => setPasscodeInput(e.target.value)}
-              className={`bg-white/10 border-white/30 text-white placeholder:text-slate-400 ${passcodeError ? 'border-red-500' : ''}`}
-            />
-            {passcodeError && (
-              <p className="text-red-400 text-sm">Codice non valido. Riprova.</p>
-            )}
-            <Button type="submit" className="w-full bg-teal-600 hover:bg-teal-700 text-white">
-              Accedi
-            </Button>
-          </form>
+        <CardContent className="space-y-4">
+          <p className="text-slate-300 text-center">
+            Per accedere a questa pagina riservata è necessario autenticarsi con le proprie credenziali TechPulse.
+          </p>
+          <Button 
+            onClick={onNavigateToAuth} 
+            className="w-full bg-teal-600 hover:bg-teal-700 text-white"
+          >
+            <Lock className="w-4 h-4 mr-2" />
+            Accedi con TechPulse
+          </Button>
+          <p className="text-xs text-slate-400 text-center">
+            L'accesso è protetto da autenticazione sicura server-side.
+          </p>
         </CardContent>
       </Card>
     </div>
   );
 }
 
-function MainPage() {
+function MainPage({ userEmail }: { userEmail: string | null }) {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 to-teal-50">
-      <HeroSection />
+      <HeroSection userEmail={userEmail} />
       <ModulesSection />
       <InterpretationSection />
       <CTASection />
@@ -106,10 +118,20 @@ function MainPage() {
   );
 }
 
-function HeroSection() {
+function HeroSection({ userEmail }: { userEmail: string | null }) {
   return (
     <header className="bg-gradient-to-r from-slate-900 via-slate-800 to-teal-900 text-white py-16 px-4">
       <div className="max-w-7xl mx-auto">
+        {/* Authenticated user badge */}
+        {userEmail && (
+          <div className="mb-6 flex items-center gap-2">
+            <Badge className="bg-green-500/20 text-green-300 border-green-500/30">
+              <ShieldCheck className="w-3 h-3 mr-1" />
+              Autenticato: {userEmail}
+            </Badge>
+          </div>
+        )}
+        
         <div className="grid md:grid-cols-2 gap-12 items-center">
           {/* Left Column */}
           <div className="space-y-6">
