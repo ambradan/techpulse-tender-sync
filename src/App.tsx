@@ -11,6 +11,8 @@ import Privati from "./pages/Privati";
 import Freelance from "./pages/Freelance";
 import About from "./pages/About";
 import Contatti from "./pages/Contatti";
+import PrivacyPolicy from "./pages/PrivacyPolicy";
+import TermsOfService from "./pages/TermsOfService";
 import DashboardLayout from "./layouts/DashboardLayout";
 import DashboardHome from "./pages/DashboardHome";
 import TrendsPlaceholder from "./components/dashboard/TrendsPlaceholder";
@@ -45,6 +47,8 @@ const App = () => (
           <Route path="/freelance" element={<Freelance />} />
           <Route path="/about" element={<About />} />
           <Route path="/contatti" element={<Contatti />} />
+          <Route path="/privacy" element={<PrivacyPolicy />} />
+          <Route path="/terms" element={<TermsOfService />} />
           <Route path="/test-predict" element={<TestPredict />} />
           <Route path="/test-company-predictions" element={<TestCompanyPredictions />} />
           <Route path="/test-company-analyze" element={<TestCompanyAnalyze />} />

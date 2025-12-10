@@ -7,17 +7,20 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import MainNavbar from "@/components/MainNavbar";
 import MainFooter from "@/components/MainFooter";
 import { useToast } from "@/hooks/use-toast";
+import { supabase } from "@/integrations/supabase/client";
 import { 
-  Mail,
   Phone,
   MapPin,
   Send,
   MessageSquare,
-  Clock
+  Clock,
+  Linkedin,
+  Loader2
 } from "lucide-react";
 
 const Contatti = () => {
   const { toast } = useToast();
+  const [isLoading, setIsLoading] = useState(false);
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -25,13 +28,54 @@ const Contatti = () => {
     message: "",
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    toast({
-      title: "Messaggio inviato",
-      description: "Ti risponderemo il prima possibile.",
-    });
-    setFormData({ name: "", email: "", subject: "", message: "" });
+    
+    // Basic validation
+    if (!formData.name.trim() || !formData.email.trim() || !formData.subject.trim() || !formData.message.trim()) {
+      toast({
+        title: "Campi obbligatori",
+        description: "Compila tutti i campi del form.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    // Email validation
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(formData.email)) {
+      toast({
+        title: "Email non valida",
+        description: "Inserisci un indirizzo email valido.",
+        variant: "destructive"
+      });
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      const { data, error } = await supabase.functions.invoke('send-contact-email', {
+        body: formData
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Messaggio inviato!",
+        description: "Ti risponderò il prima possibile.",
+      });
+      setFormData({ name: "", email: "", subject: "", message: "" });
+    } catch (error: any) {
+      console.error("Error sending contact email:", error);
+      toast({
+        title: "Errore nell'invio",
+        description: error.message || "Riprova più tardi o contattami direttamente.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -42,10 +86,10 @@ const Contatti = () => {
       <section className="container mx-auto px-4 py-20 md:py-28">
         <div className="max-w-4xl mx-auto text-center">
           <h1 className="font-display text-4xl md:text-6xl font-bold text-foreground mb-6">
-            Contattaci
+            Contattami
           </h1>
           <p className="text-lg md:text-xl text-muted-foreground max-w-2xl mx-auto">
-            Hai domande o vuoi saperne di più? Siamo qui per aiutarti.
+            Hai domande o vuoi saperne di più? Sono qui per aiutarti.
           </p>
         </div>
       </section>
@@ -58,7 +102,7 @@ const Contatti = () => {
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <MessageSquare className="w-5 h-5 text-primary" />
-                Inviaci un Messaggio
+                Inviami un Messaggio
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -72,6 +116,8 @@ const Contatti = () => {
                       value={formData.name}
                       onChange={(e) => setFormData({ ...formData, name: e.target.value })}
                       required
+                      disabled={isLoading}
+                      maxLength={100}
                     />
                   </div>
                   <div className="space-y-2">
@@ -83,6 +129,8 @@ const Contatti = () => {
                       value={formData.email}
                       onChange={(e) => setFormData({ ...formData, email: e.target.value })}
                       required
+                      disabled={isLoading}
+                      maxLength={255}
                     />
                   </div>
                 </div>
@@ -91,10 +139,12 @@ const Contatti = () => {
                   <Label htmlFor="subject">Oggetto</Label>
                   <Input
                     id="subject"
-                    placeholder="Di cosa vuoi parlarci?"
+                    placeholder="Di cosa vuoi parlarmi?"
                     value={formData.subject}
                     onChange={(e) => setFormData({ ...formData, subject: e.target.value })}
                     required
+                    disabled={isLoading}
+                    maxLength={200}
                   />
                 </div>
                 
@@ -107,12 +157,23 @@ const Contatti = () => {
                     value={formData.message}
                     onChange={(e) => setFormData({ ...formData, message: e.target.value })}
                     required
+                    disabled={isLoading}
+                    maxLength={2000}
                   />
                 </div>
                 
-                <Button type="submit" className="w-full gap-2">
-                  <Send className="w-4 h-4" />
-                  Invia Messaggio
+                <Button type="submit" className="w-full gap-2" disabled={isLoading}>
+                  {isLoading ? (
+                    <>
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                      Invio in corso...
+                    </>
+                  ) : (
+                    <>
+                      <Send className="w-4 h-4" />
+                      Invia Messaggio
+                    </>
+                  )}
                 </Button>
               </form>
             </CardContent>
@@ -125,20 +186,23 @@ const Contatti = () => {
                 Informazioni di Contatto
               </h2>
               <p className="text-muted-foreground mb-8">
-                Puoi raggiungerci attraverso i seguenti canali. 
-                Il nostro team risponde entro 24 ore lavorative.
+                Puoi raggiungermi attraverso i seguenti canali. 
+                Rispondo solitamente entro 24 ore lavorative.
               </p>
             </div>
 
             <div className="space-y-4">
               {[
                 { icon: Phone, label: "Telefono", value: "338.908.5894", href: "tel:+393389085894" },
+                { icon: Linkedin, label: "LinkedIn", value: "Ambra Danesin", href: "https://www.linkedin.com/in/ambradanesin/" },
                 { icon: MapPin, label: "Sede", value: "Milano, Italia", href: "#" },
                 { icon: Clock, label: "Orari", value: "Lun-Ven 9:00-18:00", href: "#" },
               ].map((item, i) => (
                 <a
                   key={i}
                   href={item.href}
+                  target={item.href.startsWith('http') ? '_blank' : undefined}
+                  rel={item.href.startsWith('http') ? 'noopener noreferrer' : undefined}
                   className="flex items-start gap-4 p-4 rounded-lg bg-secondary/50 hover:bg-secondary transition-colors"
                 >
                   <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center flex-shrink-0">
@@ -152,18 +216,24 @@ const Contatti = () => {
               ))}
             </div>
 
-            {/* FAQ Link */}
+            {/* Direct Contact */}
             <Card className="bg-gradient-card border-border/50">
               <CardContent className="p-6">
                 <h3 className="font-display text-lg font-semibold text-foreground mb-2">
-                  Hai domande frequenti?
+                  Preferisci scrivermi direttamente?
                 </h3>
                 <p className="text-sm text-muted-foreground mb-4">
-                  Consulta la nostra sezione FAQ per trovare risposte immediate alle domande più comuni.
+                  Per richieste urgenti o particolari, puoi contattarmi via LinkedIn.
                 </p>
                 <Button variant="outline" size="sm" asChild>
-                  <a href="mailto:ambradan91@gmail.com?subject=FAQ TechPulse">
-                    Contattaci per FAQ
+                  <a 
+                    href="https://www.linkedin.com/in/ambradanesin/" 
+                    target="_blank" 
+                    rel="noopener noreferrer"
+                    className="gap-2"
+                  >
+                    <Linkedin className="w-4 h-4" />
+                    Contattami su LinkedIn
                   </a>
                 </Button>
               </CardContent>
