@@ -196,7 +196,7 @@ export default function KarrycarProposal() {
               </CardHeader>
               <CardContent className="space-y-3">
                 {[
-                  "Analisi predittiva 12–36 mesi",
+                  "Analisi predittiva 12–36–60 mesi",
                   "Trend di competenze settore",
                   "Rischi e opportunità mercato",
                   "Evoluzione ruolo target",
@@ -328,7 +328,7 @@ export default function KarrycarProposal() {
           </h2>
           <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
             <strong className="text-foreground">Incluso gratuitamente fino a Natale!</strong> Dashboard dedicata con trend di competenze, 
-            rischi e opportunità di mercato, evoluzione ruoli target su orizzonte 12–36 mesi. 
+            rischi e opportunità di mercato, evoluzione ruoli target su orizzonte 12–36–60 mesi. 
             Insights qualitativi basati sul profilo aziendale dichiarato.
           </p>
           
