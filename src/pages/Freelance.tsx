@@ -60,7 +60,11 @@ const Freelance = () => {
             </p>
           </div>
           <div className="flex gap-3">
-            <Button variant="outline" className="gap-2">
+            <Button 
+              variant="outline" 
+              className="gap-2"
+              onClick={() => document.getElementById('lead-section')?.scrollIntoView({ behavior: 'smooth' })}
+            >
               <Users className="w-4 h-4" />
               Scopri i Lead
             </Button>
@@ -256,6 +260,7 @@ const Freelance = () => {
 
         {/* SEZIONE E: Lead & Outreach */}
         <DashboardCard 
+          id="lead-section"
           icon={Send}
           title="Lead & Outreach"
           subtitle="Aziende target e strategia di contatto"
