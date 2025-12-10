@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/hooks/useAuth";
 import { Building2, Save, ArrowLeft, Trash2, Shield } from "lucide-react";
 import {
   AlertDialog,
@@ -37,6 +38,7 @@ const SECTORS = [
 const CompanyProfile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
+  const { user, isLoading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [companyId, setCompanyId] = useState<string | null>(null);
@@ -49,9 +51,18 @@ const CompanyProfile = () => {
     location: "",
   });
 
+  // Redirect to auth if not logged in
   useEffect(() => {
-    loadCompanyData();
-  }, []);
+    if (!authLoading && !user) {
+      navigate("/auth");
+    }
+  }, [user, authLoading, navigate]);
+
+  useEffect(() => {
+    if (user) {
+      loadCompanyData();
+    }
+  }, [user]);
 
   const loadCompanyData = async () => {
     const { data: { user } } = await supabase.auth.getUser();
