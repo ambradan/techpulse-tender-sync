@@ -28,6 +28,7 @@ import TestCompanyAnalyze from "./pages/TestCompanyAnalyze";
 import TestRealityCheck from "./pages/TestRealityCheck";
 import TestSkillsRoadmap from "./pages/TestSkillsRoadmap";
 import KarrycarAlpha from "./pages/KarrycarAlpha";
+import KarrycarProposal from "./pages/KarrycarProposal";
 
 const queryClient = new QueryClient();
 
@@ -50,6 +51,7 @@ const App = () => (
           <Route path="/test-reality-check" element={<TestRealityCheck />} />
           <Route path="/test-skills-roadmap" element={<TestSkillsRoadmap />} />
           <Route path="/karrycar" element={<KarrycarAlpha />} />
+          <Route path="/karrycar-proposal" element={<KarrycarProposal />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/profile" element={<CompanyProfile />} />
           <Route path="/dashboard" element={<DashboardLayout />}>
