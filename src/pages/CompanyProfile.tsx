@@ -8,7 +8,18 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { Building2, Save, ArrowLeft } from "lucide-react";
+import { Building2, Save, ArrowLeft, Trash2, Shield } from "lucide-react";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 
 const SECTORS = [
   "Software & IT",
@@ -27,6 +38,7 @@ const CompanyProfile = () => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [companyId, setCompanyId] = useState<string | null>(null);
 
   const [formData, setFormData] = useState({
@@ -53,7 +65,7 @@ const CompanyProfile = () => {
       .from("profiles")
       .select("company_id")
       .eq("id", user.id)
-      .single();
+      .maybeSingle();
 
     if (profile?.company_id) {
       setCompanyId(profile.company_id);
@@ -61,7 +73,7 @@ const CompanyProfile = () => {
         .from("companies")
         .select("*")
         .eq("id", profile.company_id)
-        .single();
+        .maybeSingle();
 
       if (company) {
         setFormData({
@@ -69,7 +81,7 @@ const CompanyProfile = () => {
           sector: company.sector || "",
           employees: company.employees?.toString() || "",
           description: company.description || "",
-          location: (company as any).location || "",
+          location: company.location || "",
         });
       }
     }
@@ -123,18 +135,73 @@ const CompanyProfile = () => {
       }
 
       toast({
-        title: "Profilo salvato",
-        description: "I dati aziendali sono stati aggiornati.",
+        title: "Profilo aziendale salvato correttamente",
+        description: "I dati sono stati aggiornati.",
       });
     } catch (error: any) {
+      console.error("Save error:", error);
       toast({
         variant: "destructive",
-        title: "Errore",
-        description: error.message,
+        title: "Errore nel salvataggio del profilo aziendale",
+        description: "Riprova più tardi.",
       });
     }
 
     setLoading(false);
+  };
+
+  const handleReset = async () => {
+    setDeleting(true);
+
+    const { data: { user } } = await supabase.auth.getUser();
+    if (!user) {
+      navigate("/auth");
+      return;
+    }
+
+    try {
+      // Unlink company from profile first
+      const { error: profileError } = await supabase
+        .from("profiles")
+        .update({ company_id: null })
+        .eq("id", user.id);
+
+      if (profileError) throw profileError;
+
+      // Delete company if exists
+      if (companyId) {
+        const { error: deleteError } = await supabase
+          .from("companies")
+          .delete()
+          .eq("id", companyId);
+
+        if (deleteError) throw deleteError;
+      }
+
+      // Reset form
+      setCompanyId(null);
+      setFormData({
+        name: "",
+        sector: "",
+        employees: "",
+        description: "",
+        location: "",
+      });
+
+      toast({
+        title: "Profilo aziendale cancellato",
+        description: "I dati sono stati rimossi.",
+      });
+    } catch (error: any) {
+      console.error("Delete error:", error);
+      toast({
+        variant: "destructive",
+        title: "Errore nella cancellazione",
+        description: "Riprova più tardi.",
+      });
+    }
+
+    setDeleting(false);
   };
 
   return (
@@ -202,7 +269,7 @@ const CompanyProfile = () => {
                   value={formData.employees}
                   onChange={(e) => setFormData({ ...formData, employees: e.target.value })}
                   placeholder="50"
-                  min="1"
+                  min="0"
                 />
               </div>
 
@@ -227,11 +294,58 @@ const CompanyProfile = () => {
                 />
               </div>
 
-              <Button type="submit" className="w-full" disabled={loading}>
-                <Save className="w-4 h-4 mr-2" />
-                {loading ? "Salvataggio..." : "Salva profilo"}
-              </Button>
+              <div className="flex gap-3">
+                <Button type="submit" className="flex-1" disabled={loading || deleting}>
+                  <Save className="w-4 h-4 mr-2" />
+                  {loading ? "Salvataggio..." : "Salva profilo"}
+                </Button>
+
+                {companyId && (
+                  <AlertDialog>
+                    <AlertDialogTrigger asChild>
+                      <Button 
+                        type="button" 
+                        variant="outline" 
+                        className="text-destructive border-destructive/30 hover:bg-destructive/10"
+                        disabled={loading || deleting}
+                      >
+                        <Trash2 className="w-4 h-4 mr-2" />
+                        Reset
+                      </Button>
+                    </AlertDialogTrigger>
+                    <AlertDialogContent>
+                      <AlertDialogHeader>
+                        <AlertDialogTitle>Cancellare il profilo aziendale?</AlertDialogTitle>
+                        <AlertDialogDescription>
+                          Vuoi davvero cancellare il profilo aziendale? Questa azione non può essere annullata.
+                        </AlertDialogDescription>
+                      </AlertDialogHeader>
+                      <AlertDialogFooter>
+                        <AlertDialogCancel>Annulla</AlertDialogCancel>
+                        <AlertDialogAction 
+                          onClick={handleReset}
+                          className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                        >
+                          {deleting ? "Cancellazione..." : "Cancella profilo"}
+                        </AlertDialogAction>
+                      </AlertDialogFooter>
+                    </AlertDialogContent>
+                  </AlertDialog>
+                )}
+              </div>
             </form>
+
+            {/* Privacy notice */}
+            <div className="mt-6 pt-4 border-t border-border/30">
+              <div className="flex items-start gap-2 text-xs text-muted-foreground">
+                <Shield className="w-4 h-4 mt-0.5 flex-shrink-0" />
+                <p>
+                  I dati inseriti qui sono solo aziendali, vengono salvati in modo sicuro e puoi cancellare 
+                  il profilo in qualsiasi momento. Nessuna informazione personale o sensibile viene richiesta 
+                  o utilizzata per il motore AI.
+                </p>
+              </div>
+            </div>
           </CardContent>
         </Card>
       </div>
