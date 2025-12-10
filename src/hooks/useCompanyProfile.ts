@@ -10,6 +10,7 @@ export interface CompanyProfile {
   description: string | null;
   context: string | null;
   country?: string | null;
+  user_id?: string;
   created_at: string;
   updated_at: string;
 }
@@ -29,18 +30,11 @@ export const useCompanyProfile = (): CompanyProfileData => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return null;
 
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("company_id")
-        .eq("id", user.id)
-        .maybeSingle();
-
-      if (!profile?.company_id) return null;
-
+      // Query companies directly by user_id
       const { data: company } = await supabase
         .from("companies")
         .select("*")
-        .eq("id", profile.company_id)
+        .eq("user_id", user.id)
         .maybeSingle();
 
       return company as CompanyProfile | null;
