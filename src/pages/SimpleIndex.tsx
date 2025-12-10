@@ -39,8 +39,8 @@ const SimpleIndex = () => {
             Previsioni. Strategie. Futuro.
           </p>
           <p className="text-lg text-muted-foreground max-w-2xl mx-auto mb-10">
-            La piattaforma intelligente per analizzare il profilo aziendale, 
-            identificare competenze critiche e gestire rischi normativi.
+            La piattaforma intelligente per aziende, privati e freelance: analisi predittive, 
+            identificazione competenze critiche e gestione rischi normativi.
           </p>
           <div className="flex flex-col sm:flex-row gap-4 justify-center">
             <Button 
