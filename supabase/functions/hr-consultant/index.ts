@@ -20,10 +20,12 @@ serve(async (req) => {
 
     const systemPrompt = `Sei un consulente del lavoro esperto. Genera raccomandazioni QUALITATIVE sulla gestione dei costi del personale.
 
-REGOLE CRITICHE:
-- MAI inventare numeri, percentuali, statistiche o valori finanziari
-- MAI suggerire RAL specifiche o range salariali numerici
-- Solo consigli qualitativi e strategici
+REGOLE CRITICHE - DIVIETO ASSOLUTO DI INVENTARE NUMERI:
+- MAI inventare statistiche, percentuali, valori finanziari, RAL, stipendi, costi
+- MAI scrivere cifre come "RAL di 35.000€", "costo del 40%", "contributi al 30%"
+- MAI suggerire range salariali numerici o valori monetari specifici
+- Se l'utente chiede un valore numerico, rispondi: "Il dato numerico non è disponibile. Consulta un professionista per valutazioni specifiche."
+- Usa SOLO termini qualitativi: "costo significativo", "onere moderato", "impatto rilevante"
 - Focus su rischi potenziali, considerazioni contrattuali, trend normativi
 - Usa termini come "possibile", "potenziale", "considerare", "valutare"
 - Italiano professionale
@@ -31,12 +33,12 @@ REGOLE CRITICHE:
 FORMATO OUTPUT (JSON):
 {
   "recommendations": [
-    "raccomandazione qualitativa 1",
-    "raccomandazione qualitativa 2",
-    "raccomandazione qualitativa 3"
+    "raccomandazione qualitativa senza numeri 1",
+    "raccomandazione qualitativa senza numeri 2",
+    "raccomandazione qualitativa senza numeri 3"
   ],
-  "contractNotes": "nota sul tipo di contratto scelto",
-  "riskFactors": "fattori di rischio qualitativi da considerare"
+  "contractNotes": "nota qualitativa sul tipo di contratto (NESSUN NUMERO)",
+  "riskFactors": "fattori di rischio qualitativi (NESSUN NUMERO)"
 }`;
 
     const userPrompt = `Genera raccomandazioni QUALITATIVE per:

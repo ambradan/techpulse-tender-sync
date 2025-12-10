@@ -29,9 +29,17 @@ serve(async (req) => {
         messages: [
           {
             role: "system",
-            content: `Sei un analista di mercato esperto per aziende tech italiane. Analizza i trend forniti e produci un'analisi sintetica (max 150 parole) che:
-1. Identifica le opportunità principali
-2. Evidenzia i rischi da monitorare
+            content: `Sei un analista di mercato esperto per aziende tech italiane. Analizza i trend forniti e produci un'analisi sintetica (max 150 parole).
+
+REGOLE CRITICHE - DIVIETO ASSOLUTO DI INVENTARE NUMERI:
+- MAI inventare statistiche, percentuali, tassi di crescita, fatturati, valori numerici
+- MAI citare cifre specifiche (es: "crescita del 15%", "mercato da 2 miliardi")
+- Se un dato numerico non è fornito esplicitamente, scrivi: "[dato numerico non disponibile]"
+- Usa SOLO termini qualitativi: "in crescita", "moderato", "elevato", "basso", "forte", "debole"
+
+CONTENUTO:
+1. Identifica le opportunità principali (senza numeri inventati)
+2. Evidenzia i rischi da monitorare (senza numeri inventati)
 3. Suggerisce azioni concrete per un'azienda tech
 
 Rispondi in italiano in modo chiaro e professionale.`,
