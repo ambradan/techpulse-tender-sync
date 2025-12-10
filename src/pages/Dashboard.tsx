@@ -52,8 +52,8 @@ interface Tender {
 }
 
 const Dashboard = () => {
-  const { data: company } = useQuery({
-    queryKey: ["company"],
+  const { data: company, isLoading: companyLoading } = useQuery({
+    queryKey: ["companyProfile"], // Use consistent key with useCompanyProfile hook
     queryFn: async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return null;
@@ -93,22 +93,25 @@ const Dashboard = () => {
   });
 
   const { data: tenders } = useQuery({
-    queryKey: ["tenders"],
+    queryKey: ["tenders", company?.id],
     queryFn: async () => {
+      if (!company?.id) return [];
       const { data, error } = await supabase
         .from("recommended_tenders" as any)
         .select("*")
+        .eq("company_id", company.id)
         .order("match_score", { ascending: false });
       if (error) throw error;
       return data as unknown as Tender[];
     },
+    enabled: !!company?.id,
   });
 
   return (
     <div className="min-h-screen bg-background">
       <DashboardNavbar />
       <main className="container mx-auto px-4 py-8 space-y-8">
-        <CompanyHero company={company} />
+        <CompanyHero company={company} isLoading={companyLoading} />
         <div className="grid lg:grid-cols-2 gap-8">
           <RealityCheckSection />
           <HRConsultantSection />
