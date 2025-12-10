@@ -377,20 +377,23 @@ export default function KarrycarProposal() {
       {/* Section 6 - TechPulse Block */}
       <section className="py-16 border-b border-border/40 bg-gradient-to-br from-primary/10 via-background to-background">
         <div className="max-w-4xl mx-auto px-6 text-center">
-          <div className="flex items-center justify-center gap-3 mb-4">
+          <div className="flex items-center justify-center gap-3 mb-4 flex-wrap">
             <Sparkles className="w-6 h-6 text-primary" />
             <span className="text-sm font-medium text-primary uppercase tracking-wider">TechPulse Insight</span>
             <Badge className="bg-emerald-500/20 text-emerald-400 border-emerald-500/30">
-              Omaggio
+              🎄 Omaggio fino a Natale
             </Badge>
           </div>
           <h2 className="text-2xl md:text-3xl font-semibold mb-4">
             Analisi predittiva del mercato Tech
           </h2>
-          <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
-            <strong className="text-foreground">Incluso gratuitamente</strong> nella proposta: dashboard dedicata con trend di competenze, 
+          <p className="text-muted-foreground mb-4 max-w-2xl mx-auto">
+            <strong className="text-foreground">Incluso gratuitamente fino a Natale!</strong> Dashboard dedicata con trend di competenze, 
             rischi e opportunità di mercato, evoluzione ruoli target su orizzonte 12–36 mesi. 
             Insights qualitativi basati sul profilo aziendale dichiarato.
+          </p>
+          <p className="text-sm text-muted-foreground mb-8 max-w-xl mx-auto italic">
+            Se deciderai di lavorare con me, TechPulse Insight sarà integrato nel pacchetto Fractional HR mensile.
           </p>
           
           {/* Mini Dashboard Preview */}
