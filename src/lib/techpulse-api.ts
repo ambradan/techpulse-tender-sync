@@ -32,6 +32,36 @@ export type SkillsRoadmapPayload = {
   constraints?: string;
 };
 
+export type HRCostCheckPayload = {
+  ccnl: string;
+  ral: number;
+  inquadramento: string;
+  provincia: string;
+  azienda_dimensione: string;
+  note?: string;
+};
+
+export async function getHRCostCheck(
+  payload: HRCostCheckPayload
+): Promise<{ result: string; disclaimer: string }> {
+  const res = await fetch(`${BASE_URL}/consultant/hr`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(payload),
+  });
+
+  if (!res.ok) {
+    const text = await res.text();
+    throw new Error(`Errore /consultant/hr ${res.status}: ${text}`);
+  }
+
+  const data = await res.json();
+  return {
+    result: data.result,
+    disclaimer: data.disclaimer || "Le informazioni fornite hanno carattere puramente indicativo e non costituiscono consulenza professionale.",
+  };
+}
+
 export async function getSkillsRoadmap(
   payload: SkillsRoadmapPayload
 ): Promise<string> {
