@@ -1,6 +1,9 @@
 import { useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { useCompanyProfile } from "@/hooks/useCompanyProfile";
 import { supabase } from "@/integrations/supabase/client";
+import CompanyProfileGate from "@/components/dashboard/CompanyProfileGate";
+import CompanyContextBanner from "@/components/dashboard/CompanyContextBanner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -159,65 +162,41 @@ const TenderCard = ({ tender }: { tender: TenderSuggestion }) => {
 const TendersPlaceholder = () => {
   const { toast } = useToast();
   const queryClient = useQueryClient();
+  const { company, hasProfile } = useCompanyProfile();
   const [refreshing, setRefreshing] = useState(false);
 
   // Fetch user's TenderMatch preferences
   const { data: preferences } = useQuery({
-    queryKey: ["tendermatchPreferences"],
+    queryKey: ["tendermatchPreferences", company?.id],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
-
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("company_id")
-        .eq("id", user.id)
-        .single();
-
-      if (!profile?.company_id) return null;
+      if (!company?.id) return null;
 
       const { data } = await supabase
         .from("tendermatch_preferences")
         .select("*")
-        .eq("company_id", profile.company_id)
+        .eq("company_id", company.id)
         .maybeSingle();
 
       return data;
     },
-  });
-
-  // Fetch user's company
-  const { data: userCompany } = useQuery({
-    queryKey: ["userCompanyTenders"],
-    queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
-
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("company_id")
-        .eq("id", user.id)
-        .single();
-
-      return profile?.company_id || null;
-    },
+    enabled: !!company?.id,
   });
 
   // Update preferences mutation
   const updatePreferences = useMutation({
     mutationFn: async (updates: { is_connected?: boolean; notify_email?: boolean; notify_in_app?: boolean }) => {
-      if (!userCompany) throw new Error("Configura prima il profilo azienda");
+      if (!company?.id) throw new Error("Configura prima il profilo azienda");
 
       if (preferences) {
         const { error } = await supabase
           .from("tendermatch_preferences")
           .update(updates)
-          .eq("company_id", userCompany);
+          .eq("company_id", company.id);
         if (error) throw error;
       } else {
         const { error } = await supabase
           .from("tendermatch_preferences")
-          .insert({ company_id: userCompany, ...updates });
+          .insert({ company_id: company.id, ...updates });
         if (error) throw error;
       }
     },
@@ -304,7 +283,7 @@ const TendersPlaceholder = () => {
               id="tendermatch-connect"
               checked={isConnected}
               onCheckedChange={(checked) => updatePreferences.mutate({ is_connected: checked })}
-              disabled={!userCompany}
+              disabled={!hasProfile}
             />
           </div>
 
@@ -319,7 +298,7 @@ const TendersPlaceholder = () => {
                   id="notify-email"
                   checked={notifyEmail}
                   onCheckedChange={(checked) => updatePreferences.mutate({ notify_email: checked })}
-                  disabled={!userCompany}
+                  disabled={!hasProfile}
                 />
               </div>
               <div className="flex items-center justify-between">
@@ -330,7 +309,7 @@ const TendersPlaceholder = () => {
                   id="notify-app"
                   checked={notifyInApp}
                   onCheckedChange={(checked) => updatePreferences.mutate({ notify_in_app: checked })}
-                  disabled={!userCompany}
+                  disabled={!hasProfile}
                 />
               </div>
             </div>
