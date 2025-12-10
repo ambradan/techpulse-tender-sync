@@ -84,23 +84,21 @@ const PredictionCard = ({
   content: string;
   loading: boolean;
 }) => (
-  <Card className="border-border/50 bg-card/80">
-    <CardHeader className="pb-2">
-      <div className="flex items-center gap-2">
+  <div className="tp-card-hover">
+    <div className="flex items-center gap-2 mb-3">
+      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
         <Icon className="w-4 h-4 text-primary" />
-        <CardTitle className="font-display text-sm">{title}</CardTitle>
       </div>
-    </CardHeader>
-    <CardContent>
-      {loading ? (
-        <div className="h-16 flex items-center justify-center">
-          <RefreshCw className="w-4 h-4 animate-spin text-muted-foreground" />
-        </div>
-      ) : (
-        <p className="text-sm text-muted-foreground leading-relaxed">{content}</p>
-      )}
-    </CardContent>
-  </Card>
+      <h3 className="font-display text-base font-medium">{title}</h3>
+    </div>
+    {loading ? (
+      <div className="h-16 flex items-center justify-center">
+        <RefreshCw className="w-4 h-4 animate-spin text-muted-foreground" />
+      </div>
+    ) : (
+      <p className="text-sm text-muted-foreground leading-relaxed">{content}</p>
+    )}
+  </div>
 );
 
 const PredictionsPlaceholder = () => {
@@ -168,30 +166,32 @@ const PredictionsPlaceholder = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="tp-section space-y-8">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-lg bg-gradient-primary flex items-center justify-center">
-            <LineChart className="w-5 h-5 text-primary-foreground" />
+      <div className="tp-page-header">
+        <div className="flex items-center justify-between flex-wrap gap-4">
+          <div className="flex items-center gap-4">
+            <div className="w-12 h-12 rounded-xl bg-gradient-primary flex items-center justify-center glow-primary">
+              <LineChart className="w-6 h-6 text-primary-foreground" />
+            </div>
+            <div>
+              <h1 className="tp-page-title">Previsioni (Basic)</h1>
+              <p className="tp-page-subtitle">Analisi predittiva qualitativa AI</p>
+            </div>
           </div>
-          <div>
-            <h1 className="font-display text-2xl font-bold">Previsioni (Basic)</h1>
-            <p className="text-muted-foreground">Analisi predittiva qualitativa AI</p>
-          </div>
+          <Button
+            onClick={generatePredictions}
+            disabled={generating || !hasProfile}
+            className="tp-btn-primary"
+          >
+            {generating ? (
+              <RefreshCw className="w-4 h-4 mr-2 animate-spin" />
+            ) : (
+              <Sparkles className="w-4 h-4 mr-2" />
+            )}
+            {generating ? "Generazione..." : "Rigenera analisi con AI"}
+          </Button>
         </div>
-        <Button
-          onClick={generatePredictions}
-          disabled={generating || !hasProfile}
-          className="gap-2"
-        >
-          {generating ? (
-            <RefreshCw className="w-4 h-4 animate-spin" />
-          ) : (
-            <Sparkles className="w-4 h-4" />
-          )}
-          {generating ? "Generazione..." : "Rigenera analisi con AI"}
-        </Button>
       </div>
 
       {/* Company Context / Gating */}
@@ -201,37 +201,31 @@ const PredictionsPlaceholder = () => {
         <>
           {/* Company Context Banner */}
           {company && (
-            <Card className="border-border/50 bg-secondary/30">
-              <CardContent className="py-3">
-                <div className="flex items-center justify-between">
-                  <p className="text-sm text-muted-foreground">
-                    Analisi per: <span className="text-foreground font-medium">{company.name}</span>
-                    {company.sector && <span className="ml-2">• {company.sector}</span>}
-                    {company.employees && <span className="ml-2">• {company.employees} dipendenti</span>}
-                  </p>
-                  {confidenceConfig && (
-                    <Badge variant="outline" className={confidenceConfig.className}>
-                      {confidenceConfig.label}
-                    </Badge>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+            <div className="tp-card bg-secondary/30 py-4">
+              <div className="flex items-center justify-between flex-wrap gap-4">
+                <p className="text-sm text-muted-foreground">
+                  Analisi per: <span className="text-foreground font-medium">{company.name}</span>
+                  {company.sector && <span className="ml-2">• {company.sector}</span>}
+                  {company.employees && <span className="ml-2">• {company.employees} dipendenti</span>}
+                </p>
+                {confidenceConfig && (
+                  <Badge variant="outline" className={confidenceConfig.className}>
+                    {confidenceConfig.label}
+                  </Badge>
+                )}
+              </div>
+            </div>
           )}
 
           {/* Placeholder Chart */}
-          <Card className="border-border/50 bg-card/80">
-            <CardHeader>
-              <CardTitle className="font-display">Trend Previsto</CardTitle>
-              <CardDescription>Proiezione qualitativa (nessun valore numerico reale)</CardDescription>
-            </CardHeader>
-            <CardContent>
-              <PlaceholderChart />
-            </CardContent>
-          </Card>
+          <div className="tp-card">
+            <h2 className="font-display text-xl font-semibold mb-2">Trend Previsto</h2>
+            <p className="text-sm text-muted-foreground mb-6">Proiezione qualitativa (nessun valore numerico reale)</p>
+            <PlaceholderChart />
+          </div>
 
           {/* Predictions Grid */}
-          <div className="grid md:grid-cols-2 gap-4">
+          <div className="grid md:grid-cols-2 gap-6">
             <PredictionCard
               icon={TrendingUp}
               title="Trend di Mercato"
@@ -259,14 +253,12 @@ const PredictionsPlaceholder = () => {
           </div>
 
           {/* Disclaimer */}
-          <Card className="border-border/50 bg-secondary/20">
-            <CardContent className="py-4">
-              <p className="text-xs text-muted-foreground text-center">
-                Le previsioni sono generate da AI in modo qualitativo. Non contengono valori numerici, 
-                percentuali o dati finanziari. Utilizzare come supporto decisionale, non come fonte primaria.
-              </p>
-            </CardContent>
-          </Card>
+          <div className="tp-card bg-secondary/20 py-4">
+            <p className="text-xs text-muted-foreground text-center">
+              Le previsioni sono generate da AI in modo qualitativo. Non contengono valori numerici, 
+              percentuali o dati finanziari. Utilizzare come supporto decisionale, non come fonte primaria.
+            </p>
+          </div>
         </>
       )}
     </div>
