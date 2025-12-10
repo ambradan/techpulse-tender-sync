@@ -3,6 +3,7 @@ import { LucideIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 interface DashboardCardProps {
+  id?: string;
   title?: string;
   subtitle?: string;
   icon?: LucideIcon;
@@ -12,6 +13,7 @@ interface DashboardCardProps {
 }
 
 export const DashboardCard = ({
+  id,
   title,
   subtitle,
   icon: Icon,
@@ -20,7 +22,7 @@ export const DashboardCard = ({
   headerAction,
 }: DashboardCardProps) => {
   return (
-    <Card className={cn("bg-gradient-card border-border/50", className)}>
+    <Card id={id} className={cn("bg-gradient-card border-border/50", className)}>
       {(title || Icon) && (
         <CardHeader className="pb-4">
           <div className="flex items-center justify-between">
