@@ -30,7 +30,7 @@ const DashboardNavbar = () => {
     
     await supabase.auth.signOut();
     toast({ title: "Logout effettuato", description: "A presto!" });
-    navigate("/auth");
+    navigate("/");
   };
 
   return (
