@@ -55,33 +55,52 @@ const handler = async (req: Request): Promise<Response> => {
       timeStyle: 'short'
     });
 
-    // Send email to admin using verified domain
+    // Send email using professional template
     const fromEmail = Deno.env.get("RESEND_FROM_EMAIL") || "a.danesin@techpulselab.io";
     
     const emailResponse = await resend.emails.send({
-      from: `TechPulse <${fromEmail}>`,
+      from: `TechPulse AI Suite <${fromEmail}>`,
       to: ["a.danesin@critical-work.com"],
       reply_to: email,
       subject: `Nuovo messaggio dal sito TechPulse: ${subject}`,
       html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #0ea5e9;">Nuovo messaggio dal sito TechPulse</h2>
-          
-          <div style="background: #f4f4f4; padding: 20px; border-radius: 8px; margin: 20px 0;">
-            <p><strong>Nome:</strong> ${name}</p>
-            <p><strong>Email:</strong> <a href="mailto:${email}">${email}</a></p>
-            <p><strong>Oggetto:</strong> ${subject}</p>
-            <p><strong>Data/Ora:</strong> ${timestamp}</p>
+        <div style="font-family: 'Segoe UI', Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #ffffff;">
+          <div style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); padding: 32px; text-align: center;">
+            <h1 style="color: #06B6D4; margin: 0; font-size: 24px; font-weight: 600;">TechPulse AI Suite</h1>
+            <p style="color: #CBD5E1; margin: 8px 0 0 0; font-size: 14px;">Nuovo messaggio dal sito</p>
           </div>
           
-          <div style="padding: 20px; background: #fafafa; border-left: 4px solid #0ea5e9; margin: 20px 0;">
-            <p style="margin: 0; white-space: pre-wrap;">${message}</p>
+          <div style="padding: 32px;">
+            <table style="width: 100%; border-collapse: collapse; margin-bottom: 24px;">
+              <tr>
+                <td style="padding: 12px 0; border-bottom: 1px solid #E2E8F0; color: #64748B; font-size: 14px; width: 100px;">Nome</td>
+                <td style="padding: 12px 0; border-bottom: 1px solid #E2E8F0; color: #1E293B; font-size: 14px; font-weight: 500;">${name}</td>
+              </tr>
+              <tr>
+                <td style="padding: 12px 0; border-bottom: 1px solid #E2E8F0; color: #64748B; font-size: 14px;">Email</td>
+                <td style="padding: 12px 0; border-bottom: 1px solid #E2E8F0; color: #1E293B; font-size: 14px;"><a href="mailto:${email}" style="color: #06B6D4; text-decoration: none;">${email}</a></td>
+              </tr>
+              <tr>
+                <td style="padding: 12px 0; border-bottom: 1px solid #E2E8F0; color: #64748B; font-size: 14px;">Oggetto</td>
+                <td style="padding: 12px 0; border-bottom: 1px solid #E2E8F0; color: #1E293B; font-size: 14px; font-weight: 500;">${subject}</td>
+              </tr>
+              <tr>
+                <td style="padding: 12px 0; color: #64748B; font-size: 14px;">Data/Ora</td>
+                <td style="padding: 12px 0; color: #1E293B; font-size: 14px;">${timestamp}</td>
+              </tr>
+            </table>
+            
+            <div style="background: #F8FAFC; border-left: 4px solid #06B6D4; padding: 20px; border-radius: 0 8px 8px 0;">
+              <p style="margin: 0; color: #334155; font-size: 15px; line-height: 1.6; white-space: pre-wrap;">${message}</p>
+            </div>
           </div>
           
-          <hr style="border: none; border-top: 1px solid #eee; margin: 30px 0;">
-          <p style="color: #888; font-size: 12px;">
-            Messaggio inviato tramite il form di contatto di techpulselab.io
-          </p>
+          <div style="background: #F1F5F9; padding: 24px; text-align: center; border-top: 1px solid #E2E8F0;">
+            <p style="margin: 0 0 8px 0; color: #64748B; font-size: 12px;">
+              Messaggio inviato tramite il form di contatto di
+            </p>
+            <a href="https://techpulselab.io" style="color: #06B6D4; font-size: 14px; font-weight: 500; text-decoration: none;">techpulselab.io</a>
+          </div>
         </div>
       `,
     });
