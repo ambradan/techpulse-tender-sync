@@ -1,4 +1,6 @@
-import { Building2, Users, Calendar, Briefcase } from "lucide-react";
+import { Building2, Users, Calendar, Briefcase, Plus } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Button } from "@/components/ui/button";
 
 interface Company {
   id: string;
@@ -12,15 +14,42 @@ interface Company {
 
 interface CompanyHeroProps {
   company: Company | null | undefined;
+  isLoading?: boolean;
 }
 
-const CompanyHero = ({ company }: CompanyHeroProps) => {
-  if (!company) {
+const CompanyHero = ({ company, isLoading }: CompanyHeroProps) => {
+  // Show loading state only when explicitly loading
+  if (isLoading) {
     return (
       <div className="bg-gradient-card rounded-2xl border border-border/50 p-8 animate-pulse">
         <div className="h-8 bg-muted rounded w-1/3 mb-4" />
         <div className="h-4 bg-muted rounded w-2/3" />
       </div>
+    );
+  }
+
+  // Show "create profile" prompt when no company exists
+  if (!company) {
+    return (
+      <section className="bg-gradient-card rounded-2xl border border-border/50 p-8 relative overflow-hidden">
+        <div className="absolute top-0 right-0 w-64 h-64 bg-primary/10 rounded-full blur-3xl" />
+        <div className="relative z-10 text-center py-8">
+          <Building2 className="w-16 h-16 text-muted-foreground mx-auto mb-4" />
+          <h2 className="font-display text-2xl font-bold text-foreground mb-2">
+            Benvenuto in TechPulse!
+          </h2>
+          <p className="text-muted-foreground mb-6 max-w-md mx-auto">
+            Per iniziare, crea il tuo profilo aziendale. Potrai accedere a previsioni, 
+            analisi e strumenti personalizzati per la tua azienda.
+          </p>
+          <Link to="/profile">
+            <Button size="lg" className="gap-2">
+              <Plus className="w-5 h-5" />
+              Crea il tuo profilo aziendale
+            </Button>
+          </Link>
+        </div>
+      </section>
     );
   }
 
