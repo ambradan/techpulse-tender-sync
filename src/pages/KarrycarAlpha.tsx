@@ -169,12 +169,12 @@ function HeroSection({ userEmail }: { userEmail: string | null }) {
                 
                 <div className="grid grid-cols-1 gap-4 w-full mt-6">
                   <div className="bg-secondary/50 rounded-xl p-5 border border-border/50">
-                    <p className="text-3xl font-bold text-primary">270+</p>
-                    <p className="text-sm text-muted-foreground mt-1">posizioni tech chiuse</p>
+                    <p className="text-sm text-muted-foreground">Esperienza consolidata in</p>
+                    <p className="font-semibold text-foreground mt-1">Recruiting Tech & HR</p>
                   </div>
                   <div className="bg-secondary/50 rounded-xl p-5 border border-border/50">
-                    <p className="text-3xl font-bold text-primary">30-60%</p>
-                    <p className="text-sm text-muted-foreground mt-1">riduzione time-to-hire</p>
+                    <p className="text-sm text-muted-foreground">Focus su ottimizzazione</p>
+                    <p className="font-semibold text-foreground mt-1">Time-to-Hire</p>
                   </div>
                   <div className="bg-secondary/50 rounded-xl p-5 border border-border/50">
                     <p className="text-sm text-muted-foreground">Specializzata in</p>
