@@ -1,33 +1,231 @@
 import { useQuery } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
-import DashboardOverview from "@/components/dashboard/DashboardOverview";
+import { useCompanyProfile } from "@/hooks/useCompanyProfile";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Progress } from "@/components/ui/progress";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
+import { 
+  TrendingUp, 
+  LineChart, 
+  Users, 
+  FileText, 
+  Building2, 
+  CheckCircle2,
+  AlertCircle,
+  ArrowRight
+} from "lucide-react";
+
+interface SetupStatus {
+  hasCompanyProfile: boolean;
+  hasPredictions: boolean;
+  hasPartners: boolean;
+  hasTendermatch: boolean;
+}
 
 const DashboardHome = () => {
-  const { data: company } = useQuery({
-    queryKey: ["userCompany"],
+  const { company, partnerCount, isLoading, hasProfile } = useCompanyProfile();
+
+  // Check setup status
+  const { data: setupStatus } = useQuery<SetupStatus>({
+    queryKey: ["dashboardSetupStatus", company?.id],
     queryFn: async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return null;
+      if (!company?.id) {
+        return {
+          hasCompanyProfile: false,
+          hasPredictions: false,
+          hasPartners: false,
+          hasTendermatch: false,
+        };
+      }
 
-      const { data: profile } = await supabase
-        .from("profiles")
-        .select("company_id")
-        .eq("id", user.id)
-        .single();
+      // Check predictions
+      const { count: predictionsCount } = await supabase
+        .from("predictions_basic")
+        .select("*", { count: "exact", head: true })
+        .eq("company_id", company.id);
 
-      if (!profile?.company_id) return null;
+      // Check partners
+      const { count: partnersCount } = await supabase
+        .from("company_partners")
+        .select("*", { count: "exact", head: true })
+        .eq("company_id", company.id);
 
-      const { data: company } = await supabase
-        .from("companies")
-        .select("*")
-        .eq("id", profile.company_id)
-        .single();
+      // Check tendermatch preferences
+      const { data: tendermatchPref } = await supabase
+        .from("tendermatch_preferences")
+        .select("id")
+        .eq("company_id", company.id)
+        .maybeSingle();
 
-      return company;
+      return {
+        hasCompanyProfile: true,
+        hasPredictions: (predictionsCount || 0) > 0,
+        hasPartners: (partnersCount || 0) > 0,
+        hasTendermatch: !!tendermatchPref,
+      };
     },
+    enabled: !!company?.id,
   });
 
-  return <DashboardOverview company={company} />;
+  const completedSteps = setupStatus
+    ? [
+        setupStatus.hasCompanyProfile,
+        setupStatus.hasPredictions,
+        setupStatus.hasPartners,
+        setupStatus.hasTendermatch,
+      ].filter(Boolean).length
+    : 0;
+  const progressPercentage = (completedSteps / 4) * 100;
+
+  const sections = [
+    {
+      title: "Trend Attuali",
+      description: "Monitoraggio trend di mercato",
+      icon: TrendingUp,
+      link: "/dashboard/trends",
+      status: hasProfile ? "ready" : "needs-profile",
+    },
+    {
+      title: "Previsioni",
+      description: "Analisi predittiva base",
+      icon: LineChart,
+      link: "/dashboard/predictions",
+      status: hasProfile ? "ready" : "needs-profile",
+    },
+    {
+      title: "Partner",
+      description: "Partner welfare & benefit",
+      icon: Users,
+      link: "/dashboard/partners",
+      status: "ready",
+    },
+    {
+      title: "TenderMatch",
+      description: "Gare consigliate",
+      icon: FileText,
+      link: "/dashboard/tenders",
+      status: hasProfile ? "ready" : "needs-profile",
+    },
+  ];
+
+  if (isLoading) {
+    return (
+      <div className="space-y-6 animate-pulse">
+        <div className="h-32 bg-secondary/50 rounded-lg" />
+        <div className="grid md:grid-cols-2 gap-6">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="h-40 bg-secondary/50 rounded-lg" />
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      {/* Company Header */}
+      <Card className="border-border/50 bg-gradient-card">
+        <CardHeader>
+          <div className="flex items-start justify-between">
+            <div>
+              <CardTitle className="font-display text-2xl">
+                {company?.name || "Configura il profilo azienda"}
+              </CardTitle>
+              {company && (
+                <CardDescription className="flex flex-wrap gap-4 mt-2">
+                  {company.sector && <span>Settore: {company.sector}</span>}
+                  {company.employees && <span>Dipendenti: {company.employees}</span>}
+                  {company.location && <span>Sede: {company.location}</span>}
+                  {partnerCount > 0 && <span>Partner attivi: {partnerCount}</span>}
+                </CardDescription>
+              )}
+              {company?.description && (
+                <p className="text-sm text-muted-foreground mt-3">{company.description}</p>
+              )}
+            </div>
+            <Button variant="outline" size="sm" asChild>
+              <Link to="/profile">
+                <Building2 className="w-4 h-4 mr-2" />
+                {hasProfile ? "Modifica" : "Configura"}
+              </Link>
+            </Button>
+          </div>
+        </CardHeader>
+        {hasProfile && (
+          <CardContent className="pt-0">
+            <div className="space-y-2">
+              <div className="flex items-center justify-between text-sm">
+                <span className="text-muted-foreground">Setup completato</span>
+                <span className="font-medium">{Math.round(progressPercentage)}%</span>
+              </div>
+              <Progress value={progressPercentage} className="h-2" />
+              <div className="flex flex-wrap gap-3 mt-3 text-xs">
+                <SetupItem done={setupStatus?.hasCompanyProfile} label="Profilo azienda" />
+                <SetupItem done={setupStatus?.hasPredictions} label="Previsione generata" />
+                <SetupItem done={setupStatus?.hasPartners} label="Partner selezionato" />
+                <SetupItem done={setupStatus?.hasTendermatch} label="TenderMatch configurato" />
+              </div>
+            </div>
+          </CardContent>
+        )}
+      </Card>
+
+      {/* Dashboard Sections Grid */}
+      <div className="grid md:grid-cols-2 gap-6">
+        {sections.map((section) => (
+          <Card 
+            key={section.title} 
+            className={`border-border/50 bg-card/80 hover:bg-card/90 transition-colors ${
+              section.status === "needs-profile" ? "opacity-75" : ""
+            }`}
+          >
+            <CardHeader>
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-3">
+                  <div className="w-10 h-10 rounded-lg bg-secondary flex items-center justify-center">
+                    <section.icon className="w-5 h-5 text-primary" />
+                  </div>
+                  <div>
+                    <CardTitle className="font-display text-lg">{section.title}</CardTitle>
+                    <CardDescription>{section.description}</CardDescription>
+                  </div>
+                </div>
+              </div>
+            </CardHeader>
+            <CardContent>
+              {section.status === "needs-profile" ? (
+                <div className="h-20 flex flex-col items-center justify-center border border-dashed border-border rounded-lg bg-secondary/20">
+                  <p className="text-sm text-muted-foreground mb-2">Richiede profilo azienda</p>
+                  <Button variant="ghost" size="sm" asChild>
+                    <Link to="/profile">Configura profilo</Link>
+                  </Button>
+                </div>
+              ) : (
+                <Button variant="outline" className="w-full" asChild>
+                  <Link to={section.link}>
+                    Vai alla sezione
+                    <ArrowRight className="w-4 h-4 ml-2" />
+                  </Link>
+                </Button>
+              )}
+            </CardContent>
+          </Card>
+        ))}
+      </div>
+    </div>
+  );
 };
+
+const SetupItem = ({ done, label }: { done?: boolean; label: string }) => (
+  <div className="flex items-center gap-1.5">
+    {done ? (
+      <CheckCircle2 className="w-3.5 h-3.5 text-emerald-500" />
+    ) : (
+      <AlertCircle className="w-3.5 h-3.5 text-muted-foreground" />
+    )}
+    <span className={done ? "text-foreground" : "text-muted-foreground"}>{label}</span>
+  </div>
+);
 
 export default DashboardHome;
