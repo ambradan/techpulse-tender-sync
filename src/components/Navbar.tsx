@@ -1,5 +1,5 @@
 import { Button } from "@/components/ui/button";
-import { Activity, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useState } from "react";
 
 const Navbar = () => {
@@ -11,9 +11,7 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-16">
           {/* Logo */}
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 bg-gradient-primary rounded-lg flex items-center justify-center">
-              <Activity className="w-5 h-5 text-primary-foreground" />
-            </div>
+            <img src="/techpulse-logo.png" alt="TechPulse" className="w-8 h-8" />
             <span className="font-display font-bold text-xl text-foreground">
               TechPulse
             </span>

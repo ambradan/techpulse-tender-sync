@@ -1,6 +1,6 @@
 import { Link, useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Activity, Menu, X } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { useState } from "react";
 
 const navLinks = [
@@ -26,9 +26,7 @@ const MainNavbar = () => {
       <div className="container mx-auto px-4 h-16 flex items-center justify-between">
         {/* Logo */}
         <Link to="/" className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-gradient-primary flex items-center justify-center">
-            <Activity className="w-5 h-5 text-primary-foreground" />
-          </div>
+          <img src="/techpulse-logo.png" alt="TechPulse" className="w-8 h-8" />
           <span className="font-display text-xl font-bold text-foreground">TechPulse</span>
         </Link>
 
