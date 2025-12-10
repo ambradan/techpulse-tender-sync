@@ -374,7 +374,7 @@ export default function KarrycarProposal() {
           <Button size="lg" className="text-lg px-8 py-6" asChild>
             <a href="mailto:a.danesin@critical-work.com">
               <Mail className="w-5 h-5 mr-2" />
-              Contatta Ambra Danesin
+              Contattami
             </a>
           </Button>
         </div>
