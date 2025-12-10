@@ -335,11 +335,12 @@ export default function KarrycarProposal() {
                     "Selezione attiva",
                     "Advisory strategica",
                     "Ottimizzazione processi",
-                    "Gestione completa"
+                    "Gestione completa",
+                    "TechPulse Insight incluso"
                   ].map((item, i) => (
                     <li key={i} className="flex items-center gap-2 text-sm">
                       <CheckCircle2 className="w-4 h-4 text-primary" />
-                      <span className="text-muted-foreground">{item}</span>
+                      <span className={item.includes("TechPulse") ? "text-emerald-400 font-medium" : "text-muted-foreground"}>{item}</span>
                     </li>
                   ))}
                 </ul>
@@ -387,13 +388,10 @@ export default function KarrycarProposal() {
           <h2 className="text-2xl md:text-3xl font-semibold mb-4">
             Analisi predittiva del mercato Tech
           </h2>
-          <p className="text-muted-foreground mb-4 max-w-2xl mx-auto">
+          <p className="text-muted-foreground mb-8 max-w-2xl mx-auto">
             <strong className="text-foreground">Incluso gratuitamente fino a Natale!</strong> Dashboard dedicata con trend di competenze, 
             rischi e opportunità di mercato, evoluzione ruoli target su orizzonte 12–36 mesi. 
             Insights qualitativi basati sul profilo aziendale dichiarato.
-          </p>
-          <p className="text-sm text-muted-foreground mb-8 max-w-xl mx-auto italic">
-            Se deciderai di lavorare con me, TechPulse Insight sarà integrato nel pacchetto Fractional HR mensile.
           </p>
           
           {/* Mini Dashboard Preview */}
