@@ -60,30 +60,22 @@ const CompanyProfile = () => {
       return;
     }
 
-    // Get profile to check company_id
-    const { data: profile } = await supabase
-      .from("profiles")
-      .select("company_id")
-      .eq("id", user.id)
+    // Query companies directly by user_id
+    const { data: company } = await supabase
+      .from("companies")
+      .select("*")
+      .eq("user_id", user.id)
       .maybeSingle();
 
-    if (profile?.company_id) {
-      setCompanyId(profile.company_id);
-      const { data: company } = await supabase
-        .from("companies")
-        .select("*")
-        .eq("id", profile.company_id)
-        .maybeSingle();
-
-      if (company) {
-        setFormData({
-          name: company.name || "",
-          sector: company.sector || "",
-          employees: company.employees?.toString() || "",
-          description: company.description || "",
-          location: company.location || "",
-        });
-      }
+    if (company) {
+      setCompanyId(company.id);
+      setFormData({
+        name: company.name || "",
+        sector: company.sector || "",
+        employees: company.employees?.toString() || "",
+        description: company.description || "",
+        location: company.location || "",
+      });
     }
   };
 
@@ -103,6 +95,7 @@ const CompanyProfile = () => {
       employees: formData.employees ? parseInt(formData.employees) : null,
       description: formData.description,
       location: formData.location,
+      user_id: user.id,
     };
 
     try {
