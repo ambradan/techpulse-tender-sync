@@ -45,12 +45,19 @@ const contractTypes = [
 
 const HRConsultantSection = () => {
   const [selectedRole, setSelectedRole] = useState<string>("");
+  const [customRole, setCustomRole] = useState<string>("");
+  const [isCustomRole, setIsCustomRole] = useState(false);
   const [ral, setRal] = useState<number>(40000);
   const [contractType, setContractType] = useState<string>("indeterminato");
   const [isCalculating, setIsCalculating] = useState(false);
   const [suggestedRal, setSuggestedRal] = useState<number | null>(null);
   const [costs, setCosts] = useState<CostBreakdown | null>(null);
   const [predictions, setPredictions] = useState<Prediction[]>([]);
+
+  const getCurrentRoleLabel = () => {
+    if (isCustomRole && customRole) return customRole;
+    return roles.find(r => r.value === selectedRole)?.label || "";
+  };
 
   const calculateCosts = (ralValue: number, contract: string): CostBreakdown => {
     const contractInfo = contractTypes.find(c => c.value === contract);
@@ -129,8 +136,9 @@ const HRConsultantSection = () => {
   };
 
   const getSuggestedRAL = async () => {
-    if (!selectedRole) {
-      toast.error("Seleziona prima un ruolo");
+    const roleLabel = getCurrentRoleLabel();
+    if (!roleLabel) {
+      toast.error("Inserisci o seleziona prima un ruolo");
       return;
     }
 
@@ -139,7 +147,7 @@ const HRConsultantSection = () => {
       const roleInfo = roles.find(r => r.value === selectedRole);
       const { data, error } = await supabase.functions.invoke("hr-consultant", {
         body: { 
-          role: roleInfo?.label,
+          role: roleLabel,
           sector: "Software & IT Services",
           location: "Italia"
         },
@@ -221,18 +229,43 @@ const HRConsultantSection = () => {
         <div className="space-y-4">
           <div>
             <label className="text-sm text-muted-foreground mb-2 block">Ruolo da assumere</label>
-            <Select value={selectedRole} onValueChange={setSelectedRole}>
-              <SelectTrigger>
-                <SelectValue placeholder="Seleziona ruolo..." />
-              </SelectTrigger>
-              <SelectContent>
-                {roles.map(role => (
-                  <SelectItem key={role.value} value={role.value}>
-                    {role.label}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <div className="space-y-2">
+              {!isCustomRole ? (
+                <Select value={selectedRole} onValueChange={(val) => { setSelectedRole(val); setIsCustomRole(false); }}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="Seleziona ruolo..." />
+                  </SelectTrigger>
+                  <SelectContent>
+                    {roles.map(role => (
+                      <SelectItem key={role.value} value={role.value}>
+                        {role.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              ) : (
+                <Input 
+                  value={customRole}
+                  onChange={(e) => setCustomRole(e.target.value)}
+                  placeholder="Es: Full Stack Developer, Marketing Manager..."
+                />
+              )}
+              <Button 
+                variant="ghost" 
+                size="sm" 
+                className="text-xs"
+                onClick={() => {
+                  setIsCustomRole(!isCustomRole);
+                  if (!isCustomRole) {
+                    setSelectedRole("");
+                  } else {
+                    setCustomRole("");
+                  }
+                }}
+              >
+                {isCustomRole ? "← Scegli dalla lista" : "Scrivi un ruolo personalizzato →"}
+              </Button>
+            </div>
           </div>
 
           <div>
@@ -258,7 +291,7 @@ const HRConsultantSection = () => {
                 variant="ghost" 
                 size="sm" 
                 onClick={getSuggestedRAL}
-                disabled={isCalculating || !selectedRole}
+                disabled={isCalculating || (!selectedRole && !customRole)}
               >
                 {isCalculating ? (
                   <RefreshCw className="w-4 h-4 animate-spin mr-1" />
@@ -290,12 +323,20 @@ const HRConsultantSection = () => {
             Calcola Costo Totale
           </Button>
 
-          {selectedRole && (
+          {selectedRole && !isCustomRole && (
             <div className="p-3 bg-secondary/30 rounded-lg border border-border/30">
               <p className="text-xs text-muted-foreground">Range di mercato per {roles.find(r => r.value === selectedRole)?.label}:</p>
               <p className="text-sm font-medium text-foreground">
                 {formatCurrency(roles.find(r => r.value === selectedRole)?.ralMin || 0)} - {formatCurrency(roles.find(r => r.value === selectedRole)?.ralMax || 0)}
               </p>
+            </div>
+          )}
+          
+          {isCustomRole && customRole && (
+            <div className="p-3 bg-primary/10 rounded-lg border border-primary/30">
+              <p className="text-xs text-muted-foreground">Ruolo personalizzato:</p>
+              <p className="text-sm font-medium text-foreground">{customRole}</p>
+              <p className="text-xs text-muted-foreground mt-1">Usa "Suggerisci RAL" per una stima di mercato</p>
             </div>
           )}
         </div>
@@ -396,7 +437,7 @@ const HRConsultantSection = () => {
 
                   <div className="p-3 bg-primary/10 border border-primary/30 rounded-xl">
                     <p className="text-sm text-foreground text-center">
-                      💡 Un {roles.find(r => r.value === selectedRole)?.label || "professionista"} a questa RAL 
+                      💡 Un {getCurrentRoleLabel() || "professionista"} a questa RAL 
                       genera mediamente <span className="font-bold text-primary">2-3x</span> il proprio costo in valore progettuale.
                     </p>
                   </div>
