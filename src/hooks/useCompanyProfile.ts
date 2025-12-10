@@ -13,6 +13,12 @@ export interface CompanyProfile {
   user_id?: string;
   created_at: string;
   updated_at: string;
+  tecnologia_usata?: unknown;
+  automazione_livello?: string;
+  modello_lavoro?: string;
+  numero_team_tech?: number | null;
+  numero_team_nontech?: number | null;
+  completeness_score?: number | null;
 }
 
 export interface CompanyProfileData {

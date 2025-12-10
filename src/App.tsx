@@ -2,35 +2,18 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import Index from "./pages/Index";
+import { BrowserRouter, Routes, Route } from "react-router-dom";
+import SimpleIndex from "./pages/SimpleIndex";
 import Auth from "./pages/Auth";
-import CompanyProfile from "./pages/CompanyProfile";
-import Aziende from "./pages/Aziende";
-import Privati from "./pages/Privati";
-import Freelance from "./pages/Freelance";
-import About from "./pages/About";
-import Contatti from "./pages/Contatti";
+import SimpleProfile from "./pages/SimpleProfile";
+import SimpleDashboard from "./pages/SimpleDashboard";
+import InsightsCompany from "./pages/InsightsCompany";
+import InsightsHiring from "./pages/InsightsHiring";
+import InsightsRisk from "./pages/InsightsRisk";
 import PrivacyPolicy from "./pages/PrivacyPolicy";
 import TermsOfService from "./pages/TermsOfService";
-import DashboardLayout from "./layouts/DashboardLayout";
-import DashboardHome from "./pages/DashboardHome";
-import TrendsPlaceholder from "./components/dashboard/TrendsPlaceholder";
-import PredictionsPlaceholder from "./components/dashboard/PredictionsPlaceholder";
-import PartnersPlaceholder from "./components/dashboard/PartnersPlaceholder";
-import TendersPlaceholder from "./components/dashboard/TendersPlaceholder";
-import RealityCheckPlaceholder from "./components/dashboard/RealityCheckPlaceholder";
-import HRConsultantPlaceholder from "./components/dashboard/HRConsultantPlaceholder";
-import CompanyAnalysisSection from "./components/dashboard/CompanyAnalysis";
-import AIPredictiveDashboard from "./pages/AIPredictiveDashboard";
-import NotFound from "./pages/NotFound";
-import TestPredict from "./pages/TestPredict";
-import TestCompanyPredictions from "./pages/TestCompanyPredictions";
-import TestCompanyAnalyze from "./pages/TestCompanyAnalyze";
-import TestRealityCheck from "./pages/TestRealityCheck";
-import TestSkillsRoadmap from "./pages/TestSkillsRoadmap";
-import KarrycarAlpha from "./pages/KarrycarAlpha";
 import KarrycarProposal from "./pages/KarrycarProposal";
+import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
 
@@ -41,35 +24,16 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/aziende" element={<Aziende />} />
-          <Route path="/privati" element={<Privati />} />
-          <Route path="/freelance" element={<Freelance />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/contatti" element={<Contatti />} />
+          <Route path="/" element={<SimpleIndex />} />
+          <Route path="/auth" element={<Auth />} />
+          <Route path="/profile" element={<SimpleProfile />} />
+          <Route path="/dashboard" element={<SimpleDashboard />} />
+          <Route path="/insights/company" element={<InsightsCompany />} />
+          <Route path="/insights/hiring" element={<InsightsHiring />} />
+          <Route path="/insights/risk" element={<InsightsRisk />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
-          <Route path="/test-predict" element={<TestPredict />} />
-          <Route path="/test-company-predictions" element={<TestCompanyPredictions />} />
-          <Route path="/test-company-analyze" element={<TestCompanyAnalyze />} />
-          <Route path="/test-reality-check" element={<TestRealityCheck />} />
-          <Route path="/test-skills-roadmap" element={<TestSkillsRoadmap />} />
-          <Route path="/karrycar" element={<KarrycarAlpha />} />
           <Route path="/karrycar-proposal" element={<KarrycarProposal />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/profile" element={<CompanyProfile />} />
-          <Route path="/dashboard" element={<DashboardLayout />}>
-            <Route index element={<DashboardHome />} />
-            <Route path="trends" element={<TrendsPlaceholder />} />
-            <Route path="predictions" element={<PredictionsPlaceholder />} />
-            <Route path="partners" element={<PartnersPlaceholder />} />
-            <Route path="tenders" element={<TendersPlaceholder />} />
-            <Route path="reality-check" element={<RealityCheckPlaceholder />} />
-            <Route path="hr-consultant" element={<HRConsultantPlaceholder />} />
-            <Route path="company-analysis" element={<CompanyAnalysisSection />} />
-            <Route path="ai-predictive" element={<AIPredictiveDashboard />} />
-          </Route>
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

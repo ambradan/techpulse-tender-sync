@@ -16,6 +16,8 @@ export type Database = {
     Tables: {
       companies: {
         Row: {
+          automazione_livello: string | null
+          completeness_score: number | null
           context: string | null
           created_at: string
           description: string | null
@@ -23,12 +25,18 @@ export type Database = {
           founded_year: number | null
           id: string
           location: string | null
+          modello_lavoro: string | null
           name: string
+          numero_team_nontech: number | null
+          numero_team_tech: number | null
           sector: string
+          tecnologia_usata: Json | null
           updated_at: string
           user_id: string | null
         }
         Insert: {
+          automazione_livello?: string | null
+          completeness_score?: number | null
           context?: string | null
           created_at?: string
           description?: string | null
@@ -36,12 +44,18 @@ export type Database = {
           founded_year?: number | null
           id?: string
           location?: string | null
+          modello_lavoro?: string | null
           name: string
+          numero_team_nontech?: number | null
+          numero_team_tech?: number | null
           sector: string
+          tecnologia_usata?: Json | null
           updated_at?: string
           user_id?: string | null
         }
         Update: {
+          automazione_livello?: string | null
+          completeness_score?: number | null
           context?: string | null
           created_at?: string
           description?: string | null
@@ -49,8 +63,12 @@ export type Database = {
           founded_year?: number | null
           id?: string
           location?: string | null
+          modello_lavoro?: string | null
           name?: string
+          numero_team_nontech?: number | null
+          numero_team_tech?: number | null
           sector?: string
+          tecnologia_usata?: Json | null
           updated_at?: string
           user_id?: string | null
         }
@@ -94,6 +112,79 @@ export type Database = {
             columns: ["partner_id"]
             isOneToOne: false
             referencedRelation: "partners"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      company_settings: {
+        Row: {
+          company_id: string
+          created_at: string | null
+          dashboard_focus: string | null
+          id: string
+          lingua: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          company_id: string
+          created_at?: string | null
+          dashboard_focus?: string | null
+          id?: string
+          lingua?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          company_id?: string
+          created_at?: string | null
+          dashboard_focus?: string | null
+          id?: string
+          lingua?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_settings_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      hiring: {
+        Row: {
+          company_id: string
+          competenze_critiche: Json | null
+          created_at: string | null
+          id: string
+          ruoli_prioritari: Json | null
+          update_auto: boolean | null
+          updated_at: string | null
+        }
+        Insert: {
+          company_id: string
+          competenze_critiche?: Json | null
+          created_at?: string | null
+          id?: string
+          ruoli_prioritari?: Json | null
+          update_auto?: boolean | null
+          updated_at?: string | null
+        }
+        Update: {
+          company_id?: string
+          competenze_critiche?: Json | null
+          created_at?: string | null
+          id?: string
+          ruoli_prioritari?: Json | null
+          update_auto?: boolean | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "hiring_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "companies"
             referencedColumns: ["id"]
           },
         ]
@@ -396,6 +487,47 @@ export type Database = {
           },
         ]
       }
+      risk: {
+        Row: {
+          company_id: string
+          created_at: string | null
+          id: string
+          livello_rischio: string | null
+          normative_rilevanti: Json | null
+          rischio_ai_act: string | null
+          rischio_operativo: string | null
+          updated_at: string | null
+        }
+        Insert: {
+          company_id: string
+          created_at?: string | null
+          id?: string
+          livello_rischio?: string | null
+          normative_rilevanti?: Json | null
+          rischio_ai_act?: string | null
+          rischio_operativo?: string | null
+          updated_at?: string | null
+        }
+        Update: {
+          company_id?: string
+          created_at?: string | null
+          id?: string
+          livello_rischio?: string | null
+          normative_rilevanti?: Json | null
+          rischio_ai_act?: string | null
+          rischio_operativo?: string | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "risk_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: true
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tendermatch_preferences: {
         Row: {
           company_id: string | null
@@ -510,6 +642,7 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      get_company_id_by_user: { Args: { _user_id: string }; Returns: string }
       get_user_company_id: { Args: { _user_id: string }; Returns: string }
       has_role: {
         Args: {
