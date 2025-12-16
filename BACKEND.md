@@ -10,3 +10,10 @@ It contains:
 
 The backend is maintained in private repositories for security,
 compliance, and intellectual property protection.
+
+## Backend Services
+
+Backend logic (Supabase Edge Functions, orchestration, governance and AI flows)
+is maintained in private repositories for security and intellectual property protection.
+
+This repository contains frontend code only.
