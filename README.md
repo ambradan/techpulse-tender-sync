@@ -1,73 +1,65 @@
-# Welcome to your Lovable project
+# TechPulse — Frontend
 
-## Project info
+Frontend application for TechPulse, a structured AI platform for company intelligence,
+talent assessment, and market analysis.
 
-**URL**: https://lovable.dev/projects/45fe2fdc-55c8-469e-8038-2fa15944dddd
+This repository contains the **frontend application only**.
 
-## How can I edit this code?
+All AI logic, models, prompts, and decision rules are implemented server-side
+and maintained in private repositories.
 
-There are several ways of editing your application.
+---
 
-**Use Lovable**
+## Overview
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/45fe2fdc-55c8-469e-8038-2fa15944dddd) and start prompting.
+The TechPulse frontend handles:
 
-Changes made via Lovable will be committed automatically to this repo.
+- User interaction and input collection
+- Visualization of structured AI outputs
+- Navigation across analysis modules
+- Presentation of qualified results produced by the backend
 
-**Use your preferred IDE**
+The frontend does **not** perform inference or decision-making.
 
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
+---
 
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
+## Capabilities
 
-Follow these steps:
+| Capability | Output |
+|------------|--------|
+| Company Analysis | Risk and opportunity assessments |
+| Trend Analysis | Market signals and emerging patterns |
+| Predictions | Structured forecasts |
+| Talent Intelligence | Skills and positioning insights |
+| Reality Check | Validation-oriented outputs |
 
-```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
+All outputs are rendered exactly as returned by the backend.
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+---
 
-# Step 3: Install the necessary dependencies.
-npm i
+## Architecture
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
-npm run dev
-```
+TechPulse follows a strict separation of concerns.
 
-**Edit a file directly in GitHub**
+| Layer | Responsibility |
+|-------|----------------|
+| Frontend (this repo) | UI, input handling, visualization |
+| Backend Services | Validation, orchestration, inference |
+| Governance Layer | Output qualification |
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+Frontend receives only qualified outputs.
+No raw model responses are exposed to the UI.
 
-**Use GitHub Codespaces**
+---
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Related
 
-## What technologies are used for this project?
+- TechPulse Backend (private repository)
+- IFX vs KQR — Governance Infrastructure (concept documentation)
 
-This project is built with:
+---
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## License
 
-## How can I deploy this project?
+Proprietary — TechPulse © 2025
 
-Simply open [Lovable](https://lovable.dev/projects/45fe2fdc-55c8-469e-8038-2fa15944dddd) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/features/custom-domain#custom-domain)
