@@ -413,24 +413,57 @@ export type Database = {
       }
       profiles: {
         Row: {
+          anni_freelance: number | null
+          clienti_tipo: Json | null
           company_id: string | null
+          competenze: Json | null
           created_at: string
+          esperienza_anni: number | null
           full_name: string | null
           id: string
+          nicchia: string | null
+          profile_type: string | null
+          ruolo_attuale: string | null
+          ruolo_target: string | null
+          servizi_offerti: Json | null
+          settore_interesse: string | null
+          tariffa_oraria: number | null
           updated_at: string
         }
         Insert: {
+          anni_freelance?: number | null
+          clienti_tipo?: Json | null
           company_id?: string | null
+          competenze?: Json | null
           created_at?: string
+          esperienza_anni?: number | null
           full_name?: string | null
           id: string
+          nicchia?: string | null
+          profile_type?: string | null
+          ruolo_attuale?: string | null
+          ruolo_target?: string | null
+          servizi_offerti?: Json | null
+          settore_interesse?: string | null
+          tariffa_oraria?: number | null
           updated_at?: string
         }
         Update: {
+          anni_freelance?: number | null
+          clienti_tipo?: Json | null
           company_id?: string | null
+          competenze?: Json | null
           created_at?: string
+          esperienza_anni?: number | null
           full_name?: string | null
           id?: string
+          nicchia?: string | null
+          profile_type?: string | null
+          ruolo_attuale?: string | null
+          ruolo_target?: string | null
+          servizi_offerti?: Json | null
+          settore_interesse?: string | null
+          tariffa_oraria?: number | null
           updated_at?: string
         }
         Relationships: [
@@ -527,6 +560,42 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      section_inputs: {
+        Row: {
+          ai_analysis: string | null
+          ai_analyzed_at: string | null
+          created_at: string
+          id: string
+          notes: string | null
+          section_key: string
+          structured_data: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ai_analysis?: string | null
+          ai_analyzed_at?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          section_key: string
+          structured_data?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ai_analysis?: string | null
+          ai_analyzed_at?: string | null
+          created_at?: string
+          id?: string
+          notes?: string | null
+          section_key?: string
+          structured_data?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       tendermatch_preferences: {
         Row: {
