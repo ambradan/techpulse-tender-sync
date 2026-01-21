@@ -6,7 +6,8 @@ import { Progress } from "@/components/ui/progress";
 import ConditionalNavbar from "@/components/ConditionalNavbar";
 import MainFooter from "@/components/MainFooter";
 import { DashboardCard } from "@/components/dashboard/shared/DashboardCard";
-import { SectionInput } from "@/components/dashboard/SectionInput";
+import { SectionInput, type ParsedPrediction } from "@/components/dashboard/SectionInput";
+import { ReportGenerator } from "@/components/dashboard/ReportGenerator";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/backend/client";
 import { 
@@ -40,6 +41,7 @@ const Privati = () => {
   const [profile, setProfile] = useState<UserProfile | null>(null);
   const [profileContext, setProfileContext] = useState<Record<string, unknown>>({});
   const [aiAnalysis, setAiAnalysis] = useState<Record<string, string>>({});
+  const [parsedPredictions, setParsedPredictions] = useState<Record<string, ParsedPrediction>>({});
   const [loading, setLoading] = useState(true);
 
   // Load user profile
@@ -74,19 +76,24 @@ const Privati = () => {
         });
       }
 
-      // Load saved AI analyses
+      // Load saved AI analyses with structured data
       const { data: analyses } = await supabase
         .from("section_inputs")
-        .select("section_key, ai_analysis")
+        .select("section_key, ai_analysis, structured_data")
         .eq("user_id", user.id)
         .in("section_key", ["privati_career", "privati_skills", "privati_roles"]);
 
       if (analyses) {
         const analysisMap: Record<string, string> = {};
+        const predictionsMap: Record<string, ParsedPrediction> = {};
         analyses.forEach((a) => {
           if (a.ai_analysis) analysisMap[a.section_key] = a.ai_analysis;
+          if (a.structured_data && typeof a.structured_data === 'object') {
+            predictionsMap[a.section_key] = a.structured_data as ParsedPrediction;
+          }
         });
         setAiAnalysis(analysisMap);
+        setParsedPredictions(predictionsMap);
       }
 
       setLoading(false);
@@ -131,6 +138,13 @@ const Privati = () => {
                 Modifica Profilo
               </Button>
             </Link>
+            {user && (
+              <ReportGenerator 
+                profileType="privato" 
+                sectionKeys={["privati_career", "privati_skills", "privati_roles"]}
+                title="Genera Report"
+              />
+            )}
             {!user && (
               <Link to="/auth">
                 <Button className="gap-2 bg-accent hover:bg-accent/90">
@@ -178,7 +192,10 @@ const Privati = () => {
               placeholder="Es: Voglio diventare senior developer in 2 anni, migliorare le mie competenze in cloud computing..."
               profileType="privato"
               profileContext={profileContext}
-              onAnalysisComplete={(analysis) => setAiAnalysis(prev => ({ ...prev, privati_career: analysis }))}
+              onAnalysisComplete={(analysis, parsed) => {
+                setAiAnalysis(prev => ({ ...prev, privati_career: analysis }));
+                if (parsed) setParsedPredictions(prev => ({ ...prev, privati_career: parsed }));
+              }}
             />
           </div>
         )}
@@ -283,7 +300,10 @@ const Privati = () => {
               placeholder="Es: Ho 5 anni in React, devo migliorare in DevOps. Soft skill: comunicazione OK, leadership da sviluppare..."
               profileType="privato"
               profileContext={profileContext}
-              onAnalysisComplete={(analysis) => setAiAnalysis(prev => ({ ...prev, privati_skills: analysis }))}
+              onAnalysisComplete={(analysis, parsed) => {
+                setAiAnalysis(prev => ({ ...prev, privati_skills: analysis }));
+                if (parsed) setParsedPredictions(prev => ({ ...prev, privati_skills: parsed }));
+              }}
             />
           </div>
         )}
@@ -305,7 +325,16 @@ const Privati = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {profile?.competenze && profile.competenze.length > 0 ? (
+                {parsedPredictions.privati_skills?.opportunities && parsedPredictions.privati_skills.opportunities.length > 0 ? (
+                  <ul className="space-y-3">
+                    {parsedPredictions.privati_skills.opportunities.map((item, index) => (
+                      <li key={index} className="flex items-start gap-3">
+                        <div className="w-2 h-2 rounded-full bg-green-500 mt-2 flex-shrink-0" />
+                        <span className="text-foreground">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : profile?.competenze && profile.competenze.length > 0 ? (
                   <ul className="space-y-3">
                     {profile.competenze.slice(0, 5).map((skill, index) => (
                       <li key={index} className="flex items-center gap-3">
@@ -316,7 +345,7 @@ const Privati = () => {
                   </ul>
                 ) : (
                   <p className="text-muted-foreground italic">
-                    Aggiungi competenze al profilo per vederle qui.
+                    Aggiungi competenze o genera un'analisi AI.
                   </p>
                 )}
               </CardContent>
@@ -326,17 +355,22 @@ const Privati = () => {
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-accent">
                   <Target className="w-5 h-5" />
-                  Competenze da Sviluppare
+                  Aree da Sviluppare
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {aiAnalysis.privati_skills ? (
-                  <p className="text-sm text-muted-foreground">
-                    Vedi l'analisi AI sopra per suggerimenti specifici.
-                  </p>
+                {parsedPredictions.privati_skills?.risks && parsedPredictions.privati_skills.risks.length > 0 ? (
+                  <ul className="space-y-3">
+                    {parsedPredictions.privati_skills.risks.map((item, index) => (
+                      <li key={index} className="flex items-start gap-3">
+                        <div className="w-2 h-2 rounded-full bg-accent mt-2 flex-shrink-0" />
+                        <span className="text-foreground">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
                 ) : (
                   <p className="text-muted-foreground italic">
-                    Usa la sezione "Analisi skill e gap" per ricevere suggerimenti dall'AI.
+                    Usa "Analisi skill e gap" per identificare le aree di miglioramento.
                   </p>
                 )}
               </CardContent>
@@ -367,7 +401,10 @@ const Privati = () => {
               placeholder="Es: Voglio ottenere AWS certification, fare un corso ML, migliorare l'inglese tecnico..."
               profileType="privato"
               profileContext={profileContext}
-              onAnalysisComplete={(analysis) => setAiAnalysis(prev => ({ ...prev, privati_roles: analysis }))}
+              onAnalysisComplete={(analysis, parsed) => {
+                setAiAnalysis(prev => ({ ...prev, privati_roles: analysis }));
+                if (parsed) setParsedPredictions(prev => ({ ...prev, privati_roles: parsed }));
+              }}
             />
           </div>
         )}
@@ -380,7 +417,50 @@ const Privati = () => {
           subtitle="Percorso personalizzato basato sull'analisi AI"
           className="mb-8"
         >
-          {aiAnalysis.privati_roles ? (
+          {parsedPredictions.privati_roles?.recommendations && parsedPredictions.privati_roles.recommendations.length > 0 ? (
+            <div className="space-y-4">
+              {/* Summary */}
+              {parsedPredictions.privati_roles.summary && (
+                <div className="p-4 rounded-lg bg-primary/10 border border-primary/20">
+                  <p className="text-foreground">{parsedPredictions.privati_roles.summary}</p>
+                </div>
+              )}
+              
+              {/* Recommended actions */}
+              <div className="grid md:grid-cols-2 gap-4">
+                {parsedPredictions.privati_roles.recommendations.map((rec, index) => (
+                  <div key={index} className="p-4 rounded-lg bg-secondary/30 border border-border/50">
+                    <div className="flex items-start gap-3">
+                      <div className="w-8 h-8 rounded-lg bg-accent/20 flex items-center justify-center flex-shrink-0">
+                        <span className="text-accent font-bold text-sm">{index + 1}</span>
+                      </div>
+                      <p className="text-foreground text-sm">{rec}</p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Timeline and priority */}
+              {(parsedPredictions.privati_roles.timeline || parsedPredictions.privati_roles.priority) && (
+                <div className="flex gap-4 flex-wrap">
+                  {parsedPredictions.privati_roles.timeline && (
+                    <span className="px-3 py-1 rounded-full bg-accent/10 text-accent text-sm">
+                      Timeline: {parsedPredictions.privati_roles.timeline}
+                    </span>
+                  )}
+                  {parsedPredictions.privati_roles.priority && (
+                    <span className={`px-3 py-1 rounded-full text-sm ${
+                      parsedPredictions.privati_roles.priority === 'alta' ? 'bg-red-500/10 text-red-500' :
+                      parsedPredictions.privati_roles.priority === 'media' ? 'bg-yellow-500/10 text-yellow-500' :
+                      'bg-green-500/10 text-green-500'
+                    }`}>
+                      Priorità: {parsedPredictions.privati_roles.priority}
+                    </span>
+                  )}
+                </div>
+              )}
+            </div>
+          ) : aiAnalysis.privati_roles ? (
             <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
               <div className="flex items-center gap-2 mb-3">
                 <Lightbulb className="h-4 w-4 text-primary" />

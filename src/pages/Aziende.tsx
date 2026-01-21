@@ -4,7 +4,8 @@ import { Button } from "@/components/ui/button";
 import ConditionalNavbar from "@/components/ConditionalNavbar";
 import MainFooter from "@/components/MainFooter";
 import { DashboardCard } from "@/components/dashboard/shared/DashboardCard";
-import { SectionInput } from "@/components/dashboard/SectionInput";
+import { SectionInput, type ParsedPrediction } from "@/components/dashboard/SectionInput";
+import { ReportGenerator } from "@/components/dashboard/ReportGenerator";
 import { ScoreGauge } from "@/components/dashboard/shared/ScoreGauge";
 import { DriversList } from "@/components/dashboard/shared/DriversList";
 import { ActionCard } from "@/components/dashboard/shared/ActionCard";
@@ -27,7 +28,9 @@ import {
   AlertCircle,
   Cpu,
   Users,
-  MapPin
+  MapPin,
+  CheckCircle,
+  Target
 } from "lucide-react";
 
 interface CompanyProfile {
@@ -47,6 +50,7 @@ const Aziende = () => {
   const [company, setCompany] = useState<CompanyProfile | null>(null);
   const [profileContext, setProfileContext] = useState<Record<string, unknown>>({});
   const [aiAnalysis, setAiAnalysis] = useState<Record<string, string>>({});
+  const [parsedPredictions, setParsedPredictions] = useState<Record<string, ParsedPrediction>>({});
   const [profileType, setProfileType] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -88,19 +92,24 @@ const Aziende = () => {
         setProfileContext(data as unknown as Record<string, unknown>);
       }
 
-      // Load saved AI analyses
+      // Load saved AI analyses with structured data
       const { data: analyses } = await supabase
         .from("section_inputs")
-        .select("section_key, ai_analysis")
+        .select("section_key, ai_analysis, structured_data")
         .eq("user_id", user.id)
         .in("section_key", ["aziende_trend", "aziende_actions"]);
 
       if (analyses) {
         const analysisMap: Record<string, string> = {};
+        const predictionsMap: Record<string, ParsedPrediction> = {};
         analyses.forEach((a) => {
           if (a.ai_analysis) analysisMap[a.section_key] = a.ai_analysis;
+          if (a.structured_data && typeof a.structured_data === 'object') {
+            predictionsMap[a.section_key] = a.structured_data as ParsedPrediction;
+          }
         });
         setAiAnalysis(analysisMap);
+        setParsedPredictions(predictionsMap);
       }
 
       setLoading(false);
@@ -145,6 +154,13 @@ const Aziende = () => {
                 Modifica Profilo
               </Button>
             </Link>
+            {user && (
+              <ReportGenerator 
+                profileType="azienda" 
+                sectionKeys={["aziende_trend", "aziende_actions"]}
+                title="Genera Report"
+              />
+            )}
             {!user && (
               <Link to="/auth">
                 <Button className="gap-2">
@@ -191,7 +207,10 @@ const Aziende = () => {
               description="Aggiungi insight su mercato, competitor, clienti: l'AI li analizza."
               profileType="azienda"
               profileContext={profileContext}
-              onAnalysisComplete={(analysis) => setAiAnalysis(prev => ({ ...prev, aziende_trend: analysis }))}
+              onAnalysisComplete={(analysis, parsed) => {
+                setAiAnalysis(prev => ({ ...prev, aziende_trend: analysis }));
+                if (parsed) setParsedPredictions(prev => ({ ...prev, aziende_trend: parsed }));
+              }}
             />
             <SectionInput
               sectionKey="aziende_actions"
@@ -199,7 +218,10 @@ const Aziende = () => {
               description="Scrivi le azioni che stai valutando: l'AI ti aiuta a priorizzarle."
               profileType="azienda"
               profileContext={profileContext}
-              onAnalysisComplete={(analysis) => setAiAnalysis(prev => ({ ...prev, aziende_actions: analysis }))}
+              onAnalysisComplete={(analysis, parsed) => {
+                setAiAnalysis(prev => ({ ...prev, aziende_actions: analysis }));
+                if (parsed) setParsedPredictions(prev => ({ ...prev, aziende_actions: parsed }));
+              }}
             />
           </div>
         )}
