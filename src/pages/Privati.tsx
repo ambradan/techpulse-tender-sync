@@ -368,10 +368,31 @@ const Privati = () => {
                       </li>
                     ))}
                   </ul>
+                ) : parsedPredictions.privati_skills?.recommendations && parsedPredictions.privati_skills.recommendations.length > 0 ? (
+                  <ul className="space-y-3">
+                    {parsedPredictions.privati_skills.recommendations.slice(0, 4).map((item, index) => (
+                      <li key={index} className="flex items-start gap-3">
+                        <div className="w-2 h-2 rounded-full bg-accent mt-2 flex-shrink-0" />
+                        <span className="text-foreground">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
+                ) : parsedPredictions.privati_career?.risks && parsedPredictions.privati_career.risks.length > 0 ? (
+                  <ul className="space-y-3">
+                    {parsedPredictions.privati_career.risks.map((item, index) => (
+                      <li key={index} className="flex items-start gap-3">
+                        <div className="w-2 h-2 rounded-full bg-accent mt-2 flex-shrink-0" />
+                        <span className="text-foreground">{item}</span>
+                      </li>
+                    ))}
+                  </ul>
                 ) : (
-                  <p className="text-muted-foreground italic">
-                    Usa "Analisi skill e gap" per identificare le aree di miglioramento.
-                  </p>
+                  <div className="text-center py-4">
+                    <Target className="w-8 h-8 text-muted-foreground/50 mx-auto mb-2" />
+                    <p className="text-muted-foreground text-sm">
+                      Genera un'analisi AI per vedere le aree di miglioramento
+                    </p>
+                  </div>
                 )}
               </CardContent>
             </Card>
