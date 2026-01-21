@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/backend/client";
 import DashboardNavbar from "@/components/dashboard/DashboardNavbar";
 import CompanyHero from "@/components/dashboard/CompanyHero";
 import TrendSection from "@/components/dashboard/TrendSection";

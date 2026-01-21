@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { useCompanyProfile, getSizeRange } from "@/hooks/useCompanyProfile";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/backend/client";
 import CompanyProfileGate from "@/components/dashboard/CompanyProfileGate";
 import CompanyContextBanner from "@/components/dashboard/CompanyContextBanner";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";

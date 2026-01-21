@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Shield, TrendingUp, AlertTriangle, Target, RefreshCw, FileText, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/backend/client";
 import { toast } from "sonner";
 
 interface SWOTData {

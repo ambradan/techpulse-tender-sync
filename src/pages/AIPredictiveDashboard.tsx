@@ -8,7 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from "recharts";
 import { Brain, TrendingUp, TrendingDown, Loader2, Gauge, FileText } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { BACKEND_URL, supabase } from "@/integrations/backend/client";
 import { useCompanyProfile, sectorToIndustryValue } from "@/hooks/useCompanyProfile";
 import CompanyContextBanner from "@/components/dashboard/CompanyContextBanner";
 
@@ -95,7 +95,7 @@ export default function AIPredictiveDashboard() {
       };
 
       const response = await fetch(
-        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/predict`,
+        `${BACKEND_URL}/functions/v1/predict`,
         {
           method: "POST",
           headers: {
