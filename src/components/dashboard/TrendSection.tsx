@@ -1,7 +1,7 @@
 import { TrendingUp, AlertCircle, FileText, Coins } from "lucide-react";
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/backend/client";
 import { toast } from "sonner";
 
 interface Trend {

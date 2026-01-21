@@ -3,7 +3,7 @@ import { Heart, Shield, GraduationCap, Dumbbell, Plane, Brain, Gift, Star, Check
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/backend/client";
 import { toast } from "sonner";
 
 interface Partner {

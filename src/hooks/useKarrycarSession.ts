@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback } from "react";
-import { supabase } from "@/integrations/supabase/client";
+import { supabase } from "@/integrations/backend/client";
 
 const KARRYCAR_SESSION_KEY = "karrycar_session";
 const KARRYCAR_EXPIRES_KEY = "karrycar_expires";
