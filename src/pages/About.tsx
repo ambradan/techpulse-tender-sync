@@ -97,12 +97,9 @@ const About = () => {
               <h3 className="font-display text-2xl font-semibold text-foreground mb-1">
                 Ambra Danesin
               </h3>
-              <p className="text-primary font-medium mb-4">Founder & HR Tech Director</p>
+              <p className="text-primary font-medium mb-4">AI Systems Builder</p>
               <p className="text-muted-foreground mb-4">
-                HR Tech Director con esperienza nella selezione di profili tech, 
-                analisi di mercato e ottimizzazione dei processi HR. 
-                Specializzo il mio lavoro nell'integrare tecnologia e consulenza 
-                per creare soluzioni pratiche e immediate.
+                Governance e compliance systems per enterprise: procurement intelligence, security analysis, clinical decision support. Background HR → tech: porto rigore metodologico dove serve. Architetture privacy-by-design, audit-ready. Framework epistemici per AI non deterministici.
               </p>
               <a 
                 href="https://www.linkedin.com/in/ambradanesin/" 
