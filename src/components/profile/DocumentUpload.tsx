@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Textarea } from "@/components/ui/textarea";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
+import * as pdfjsLib from "pdfjs-dist";
 import { 
   FileText, 
   Upload, 
@@ -15,6 +16,9 @@ import {
   CheckCircle,
   Trash2
 } from "lucide-react";
+
+// Configure PDF.js worker
+pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
 
 interface ExtractedData {
   // Privato
@@ -52,6 +56,7 @@ export function DocumentUpload({ profileType, onDataExtracted }: DocumentUploadP
   const [documentText, setDocumentText] = useState("");
   const [fileName, setFileName] = useState<string | null>(null);
   const [analyzing, setAnalyzing] = useState(false);
+  const [parsing, setParsing] = useState(false);
   const [extractedData, setExtractedData] = useState<ExtractedData | null>(null);
 
   const getTitle = () => {
@@ -70,38 +75,52 @@ export function DocumentUpload({ profileType, onDataExtracted }: DocumentUploadP
     }
   };
 
+  const extractTextFromPDF = async (file: File): Promise<string> => {
+    const arrayBuffer = await file.arrayBuffer();
+    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    
+    let fullText = "";
+    const maxPages = Math.min(pdf.numPages, 20); // Limit to first 20 pages
+    
+    for (let i = 1; i <= maxPages; i++) {
+      const page = await pdf.getPage(i);
+      const textContent = await page.getTextContent();
+      const pageText = textContent.items
+        .map((item) => ("str" in item ? item.str : ""))
+        .join(" ");
+      fullText += pageText + "\n\n";
+    }
+    
+    return fullText.trim();
+  };
+
   const handleFileSelect = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
-    // Check file size (max 5MB for text extraction)
-    if (file.size > 5 * 1024 * 1024) {
+    // Check file size (max 10MB)
+    if (file.size > 10 * 1024 * 1024) {
       toast({
         title: "File troppo grande",
-        description: "Il file deve essere inferiore a 5MB.",
+        description: "Il file deve essere inferiore a 10MB.",
         variant: "destructive",
       });
       return;
     }
 
-    // Only accept text-based files for now
-    const allowedTypes = [
-      "text/plain",
-      "text/markdown",
-      "application/json",
-    ];
-    
-    const isTextFile = allowedTypes.includes(file.type) || 
-                       file.name.endsWith(".txt") || 
-                       file.name.endsWith(".md");
+    const isPDF = file.type === "application/pdf" || file.name.toLowerCase().endsWith(".pdf");
+    const isTextFile = 
+      file.type === "text/plain" || 
+      file.type === "text/markdown" ||
+      file.name.endsWith(".txt") || 
+      file.name.endsWith(".md");
 
-    if (!isTextFile) {
+    if (!isPDF && !isTextFile) {
       toast({
         title: "Formato non supportato",
-        description: "Per ora supportiamo solo file di testo (.txt, .md). Per PDF o Word, copia e incolla il contenuto nella casella di testo.",
+        description: "Supportiamo PDF e file di testo (.txt, .md). Per Word, esporta prima in PDF.",
         variant: "destructive",
       });
-      // Clear the input
       if (fileInputRef.current) {
         fileInputRef.current.value = "";
       }
@@ -109,14 +128,31 @@ export function DocumentUpload({ profileType, onDataExtracted }: DocumentUploadP
     }
 
     try {
-      const text = await file.text();
+      setParsing(true);
+      let text = "";
+
+      if (isPDF) {
+        text = await extractTextFromPDF(file);
+        if (!text.trim()) {
+          toast({
+            title: "PDF non leggibile",
+            description: "Il PDF sembra essere scansionato o non contiene testo estraibile. Prova a copiare il contenuto manualmente.",
+            variant: "destructive",
+          });
+          setParsing(false);
+          return;
+        }
+      } else {
+        text = await file.text();
+      }
+
       setDocumentText(text);
       setFileName(file.name);
       setExtractedData(null);
       
       toast({
         title: "File caricato",
-        description: `${file.name} è pronto per l'analisi.`,
+        description: `${file.name} è pronto per l'analisi (${text.length} caratteri estratti).`,
       });
     } catch (error) {
       console.error("Error reading file:", error);
@@ -125,6 +161,8 @@ export function DocumentUpload({ profileType, onDataExtracted }: DocumentUploadP
         description: "Impossibile leggere il file. Prova a copiare il contenuto manualmente.",
         variant: "destructive",
       });
+    } finally {
+      setParsing(false);
     }
 
     // Clear the input for potential re-upload
@@ -162,13 +200,14 @@ export function DocumentUpload({ profileType, onDataExtracted }: DocumentUploadP
           description: "Dati estratti con successo. Clicca 'Applica' per usarli.",
         });
       }
-    } catch (error: any) {
+    } catch (error: unknown) {
       console.error("Analyze error:", error);
       
       let errorMessage = "Impossibile analizzare il documento.";
-      if (error.message?.includes("429")) {
+      const errorObj = error as { message?: string };
+      if (errorObj.message?.includes("429")) {
         errorMessage = "Limite di richieste raggiunto. Riprova tra qualche minuto.";
-      } else if (error.message?.includes("402")) {
+      } else if (errorObj.message?.includes("402")) {
         errorMessage = "Crediti AI esauriti.";
       }
       
@@ -291,7 +330,7 @@ export function DocumentUpload({ profileType, onDataExtracted }: DocumentUploadP
               <input
                 ref={fileInputRef}
                 type="file"
-                accept=".txt,.md,text/plain,text/markdown"
+                accept=".pdf,.txt,.md,application/pdf,text/plain,text/markdown"
                 onChange={handleFileSelect}
                 className="hidden"
               />
@@ -299,9 +338,19 @@ export function DocumentUpload({ profileType, onDataExtracted }: DocumentUploadP
                 variant="outline"
                 onClick={() => fileInputRef.current?.click()}
                 className="flex-1"
+                disabled={parsing}
               >
-                <Upload className="h-4 w-4 mr-2" />
-                {fileName ? `Caricato: ${fileName}` : "Carica file (.txt, .md)"}
+                {parsing ? (
+                  <>
+                    <Loader2 className="h-4 w-4 mr-2 animate-spin" />
+                    Estrazione testo...
+                  </>
+                ) : (
+                  <>
+                    <Upload className="h-4 w-4 mr-2" />
+                    {fileName ? `Caricato: ${fileName}` : "Carica file (PDF, TXT, MD)"}
+                  </>
+                )}
               </Button>
             </div>
 
@@ -313,7 +362,7 @@ export function DocumentUpload({ profileType, onDataExtracted }: DocumentUploadP
                   setDocumentText(e.target.value);
                   setExtractedData(null);
                 }}
-                placeholder="Oppure incolla qui il contenuto del tuo CV/documento (per PDF o Word, copia il testo e incollalo qui)..."
+                placeholder="Oppure incolla qui il contenuto del tuo CV/documento..."
                 rows={6}
                 className="resize-none"
               />
@@ -325,7 +374,7 @@ export function DocumentUpload({ profileType, onDataExtracted }: DocumentUploadP
             {/* Analyze button */}
             <Button
               onClick={handleAnalyze}
-              disabled={analyzing || documentText.trim().length < 50}
+              disabled={analyzing || parsing || documentText.trim().length < 50}
               className="w-full"
             >
               {analyzing ? (
