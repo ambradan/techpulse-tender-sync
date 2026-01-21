@@ -1,9 +1,10 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import ConditionalNavbar from "@/components/ConditionalNavbar";
 import MainFooter from "@/components/MainFooter";
 import { DashboardCard } from "@/components/dashboard/shared/DashboardCard";
+import { SectionInput } from "@/components/dashboard/SectionInput";
 import { ScoreGauge } from "@/components/dashboard/shared/ScoreGauge";
 import { TrendChart } from "@/components/dashboard/shared/TrendChart";
 import { DriversList } from "@/components/dashboard/shared/DriversList";
@@ -11,6 +12,7 @@ import { ActionCard } from "@/components/dashboard/shared/ActionCard";
 import { ScenarioTabs } from "@/components/dashboard/shared/ScenarioTabs";
 import { CompanyPrediction } from "@/types/predictions";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/backend/client";
 import { 
   ArrowRight, 
   Building2,
@@ -32,6 +34,24 @@ const Aziende = () => {
   const { user } = useAuth();
   // State for API data - will be populated by external API calls
   const [companyPrediction] = useState<CompanyPrediction | null>(null);
+  const [profileContext, setProfileContext] = useState<Record<string, unknown>>({});
+
+  useEffect(() => {
+    const loadCompanyContext = async () => {
+      if (!user) return;
+      const { data } = await supabase
+        .from("companies")
+        .select("name, sector, employees, location, description, tecnologia_usata, automazione_livello, modello_lavoro")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (data) {
+        setProfileContext(data as unknown as Record<string, unknown>);
+      }
+    };
+
+    loadCompanyContext();
+  }, [user]);
 
   return (
     <main className="min-h-screen bg-gradient-hero flex flex-col">
@@ -76,6 +96,24 @@ const Aziende = () => {
               </Link>
             )}
           </div>
+        </div>
+
+        {/* INPUT: note per analisi AI (manuale) */}
+        <div className="mb-8 space-y-4">
+          <SectionInput
+            sectionKey="aziende_trend"
+            title="Note su trend e mercato"
+            description="Aggiungi insight (manuali) su mercato, competitor, clienti: l'AI li analizza (senza inventare numeri)."
+            profileType="azienda"
+            profileContext={profileContext}
+          />
+          <SectionInput
+            sectionKey="aziende_actions"
+            title="Piano azioni (priorità)"
+            description="Scrivi le azioni che stai valutando: l'AI ti aiuta a priorizzarle."
+            profileType="azienda"
+            profileContext={profileContext}
+          />
         </div>
 
         {/* SEZIONE A: Riepilogo - TechPulse Index */}

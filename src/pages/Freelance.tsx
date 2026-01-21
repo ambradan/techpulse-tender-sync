@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -7,8 +7,10 @@ import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContaine
 import ConditionalNavbar from "@/components/ConditionalNavbar";
 import MainFooter from "@/components/MainFooter";
 import { DashboardCard } from "@/components/dashboard/shared/DashboardCard";
+import { SectionInput } from "@/components/dashboard/SectionInput";
 import { FreelancePrediction } from "@/types/predictions";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/backend/client";
 import { 
   ArrowRight, 
   Briefcase,
@@ -27,6 +29,20 @@ const Freelance = () => {
   const { user } = useAuth();
   // State for API data - will be populated by external API calls
   const [freelancePrediction] = useState<FreelancePrediction | null>(null);
+  const [profileContext, setProfileContext] = useState<Record<string, unknown>>({});
+
+  useEffect(() => {
+    const loadProfile = async () => {
+      if (!user) return;
+      const { data } = await supabase
+        .from("profiles")
+        .select("ruolo_attuale, competenze, servizi_offerti, nicchia, anni_freelance, clienti_tipo, tariffa_oraria, settore_interesse")
+        .eq("id", user.id)
+        .maybeSingle();
+      if (data) setProfileContext(data as unknown as Record<string, unknown>);
+    };
+    loadProfile();
+  }, [user]);
 
   // Transform demand trend data for chart
   const chartData = freelancePrediction?.demand_trend?.reduce((acc, item) => {
@@ -87,6 +103,31 @@ const Freelance = () => {
               </Link>
             )}
           </div>
+        </div>
+
+        {/* INPUT: note per analisi AI (manuale) */}
+        <div className="mb-8 space-y-4">
+          <SectionInput
+            sectionKey="freelance_positioning"
+            title="Note su posizionamento"
+            description="Aggiungi dettagli su nicchia, differenziazione e offerta: l'AI li analizza."
+            profileType="freelance"
+            profileContext={profileContext}
+          />
+          <SectionInput
+            sectionKey="freelance_pricing"
+            title="Note su pricing"
+            description="Scrivi vincoli, obiettivi e modello prezzi: l'AI propone miglioramenti (senza inventare numeri)."
+            profileType="freelance"
+            profileContext={profileContext}
+          />
+          <SectionInput
+            sectionKey="freelance_leads"
+            title="Note su lead e outreach"
+            description="Aggiungi target, canali e messaggi: l'AI suggerisce ottimizzazioni."
+            profileType="freelance"
+            profileContext={profileContext}
+          />
         </div>
 
         {/* SEZIONE A: Riepilogo Posizionamento */}
