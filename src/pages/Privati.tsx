@@ -105,6 +105,24 @@ const Privati = () => {
   const hasProfileData = profile && (profile.ruolo_attuale || profile.ruolo_target || profile.competenze?.length);
   const isPrivatoProfile = profile?.profile_type === "privato";
 
+  // Helper per estrarre le "Aree di attenzione" dal testo AI
+  const extractAreasFromAnalysis = (analysisText: string | undefined): string[] => {
+    if (!analysisText) return [];
+    
+    // Cerca la sezione "Aree di attenzione" nel testo
+    const match = analysisText.match(/\*\*Aree di attenzione\*\*:?\s*([\s\S]*?)(?=\*\*|$)/i);
+    if (!match) return [];
+    
+    // Estrai le righe che iniziano con -
+    const lines = match[1].match(/[-•]\s*([^\n-•]+)/g);
+    if (!lines) return [];
+    
+    return lines
+      .map(line => line.replace(/^[-•]\s*/, "").trim())
+      .filter(line => line.length > 10) // Filtra righe troppo corte
+      .slice(0, 5); // Max 5 items
+  };
+
   const getExperienceLabel = (years: number | null) => {
     if (!years) return null;
     if (years <= 2) return "Entry level";
@@ -359,57 +377,54 @@ const Privati = () => {
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {parsedPredictions.privati_skills?.risks && parsedPredictions.privati_skills.risks.length > 0 ? (
-                  <ul className="space-y-3">
-                    {parsedPredictions.privati_skills.risks.map((item, index) => (
-                      <li key={index} className="flex items-start gap-3">
-                        <div className="w-2 h-2 rounded-full bg-accent mt-2 flex-shrink-0" />
-                        <span className="text-foreground">{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : parsedPredictions.privati_skills?.recommendations && parsedPredictions.privati_skills.recommendations.length > 0 ? (
-                  <ul className="space-y-3">
-                    {parsedPredictions.privati_skills.recommendations.slice(0, 4).map((item, index) => (
-                      <li key={index} className="flex items-start gap-3">
-                        <div className="w-2 h-2 rounded-full bg-accent mt-2 flex-shrink-0" />
-                        <span className="text-foreground">{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : parsedPredictions.privati_career?.risks && parsedPredictions.privati_career.risks.length > 0 ? (
-                  <ul className="space-y-3">
-                    {parsedPredictions.privati_career.risks.map((item, index) => (
-                      <li key={index} className="flex items-start gap-3">
-                        <div className="w-2 h-2 rounded-full bg-accent mt-2 flex-shrink-0" />
-                        <span className="text-foreground">{item}</span>
-                      </li>
-                    ))}
-                  </ul>
-                ) : (
-                  <div className="text-center py-4">
-                    <Target className="w-8 h-8 text-muted-foreground/50 mx-auto mb-2" />
-                    <p className="text-muted-foreground text-sm">
-                      Genera un'analisi AI per vedere le aree di miglioramento
-                    </p>
-                  </div>
-                )}
+                {(() => {
+                  // Prima prova i parsed predictions
+                  const risks = parsedPredictions.privati_skills?.risks || 
+                                parsedPredictions.privati_career?.risks || [];
+                  
+                  if (risks.length > 0) {
+                    return (
+                      <ul className="space-y-3">
+                        {risks.map((item, index) => (
+                          <li key={index} className="flex items-start gap-3">
+                            <div className="w-2 h-2 rounded-full bg-accent mt-2 flex-shrink-0" />
+                            <span className="text-foreground text-sm">{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    );
+                  }
+                  
+                  // Fallback: estrai direttamente dal testo AI
+                  const extractedAreas = extractAreasFromAnalysis(aiAnalysis.privati_skills) ||
+                                         extractAreasFromAnalysis(aiAnalysis.privati_career);
+                  
+                  if (extractedAreas && extractedAreas.length > 0) {
+                    return (
+                      <ul className="space-y-3">
+                        {extractedAreas.map((item, index) => (
+                          <li key={index} className="flex items-start gap-3">
+                            <div className="w-2 h-2 rounded-full bg-accent mt-2 flex-shrink-0" />
+                            <span className="text-foreground text-sm">{item}</span>
+                          </li>
+                        ))}
+                      </ul>
+                    );
+                  }
+                  
+                  // Nessun dato disponibile
+                  return (
+                    <div className="text-center py-4">
+                      <Target className="w-8 h-8 text-muted-foreground/50 mx-auto mb-2" />
+                      <p className="text-muted-foreground text-sm">
+                        Genera un'analisi AI per vedere le aree di miglioramento
+                      </p>
+                    </div>
+                  );
+                })()}
               </CardContent>
             </Card>
           </div>
-
-          {/* AI Analysis for skills */}
-          {aiAnalysis.privati_skills && (
-            <div className="mt-6 p-4 rounded-lg bg-primary/5 border border-primary/20">
-              <div className="flex items-center gap-2 mb-3">
-                <Lightbulb className="h-4 w-4 text-primary" />
-                <span className="text-sm font-medium text-primary">Analisi AI - Competenze</span>
-              </div>
-              <div className="text-sm text-foreground whitespace-pre-wrap" dangerouslySetInnerHTML={{ 
-                __html: aiAnalysis.privati_skills.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br/>') 
-              }} />
-            </div>
-          )}
         </div>
 
         {/* SEZIONE INPUT: Formazione */}
