@@ -38,13 +38,13 @@ interface DocumentUploadProps {
   onDataExtracted: (data: ExtractedData) => void;
 }
 
-// Dynamic PDF.js loader using legacy build to avoid top-level await issues
+// Dynamic PDF.js loader using v3.x which doesn't have top-level await issues
 async function extractTextFromPDF(file: File): Promise<string> {
-  const pdfjsLib = await import("pdfjs-dist/legacy/build/pdf.mjs");
-  pdfjsLib.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/${pdfjsLib.version}/pdf.worker.min.js`;
+  const pdfjs = await import("pdfjs-dist");
+  pdfjs.GlobalWorkerOptions.workerSrc = `https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js`;
   
   const arrayBuffer = await file.arrayBuffer();
-  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  const pdf = await pdfjs.getDocument({ data: arrayBuffer }).promise;
   
   let fullText = "";
   const maxPages = Math.min(pdf.numPages, 20);
