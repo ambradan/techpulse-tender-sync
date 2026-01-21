@@ -1,29 +1,22 @@
 import { createClient } from "@supabase/supabase-js";
 import type { Database } from "@/integrations/supabase/types";
 
-const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID as string | undefined;
+// Fallback values for preview environments where .env may not load
+const FALLBACK_PROJECT_ID = "oabbwjrkiekegdivzjpg";
+const FALLBACK_ANON_KEY =
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im9hYmJ3anJraWVrZWdkaXZ6anBnIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjQ3MTc5NDksImV4cCI6MjA4MDI5Mzk0OX0.-EF5jbwrqtNNFXw6LkduZtxkrxyFzCm7SVMBsVWbxYM";
 
-// In some preview environments VITE_SUPABASE_URL may be temporarily missing.
-// We can safely reconstruct it from the project id.
+const projectId =
+  (import.meta.env.VITE_SUPABASE_PROJECT_ID as string | undefined) ||
+  FALLBACK_PROJECT_ID;
+
 const backendUrl =
   (import.meta.env.VITE_SUPABASE_URL as string | undefined) ||
-  (projectId ? `https://${projectId}.supabase.co` : undefined);
+  `https://${projectId}.supabase.co`;
 
 const publishableKey =
   (import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY as string | undefined) ||
-  (import.meta.env.SUPABASE_PUBLISHABLE_KEY as string | undefined);
-
-if (!backendUrl) {
-  throw new Error(
-    "Backend URL is missing. Expected VITE_SUPABASE_URL or VITE_SUPABASE_PROJECT_ID to be defined."
-  );
-}
-
-if (!publishableKey) {
-  throw new Error(
-    "Backend publishable key is missing. Expected VITE_SUPABASE_PUBLISHABLE_KEY to be defined."
-  );
-}
+  FALLBACK_ANON_KEY;
 
 export const supabase = createClient<Database>(backendUrl, publishableKey, {
   auth: {
