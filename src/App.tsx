@@ -43,6 +43,7 @@ import TermsOfService from "./pages/TermsOfService";
 import KarrycarProposal from "./pages/KarrycarProposal";
 import KarrycarAlpha from "./pages/KarrycarAlpha";
 import KarrycarDashboard from "./pages/KarrycarDashboard";
+import ResetPassword from "./pages/ResetPassword";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -59,6 +60,7 @@ const App = () => (
           <Route path="/" element={<SimpleIndex />} />
           <Route path="/home" element={<Index />} />
           <Route path="/auth" element={<Auth />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/about" element={<About />} />
           <Route path="/contatti" element={<Contatti />} />
           
