@@ -2,13 +2,10 @@ import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, Legend } from 'recharts';
 import ConditionalNavbar from "@/components/ConditionalNavbar";
 import MainFooter from "@/components/MainFooter";
 import { DashboardCard } from "@/components/dashboard/shared/DashboardCard";
 import { SectionInput } from "@/components/dashboard/SectionInput";
-import { FreelancePrediction } from "@/types/predictions";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/backend/client";
 import { 
@@ -22,47 +19,88 @@ import {
   MessageSquare,
   Send,
   Globe,
-  Sparkles
+  Sparkles,
+  FileText,
+  AlertTriangle,
+  AlertCircle,
+  Lightbulb
 } from "lucide-react";
+
+interface FreelanceProfile {
+  ruolo_attuale: string | null;
+  competenze: string[] | null;
+  servizi_offerti: string[] | null;
+  nicchia: string | null;
+  anni_freelance: number | null;
+  clienti_tipo: string[] | null;
+  tariffa_oraria: number | null;
+  settore_interesse: string | null;
+  profile_type: string | null;
+}
 
 const Freelance = () => {
   const { user } = useAuth();
-  // State for API data - will be populated by external API calls
-  const [freelancePrediction] = useState<FreelancePrediction | null>(null);
+  const [profile, setProfile] = useState<FreelanceProfile | null>(null);
   const [profileContext, setProfileContext] = useState<Record<string, unknown>>({});
+  const [aiAnalysis, setAiAnalysis] = useState<Record<string, string>>({});
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     const loadProfile = async () => {
-      if (!user) return;
+      if (!user) {
+        setLoading(false);
+        return;
+      }
+      
       const { data } = await supabase
         .from("profiles")
-        .select("ruolo_attuale, competenze, servizi_offerti, nicchia, anni_freelance, clienti_tipo, tariffa_oraria, settore_interesse")
+        .select("ruolo_attuale, competenze, servizi_offerti, nicchia, anni_freelance, clienti_tipo, tariffa_oraria, settore_interesse, profile_type")
         .eq("id", user.id)
         .maybeSingle();
-      if (data) setProfileContext(data as unknown as Record<string, unknown>);
+      
+      if (data) {
+        setProfile({
+          ruolo_attuale: data.ruolo_attuale,
+          competenze: Array.isArray(data.competenze) ? data.competenze as string[] : null,
+          servizi_offerti: Array.isArray(data.servizi_offerti) ? data.servizi_offerti as string[] : null,
+          nicchia: data.nicchia,
+          anni_freelance: data.anni_freelance,
+          clienti_tipo: Array.isArray(data.clienti_tipo) ? data.clienti_tipo as string[] : null,
+          tariffa_oraria: data.tariffa_oraria,
+          settore_interesse: data.settore_interesse,
+          profile_type: data.profile_type,
+        });
+        setProfileContext(data as unknown as Record<string, unknown>);
+      }
+
+      // Load saved AI analyses
+      const { data: analyses } = await supabase
+        .from("section_inputs")
+        .select("section_key, ai_analysis")
+        .eq("user_id", user.id)
+        .in("section_key", ["freelance_positioning", "freelance_pricing", "freelance_leads"]);
+
+      if (analyses) {
+        const analysisMap: Record<string, string> = {};
+        analyses.forEach((a) => {
+          if (a.ai_analysis) analysisMap[a.section_key] = a.ai_analysis;
+        });
+        setAiAnalysis(analysisMap);
+      }
+
+      setLoading(false);
     };
+    
     loadProfile();
   }, [user]);
 
-  // Transform demand trend data for chart
-  const chartData = freelancePrediction?.demand_trend?.reduce((acc, item) => {
-    const existing = acc.find(d => d.month === item.month);
-    if (existing) {
-      existing[item.service_name] = item.demand_index;
-    } else {
-      acc.push({ month: item.month, [item.service_name]: item.demand_index });
-    }
-    return acc;
-  }, [] as Array<Record<string, string | number>>) ?? [];
-
-  const serviceNames = [...new Set(freelancePrediction?.demand_trend?.map(d => d.service_name) ?? [])];
-  const colors = ['hsl(var(--primary))', 'hsl(var(--accent))', '#22c55e', '#eab308'];
+  const hasProfileData = profile && (profile.servizi_offerti?.length || profile.nicchia || profile.competenze?.length);
+  const isFreelanceProfile = profile?.profile_type === "freelance";
 
   return (
     <main className="min-h-screen bg-gradient-hero flex flex-col">
       <ConditionalNavbar />
 
-      {/* Hero Dashboard Header */}
       <section className="container mx-auto px-4 py-8 md:py-12">
         <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 mb-8">
           <div>
@@ -78,14 +116,12 @@ const Freelance = () => {
             </p>
           </div>
           <div className="flex gap-3">
-            <Button 
-              variant="outline" 
-              className="gap-2"
-              onClick={() => document.getElementById('lead-section')?.scrollIntoView({ behavior: 'smooth' })}
-            >
-              <Users className="w-4 h-4" />
-              Scopri i Lead
-            </Button>
+            <Link to="/profile">
+              <Button variant="outline" className="gap-2">
+                <FileText className="w-4 h-4" />
+                Modifica Profilo
+              </Button>
+            </Link>
             {!user && (
               <Link to="/auth">
                 <Button className="gap-2">
@@ -94,78 +130,101 @@ const Freelance = () => {
                 </Button>
               </Link>
             )}
-            {user && (
-              <Link to="/dashboard">
-                <Button className="gap-2">
-                  Vai alla Dashboard
-                  <ArrowRight className="w-4 h-4" />
-                </Button>
-              </Link>
-            )}
           </div>
         </div>
 
-        {/* INPUT: note per analisi AI (manuale) */}
-        <div className="mb-8 space-y-4">
-          <SectionInput
-            sectionKey="freelance_positioning"
-            title="Note su posizionamento"
-            description="Aggiungi dettagli su nicchia, differenziazione e offerta: l'AI li analizza."
-            profileType="freelance"
-            profileContext={profileContext}
-          />
-          <SectionInput
-            sectionKey="freelance_pricing"
-            title="Note su pricing"
-            description="Scrivi vincoli, obiettivi e modello prezzi: l'AI propone miglioramenti (senza inventare numeri)."
-            profileType="freelance"
-            profileContext={profileContext}
-          />
-          <SectionInput
-            sectionKey="freelance_leads"
-            title="Note su lead e outreach"
-            description="Aggiungi target, canali e messaggi: l'AI suggerisce ottimizzazioni."
-            profileType="freelance"
-            profileContext={profileContext}
-          />
-        </div>
+        {/* Profile warning */}
+        {user && profile && !isFreelanceProfile && (
+          <div className="mb-8 p-4 rounded-lg bg-yellow-500/10 border border-yellow-500/30 flex items-start gap-3">
+            <AlertTriangle className="w-5 h-5 text-yellow-500 mt-0.5" />
+            <div>
+              <p className="text-yellow-500 font-medium">Profilo non configurato come "Freelance"</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Vai in <Link to="/profile" className="text-primary underline">Profilo</Link> e seleziona "Freelance" per vedere i tuoi dati.
+              </p>
+            </div>
+          </div>
+        )}
 
-        {/* SEZIONE A: Riepilogo Posizionamento */}
+        {/* No data warning */}
+        {user && isFreelanceProfile && !hasProfileData && !loading && (
+          <div className="mb-8 p-4 rounded-lg bg-blue-500/10 border border-blue-500/30 flex items-start gap-3">
+            <AlertCircle className="w-5 h-5 text-blue-500 mt-0.5" />
+            <div>
+              <p className="text-blue-500 font-medium">Profilo freelance incompleto</p>
+              <p className="text-sm text-muted-foreground mt-1">
+                Compila i <Link to="/profile" className="text-primary underline">dati freelance</Link> per vedere le analisi.
+              </p>
+            </div>
+          </div>
+        )}
+
+        {/* INPUT: note per analisi AI */}
+        {user && (
+          <div className="mb-8 space-y-4">
+            <SectionInput
+              sectionKey="freelance_positioning"
+              title="Note su posizionamento"
+              description="Aggiungi dettagli su nicchia, differenziazione e offerta."
+              profileType="freelance"
+              profileContext={profileContext}
+              onAnalysisComplete={(analysis) => setAiAnalysis(prev => ({ ...prev, freelance_positioning: analysis }))}
+            />
+            <SectionInput
+              sectionKey="freelance_pricing"
+              title="Note su pricing"
+              description="Scrivi vincoli, obiettivi e modello prezzi."
+              profileType="freelance"
+              profileContext={profileContext}
+              onAnalysisComplete={(analysis) => setAiAnalysis(prev => ({ ...prev, freelance_pricing: analysis }))}
+            />
+            <SectionInput
+              sectionKey="freelance_leads"
+              title="Note su lead e outreach"
+              description="Aggiungi target, canali e messaggi."
+              profileType="freelance"
+              profileContext={profileContext}
+              onAnalysisComplete={(analysis) => setAiAnalysis(prev => ({ ...prev, freelance_leads: analysis }))}
+            />
+          </div>
+        )}
+
+        {/* SEZIONE A: Riepilogo Posizionamento - DAI DATI PROFILO */}
         <DashboardCard 
           icon={Target}
           title="Il Tuo Posizionamento"
-          subtitle="Strategia consigliata per il tuo business"
+          subtitle="Basato sui dati del tuo profilo"
           className="mb-8"
         >
           <div className="grid md:grid-cols-3 gap-6">
             <div className="bg-primary/5 border border-primary/20 rounded-xl p-6">
               <div className="flex items-center gap-2 mb-3 text-primary">
                 <Target className="w-5 h-5" />
-                <span className="text-sm font-medium">Nicchia Consigliata</span>
+                <span className="text-sm font-medium">Nicchia</span>
               </div>
-              {freelancePrediction?.positioning?.niche ? (
+              {profile?.nicchia ? (
                 <h3 className="font-display text-xl font-bold text-foreground">
-                  {freelancePrediction.positioning.niche}
+                  {profile.nicchia}
                 </h3>
               ) : (
                 <p className="text-muted-foreground italic">
-                  In attesa dei dati...
+                  Non definita nel profilo
                 </p>
               )}
             </div>
 
             <div className="bg-accent/5 border border-accent/20 rounded-xl p-6">
               <div className="flex items-center gap-2 mb-3 text-accent">
-                <Sparkles className="w-5 h-5" />
-                <span className="text-sm font-medium">Proposta di Valore</span>
+                <DollarSign className="w-5 h-5" />
+                <span className="text-sm font-medium">Tariffa Oraria</span>
               </div>
-              {freelancePrediction?.positioning?.value_prop ? (
-                <p className="text-foreground font-medium">
-                  "{freelancePrediction.positioning.value_prop}"
+              {profile?.tariffa_oraria ? (
+                <p className="font-display text-xl font-bold text-foreground">
+                  €{profile.tariffa_oraria}/ora
                 </p>
               ) : (
                 <p className="text-muted-foreground italic">
-                  In attesa dei dati...
+                  Non specificata
                 </p>
               )}
             </div>
@@ -173,231 +232,162 @@ const Freelance = () => {
             <div className="bg-secondary/50 rounded-xl p-6">
               <div className="flex items-center gap-2 mb-3 text-foreground">
                 <MessageSquare className="w-5 h-5" />
-                <span className="text-sm font-medium">Sintesi</span>
+                <span className="text-sm font-medium">Esperienza</span>
               </div>
-              {freelancePrediction?.commentary?.summary ? (
-                <p className="text-sm text-foreground">
-                  {freelancePrediction.commentary.summary}
+              {profile?.anni_freelance ? (
+                <p className="text-foreground">
+                  <span className="font-bold">{profile.anni_freelance}</span> anni da freelance
                 </p>
               ) : (
-                <p className="text-muted-foreground italic text-sm">
-                  La sintesi del tuo posizionamento apparirà qui...
+                <p className="text-muted-foreground italic">
+                  Non specificata
                 </p>
               )}
             </div>
           </div>
-        </DashboardCard>
 
-        {/* SEZIONE B: Domanda Futura per Servizi */}
-        <DashboardCard 
-          icon={TrendingUp}
-          title="Domanda Futura per Servizi"
-          subtitle="Trend di domanda previsto per i prossimi mesi"
-          className="mb-8"
-        >
-          {chartData.length > 0 ? (
-            <ResponsiveContainer width="100%" height={350}>
-              <BarChart data={chartData} margin={{ top: 20, right: 30, left: 0, bottom: 5 }}>
-                <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--border))" />
-                <XAxis dataKey="month" stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                <YAxis stroke="hsl(var(--muted-foreground))" fontSize={12} />
-                <Tooltip
-                  contentStyle={{
-                    backgroundColor: 'hsl(var(--card))',
-                    border: '1px solid hsl(var(--border))',
-                    borderRadius: '8px',
-                  }}
-                />
-                <Legend />
-                {serviceNames.map((service, index) => (
-                  <Bar 
-                    key={service} 
-                    dataKey={service} 
-                    fill={colors[index % colors.length]} 
-                    radius={[4, 4, 0, 0]}
-                  />
-                ))}
-              </BarChart>
-            </ResponsiveContainer>
-          ) : (
-            <div className="bg-secondary/30 rounded-xl p-12 text-center">
-              <TrendingUp className="w-12 h-12 text-muted-foreground/50 mx-auto mb-3" />
-              <p className="text-muted-foreground">
-                Il grafico della domanda apparirà qui quando i dati predittivi saranno disponibili.
-              </p>
+          {/* AI Analysis - Positioning */}
+          {aiAnalysis.freelance_positioning && (
+            <div className="mt-6 p-4 rounded-lg bg-primary/5 border border-primary/20">
+              <div className="flex items-center gap-2 mb-3">
+                <Lightbulb className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium text-primary">Analisi AI - Posizionamento</span>
+              </div>
+              <div className="text-sm text-foreground whitespace-pre-wrap" dangerouslySetInnerHTML={{ 
+                __html: aiAnalysis.freelance_positioning.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br/>') 
+              }} />
             </div>
           )}
         </DashboardCard>
 
-        {/* SEZIONE C: Settori con Più Budget */}
+        {/* SEZIONE B: Servizi Offerti */}
         <DashboardCard 
-          icon={Globe}
-          title="Settori con Più Budget"
-          subtitle="Dove investire il tuo tempo per massimizzare i guadagni"
+          icon={Sparkles}
+          title="Servizi Offerti"
+          subtitle="I tuoi servizi dal profilo"
           className="mb-8"
         >
-          {freelancePrediction?.sectors && freelancePrediction.sectors.length > 0 ? (
-            <div className="grid sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {freelancePrediction.sectors.map((sector, index) => (
-                <Card key={index} className="bg-secondary/30 border-border/50">
-                  <CardContent className="p-5">
-                    <div className="flex items-center justify-between mb-3">
-                      <h4 className="font-semibold text-foreground">{sector.sector_name}</h4>
-                      <span className={`text-xs px-2 py-1 rounded font-medium ${
-                        sector.budget_level === 'Alto' ? 'bg-green-500/10 text-green-500' :
-                        sector.budget_level === 'Medio' ? 'bg-yellow-500/10 text-yellow-500' :
-                        'bg-red-500/10 text-red-500'
-                      }`}>
-                        Budget {sector.budget_level}
-                      </span>
-                    </div>
-                    <p className="text-sm text-muted-foreground">{sector.opportunity_note}</p>
-                  </CardContent>
-                </Card>
+          {profile?.servizi_offerti && profile.servizi_offerti.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              {profile.servizi_offerti.map((service, index) => (
+                <span key={index} className="px-4 py-2 rounded-lg bg-primary/10 text-primary border border-primary/20 font-medium">
+                  {service}
+                </span>
               ))}
             </div>
           ) : (
             <div className="bg-secondary/30 rounded-xl p-8 text-center">
-              <Building2 className="w-12 h-12 text-muted-foreground/50 mx-auto mb-3" />
+              <Sparkles className="w-12 h-12 text-muted-foreground/50 mx-auto mb-3" />
               <p className="text-muted-foreground">
-                I settori con più budget appariranno qui quando i dati predittivi saranno disponibili.
+                Aggiungi i tuoi servizi nel <Link to="/profile" className="text-primary underline">profilo</Link>.
               </p>
+            </div>
+          )}
+
+          {/* AI Analysis - Pricing */}
+          {aiAnalysis.freelance_pricing && (
+            <div className="mt-6 p-4 rounded-lg bg-primary/5 border border-primary/20">
+              <div className="flex items-center gap-2 mb-3">
+                <Lightbulb className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium text-primary">Analisi AI - Pricing</span>
+              </div>
+              <div className="text-sm text-foreground whitespace-pre-wrap" dangerouslySetInnerHTML={{ 
+                __html: aiAnalysis.freelance_pricing.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br/>') 
+              }} />
             </div>
           )}
         </DashboardCard>
 
-        {/* SEZIONE D: Pricing Suggerito */}
+        {/* SEZIONE C: Competenze */}
         <DashboardCard 
-          icon={DollarSign}
-          title="Pricing Suggerito"
-          subtitle="Tariffe ottimali per i tuoi servizi"
+          icon={Globe}
+          title="Le Tue Competenze"
+          subtitle="Skill dal profilo"
           className="mb-8"
         >
-          {freelancePrediction?.pricing && freelancePrediction.pricing.length > 0 ? (
-            <div className="overflow-x-auto">
-              <Table>
-                <TableHeader>
-                  <TableRow>
-                    <TableHead>Servizio</TableHead>
-                    <TableHead>Prezzo Suggerito</TableHead>
-                    <TableHead>Modello Pricing</TableHead>
-                  </TableRow>
-                </TableHeader>
-                <TableBody>
-                  {freelancePrediction.pricing.map((item, index) => (
-                    <TableRow key={index}>
-                      <TableCell className="font-medium">{item.service_name}</TableCell>
-                      <TableCell className="text-primary font-bold">
-                        €{item.suggested_price.toLocaleString()}
-                      </TableCell>
-                      <TableCell>
-                        <span className="text-xs bg-secondary px-2 py-1 rounded capitalize">
-                          {item.pricing_model === 'hourly' ? 'Orario' :
-                           item.pricing_model === 'retainer' ? 'Retainer' : 'Progetto'}
-                        </span>
-                      </TableCell>
-                    </TableRow>
-                  ))}
-                </TableBody>
-              </Table>
+          {profile?.competenze && profile.competenze.length > 0 ? (
+            <div className="flex flex-wrap gap-2">
+              {profile.competenze.map((skill, index) => (
+                <span key={index} className="px-3 py-2 rounded-lg bg-accent/10 text-accent border border-accent/20 text-sm">
+                  {skill}
+                </span>
+              ))}
             </div>
           ) : (
             <div className="bg-secondary/30 rounded-xl p-8 text-center">
-              <DollarSign className="w-12 h-12 text-muted-foreground/50 mx-auto mb-3" />
+              <Globe className="w-12 h-12 text-muted-foreground/50 mx-auto mb-3" />
               <p className="text-muted-foreground">
-                Le tariffe suggerite appariranno qui quando i dati predittivi saranno disponibili.
+                Aggiungi le tue competenze nel <Link to="/profile" className="text-primary underline">profilo</Link>.
               </p>
             </div>
           )}
         </DashboardCard>
 
-        {/* SEZIONE E: Lead & Outreach */}
+        {/* SEZIONE D: Target Clienti */}
         <DashboardCard 
           id="lead-section"
           icon={Send}
-          title="Lead & Outreach"
-          subtitle="Aziende target e strategia di contatto"
+          title="Target Clienti & Outreach"
+          subtitle="Strategia di contatto basata sul tuo profilo"
           className="mb-8"
         >
           <div className="grid md:grid-cols-2 gap-6 mb-6">
-            {/* Target Companies */}
             <Card className="bg-primary/5 border-primary/20">
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <Building2 className="w-5 h-5 text-primary" />
-                  Tipi di Aziende Target
+                  Tipi di Clienti Target
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {freelancePrediction?.leads?.target_companies && 
-                 freelancePrediction.leads.target_companies.length > 0 ? (
+                {profile?.clienti_tipo && profile.clienti_tipo.length > 0 ? (
                   <ul className="space-y-2">
-                    {freelancePrediction.leads.target_companies.map((company, index) => (
+                    {profile.clienti_tipo.map((client, index) => (
                       <li key={index} className="flex items-center gap-2">
                         <div className="w-2 h-2 rounded-full bg-primary" />
-                        <span className="text-foreground">{company}</span>
+                        <span className="text-foreground">{client}</span>
                       </li>
                     ))}
                   </ul>
                 ) : (
                   <p className="text-muted-foreground italic">
-                    Le aziende target appariranno qui...
+                    Aggiungi i tipi di clienti nel <Link to="/profile" className="text-primary underline">profilo</Link>.
                   </p>
                 )}
               </CardContent>
             </Card>
 
-            {/* Target Roles */}
             <Card className="bg-accent/5 border-accent/20">
               <CardHeader className="pb-3">
                 <CardTitle className="flex items-center gap-2 text-lg">
                   <Users className="w-5 h-5 text-accent" />
-                  Ruoli con cui Parlare
+                  Settore di Focus
                 </CardTitle>
               </CardHeader>
               <CardContent>
-                {freelancePrediction?.leads?.target_roles && 
-                 freelancePrediction.leads.target_roles.length > 0 ? (
-                  <ul className="space-y-2">
-                    {freelancePrediction.leads.target_roles.map((role, index) => (
-                      <li key={index} className="flex items-center gap-2">
-                        <div className="w-2 h-2 rounded-full bg-accent" />
-                        <span className="text-foreground">{role}</span>
-                      </li>
-                    ))}
-                  </ul>
+                {profile?.settore_interesse ? (
+                  <p className="text-foreground font-medium">{profile.settore_interesse}</p>
                 ) : (
                   <p className="text-muted-foreground italic">
-                    I ruoli target appariranno qui...
+                    Definisci il settore nel profilo.
                   </p>
                 )}
               </CardContent>
             </Card>
           </div>
 
-          {/* Sample Message */}
-          <Card className="bg-secondary/30 border-border/50">
-            <CardHeader className="pb-3">
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <MessageSquare className="w-5 h-5 text-primary" />
-                Messaggio Consigliato
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              {freelancePrediction?.leads?.sample_message ? (
-                <div className="bg-background/50 rounded-lg p-4 font-mono text-sm whitespace-pre-wrap">
-                  {freelancePrediction.leads.sample_message}
-                </div>
-              ) : (
-                <div className="bg-background/50 rounded-lg p-6 text-center">
-                  <Send className="w-8 h-8 text-muted-foreground/50 mx-auto mb-2" />
-                  <p className="text-muted-foreground italic">
-                    Il messaggio di outreach consigliato apparirà qui quando i dati saranno disponibili.
-                  </p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+          {/* AI Analysis - Leads */}
+          {aiAnalysis.freelance_leads && (
+            <div className="p-4 rounded-lg bg-primary/5 border border-primary/20">
+              <div className="flex items-center gap-2 mb-3">
+                <Lightbulb className="h-4 w-4 text-primary" />
+                <span className="text-sm font-medium text-primary">Analisi AI - Lead & Outreach</span>
+              </div>
+              <div className="text-sm text-foreground whitespace-pre-wrap" dangerouslySetInnerHTML={{ 
+                __html: aiAnalysis.freelance_leads.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br/>') 
+              }} />
+            </div>
+          )}
         </DashboardCard>
       </section>
 
