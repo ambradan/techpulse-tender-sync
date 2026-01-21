@@ -107,7 +107,7 @@ const Privati = () => {
         {/* SEZIONE INPUT: Obiettivi di Carriera */}
         <div className="mb-8">
           <SectionInput
-            sectionKey="privato_career_goals"
+            sectionKey="privati_career"
             title="I tuoi obiettivi di carriera"
             description="Inserisci le tue aspirazioni, obiettivi e note sulla tua carriera"
             placeholder="Es: Voglio diventare senior developer in 2 anni, migliorare le mie competenze in cloud computing, trovare un lavoro in una startup tech..."
@@ -197,7 +197,7 @@ const Privati = () => {
         {/* SEZIONE INPUT: Competenze e Skill */}
         <div className="mb-8">
           <SectionInput
-            sectionKey="privato_skills"
+            sectionKey="privati_skills"
             title="Le tue competenze attuali"
             description="Descrivi le tue skill, punti di forza e aree di miglioramento"
             placeholder="Es: Ho 5 anni di esperienza in React, conosco bene TypeScript, devo migliorare in DevOps e cloud. Soft skill: buona comunicazione, leadership da sviluppare..."
@@ -272,7 +272,7 @@ const Privati = () => {
         {/* SEZIONE INPUT: Formazione */}
         <div className="mb-8">
           <SectionInput
-            sectionKey="privato_learning"
+            sectionKey="privati_roles"
             title="I tuoi obiettivi formativi"
             description="Corsi, certificazioni, skill che vuoi acquisire"
             placeholder="Es: Voglio ottenere la certificazione AWS, fare un corso di machine learning, migliorare l'inglese tecnico..."
