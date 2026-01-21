@@ -53,6 +53,9 @@ const Auth = () => {
   const [fullName, setFullName] = useState("");
   const [connectTenderMatch, setConnectTenderMatch] = useState(true);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [showForgotPassword, setShowForgotPassword] = useState(false);
+  const [forgotEmail, setForgotEmail] = useState("");
+  const [forgotEmailSent, setForgotEmailSent] = useState(false);
 
   // Redirect if already logged in
   useEffect(() => {
@@ -146,6 +149,39 @@ const Auth = () => {
     } else {
       navigate("/dashboard");
     }
+    setLoading(false);
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    const emailResult = emailSchema.safeParse(forgotEmail);
+    if (!emailResult.success) {
+      setErrors({ "forgot-email": emailResult.error.errors[0].message });
+      return;
+    }
+    
+    setLoading(true);
+    setErrors({});
+
+    const { error } = await supabase.auth.resetPasswordForEmail(forgotEmail.trim(), {
+      redirectTo: `${window.location.origin}/reset-password`,
+    });
+
+    if (error) {
+      toast({
+        variant: "destructive",
+        title: "Errore",
+        description: error.message,
+      });
+    } else {
+      setForgotEmailSent(true);
+      toast({
+        title: "Email inviata",
+        description: "Controlla la tua casella email per il link di reset.",
+      });
+    }
+    
     setLoading(false);
   };
 
@@ -257,6 +293,13 @@ const Auth = () => {
                   <Button type="submit" className="w-full" disabled={loading}>
                     {loading ? "Accesso in corso..." : "Accedi"}
                   </Button>
+                  <button
+                    type="button"
+                    onClick={() => setShowForgotPassword(true)}
+                    className="w-full text-sm text-muted-foreground hover:text-primary transition-colors"
+                  >
+                    Password dimenticata?
+                  </button>
                 </form>
               </TabsContent>
 
@@ -336,6 +379,73 @@ const Auth = () => {
           </CardContent>
         </Card>
       </div>
+
+      {/* Forgot Password Modal */}
+      {showForgotPassword && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center p-4 z-50">
+          <Card className="w-full max-w-md border-border/50 bg-card backdrop-blur">
+            <CardHeader className="text-center">
+              <CardTitle className="font-display">
+                {forgotEmailSent ? "Email inviata!" : "Recupera password"}
+              </CardTitle>
+              <CardDescription>
+                {forgotEmailSent 
+                  ? "Controlla la tua casella email per il link di reset." 
+                  : "Inserisci la tua email per ricevere il link di reset"}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              {forgotEmailSent ? (
+                <Button 
+                  onClick={() => {
+                    setShowForgotPassword(false);
+                    setForgotEmailSent(false);
+                    setForgotEmail("");
+                  }} 
+                  className="w-full"
+                >
+                  Torna al login
+                </Button>
+              ) : (
+                <form onSubmit={handleForgotPassword} className="space-y-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="forgot-email">Email</Label>
+                    <Input
+                      id="forgot-email"
+                      type="email"
+                      value={forgotEmail}
+                      onChange={(e) => setForgotEmail(e.target.value)}
+                      placeholder="nome@azienda.it"
+                      required
+                      className={errors["forgot-email"] ? "border-destructive" : ""}
+                    />
+                    {errors["forgot-email"] && (
+                      <p className="text-xs text-destructive">{errors["forgot-email"]}</p>
+                    )}
+                  </div>
+                  <div className="flex gap-2">
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={() => {
+                        setShowForgotPassword(false);
+                        setErrors({});
+                        setForgotEmail("");
+                      }}
+                      className="flex-1"
+                    >
+                      Annulla
+                    </Button>
+                    <Button type="submit" className="flex-1" disabled={loading}>
+                      {loading ? "Invio..." : "Invia link"}
+                    </Button>
+                  </div>
+                </form>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+      )}
     </div>
   );
 };
