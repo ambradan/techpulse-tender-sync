@@ -57,9 +57,23 @@ const Auth = () => {
   // Redirect if already logged in
   useEffect(() => {
     if (!authLoading && user) {
-      navigate("/dashboard");
+      navigate("/dashboard", { replace: true });
     }
   }, [user, authLoading, navigate]);
+
+  // Show nothing while checking auth to prevent flash
+  if (authLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="animate-pulse text-muted-foreground">Caricamento...</div>
+      </div>
+    );
+  }
+
+  // If user is logged in, don't render auth form (redirect will happen)
+  if (user) {
+    return null;
+  }
 
   const validateLogin = () => {
     const result = loginSchema.safeParse({
