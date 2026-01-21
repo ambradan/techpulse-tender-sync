@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
@@ -6,8 +6,10 @@ import { Progress } from "@/components/ui/progress";
 import ConditionalNavbar from "@/components/ConditionalNavbar";
 import MainFooter from "@/components/MainFooter";
 import { DashboardCard } from "@/components/dashboard/shared/DashboardCard";
+import { SectionInput } from "@/components/dashboard/SectionInput";
 import { PrivatePrediction } from "@/types/predictions";
 import { useAuth } from "@/hooks/useAuth";
+import { supabase } from "@/integrations/backend/client";
 import { 
   ArrowRight, 
   User,
@@ -28,6 +30,32 @@ const Privati = () => {
   const { user } = useAuth();
   // State for API data - will be populated by external API calls
   const [privatePrediction] = useState<PrivatePrediction | null>(null);
+  const [profileContext, setProfileContext] = useState<Record<string, unknown>>({});
+
+  // Load user profile context for AI analysis
+  useEffect(() => {
+    const loadProfile = async () => {
+      if (!user) return;
+      
+      const { data } = await supabase
+        .from("profiles")
+        .select("*")
+        .eq("id", user.id)
+        .maybeSingle();
+      
+      if (data) {
+        setProfileContext({
+          ruolo_attuale: data.ruolo_attuale,
+          ruolo_target: data.ruolo_target,
+          esperienza_anni: data.esperienza_anni,
+          competenze: data.competenze,
+          settore_interesse: data.settore_interesse,
+        });
+      }
+    };
+    
+    loadProfile();
+  }, [user]);
 
   return (
     <main className="min-h-screen bg-gradient-hero flex flex-col">
@@ -74,6 +102,18 @@ const Privati = () => {
               </Link>
             )}
           </div>
+        </div>
+
+        {/* SEZIONE INPUT: Obiettivi di Carriera */}
+        <div className="mb-8">
+          <SectionInput
+            sectionKey="privato_career_goals"
+            title="I tuoi obiettivi di carriera"
+            description="Inserisci le tue aspirazioni, obiettivi e note sulla tua carriera"
+            placeholder="Es: Voglio diventare senior developer in 2 anni, migliorare le mie competenze in cloud computing, trovare un lavoro in una startup tech..."
+            profileType="privato"
+            profileContext={profileContext}
+          />
         </div>
 
         {/* SEZIONE A: Riepilogo Carriera Futura */}
@@ -154,6 +194,18 @@ const Privati = () => {
           )}
         </DashboardCard>
 
+        {/* SEZIONE INPUT: Competenze e Skill */}
+        <div className="mb-8">
+          <SectionInput
+            sectionKey="privato_skills"
+            title="Le tue competenze attuali"
+            description="Descrivi le tue skill, punti di forza e aree di miglioramento"
+            placeholder="Es: Ho 5 anni di esperienza in React, conosco bene TypeScript, devo migliorare in DevOps e cloud. Soft skill: buona comunicazione, leadership da sviluppare..."
+            profileType="privato"
+            profileContext={profileContext}
+          />
+        </div>
+
         {/* SEZIONE C: Gap Analysis */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-6">
@@ -215,6 +267,18 @@ const Privati = () => {
               </CardContent>
             </Card>
           </div>
+        </div>
+
+        {/* SEZIONE INPUT: Formazione */}
+        <div className="mb-8">
+          <SectionInput
+            sectionKey="privato_learning"
+            title="I tuoi obiettivi formativi"
+            description="Corsi, certificazioni, skill che vuoi acquisire"
+            placeholder="Es: Voglio ottenere la certificazione AWS, fare un corso di machine learning, migliorare l'inglese tecnico..."
+            profileType="privato"
+            profileContext={profileContext}
+          />
         </div>
 
         {/* SEZIONE D: Roadmap Formativa */}
