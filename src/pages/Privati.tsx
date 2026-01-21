@@ -326,20 +326,21 @@ const Privati = () => {
           </div>
         )}
 
-        {/* SEZIONE C: Gap Analysis da AI */}
+        {/* SEZIONE C: Analisi Skill e Gap - integrata */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-6">
-            <AlertCircle className="w-6 h-6 text-accent" />
+            <Target className="w-6 h-6 text-primary" />
             <h2 className="font-display text-2xl font-bold text-foreground">
-              Gap Analysis
+              Analisi Skill e Gap
             </h2>
           </div>
           <div className="grid md:grid-cols-2 gap-6">
+            {/* Analisi Skill */}
             <Card className="bg-green-500/5 border-green-500/20">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-green-500">
                   <CheckCircle className="w-5 h-5" />
-                  Punti di Forza
+                  Skill Attuali
                 </CardTitle>
               </CardHeader>
               <CardContent>
@@ -348,7 +349,7 @@ const Privati = () => {
                     {parsedPredictions.privati_skills.opportunities.map((item, index) => (
                       <li key={index} className="flex items-start gap-3">
                         <div className="w-2 h-2 rounded-full bg-green-500 mt-2 flex-shrink-0" />
-                        <span className="text-foreground">{item}</span>
+                        <span className="text-foreground text-sm">{item}</span>
                       </li>
                     ))}
                   </ul>
@@ -357,28 +358,28 @@ const Privati = () => {
                     {profile.competenze.slice(0, 5).map((skill, index) => (
                       <li key={index} className="flex items-center gap-3">
                         <div className="w-2 h-2 rounded-full bg-green-500" />
-                        <span className="text-foreground">{skill}</span>
+                        <span className="text-foreground text-sm">{skill}</span>
                       </li>
                     ))}
                   </ul>
                 ) : (
-                  <p className="text-muted-foreground italic">
+                  <p className="text-muted-foreground text-sm italic">
                     Aggiungi competenze o genera un'analisi AI.
                   </p>
                 )}
               </CardContent>
             </Card>
 
+            {/* Gap */}
             <Card className="bg-accent/5 border-accent/20">
               <CardHeader>
                 <CardTitle className="flex items-center gap-2 text-accent">
-                  <Target className="w-5 h-5" />
-                  Aree da Sviluppare
+                  <AlertCircle className="w-5 h-5" />
+                  Gap da Colmare
                 </CardTitle>
               </CardHeader>
               <CardContent>
                 {(() => {
-                  // Prima prova i parsed predictions
                   const risks = parsedPredictions.privati_skills?.risks || 
                                 parsedPredictions.privati_career?.risks || [];
                   
@@ -395,7 +396,6 @@ const Privati = () => {
                     );
                   }
                   
-                  // Fallback: estrai direttamente dal testo AI
                   const extractedAreas = extractAreasFromAnalysis(aiAnalysis.privati_skills) ||
                                          extractAreasFromAnalysis(aiAnalysis.privati_career);
                   
@@ -412,14 +412,10 @@ const Privati = () => {
                     );
                   }
                   
-                  // Nessun dato disponibile
                   return (
-                    <div className="text-center py-4">
-                      <Target className="w-8 h-8 text-muted-foreground/50 mx-auto mb-2" />
-                      <p className="text-muted-foreground text-sm">
-                        Genera un'analisi AI per vedere le aree di miglioramento
-                      </p>
-                    </div>
+                    <p className="text-muted-foreground text-sm italic">
+                      Genera un'analisi AI per vedere i gap da colmare
+                    </p>
                   );
                 })()}
               </CardContent>
