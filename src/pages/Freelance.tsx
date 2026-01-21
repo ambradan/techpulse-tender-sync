@@ -104,6 +104,28 @@ const Freelance = () => {
   const hasProfileData = profile && (profile.servizi_offerti?.length || profile.nicchia || profile.competenze?.length);
   const isFreelanceProfile = profile?.profile_type === "freelance";
 
+  // Helper per estrarre dati strutturati dal testo AI
+  const extractFromAnalysis = (analysisText: string | undefined, section: "punti_forza" | "aree_attenzione" | "azioni"): string[] => {
+    if (!analysisText) return [];
+    
+    const patterns: Record<string, RegExp> = {
+      punti_forza: /\*\*Punti di forza\*\*:?\s*([\s\S]*?)(?=\*\*|$)/i,
+      aree_attenzione: /\*\*Aree di attenzione\*\*:?\s*([\s\S]*?)(?=\*\*|$)/i,
+      azioni: /\*\*Azioni suggerite\*\*:?\s*([\s\S]*?)(?=\*\*|$)/i,
+    };
+    
+    const match = analysisText.match(patterns[section]);
+    if (!match) return [];
+    
+    const lines = match[1].match(/[-•]\s*([^\n-•]+)/g);
+    if (!lines) return [];
+    
+    return lines
+      .map(line => line.replace(/^[-•]\s*/, "").trim())
+      .filter(line => line.length > 10)
+      .slice(0, 5);
+  };
+
   return (
     <main className="min-h-screen bg-gradient-hero flex flex-col">
       <ConditionalNavbar />
@@ -321,30 +343,76 @@ const Freelance = () => {
           )}
         </DashboardCard>
 
-        {/* SEZIONE C: Competenze */}
-        <DashboardCard 
-          icon={Globe}
-          title="Le Tue Competenze"
-          subtitle="Skill dal profilo"
-          className="mb-8"
-        >
-          {profile?.competenze && profile.competenze.length > 0 ? (
-            <div className="flex flex-wrap gap-2">
-              {profile.competenze.map((skill, index) => (
-                <span key={index} className="px-3 py-2 rounded-lg bg-accent/10 text-accent border border-accent/20 text-sm">
-                  {skill}
-                </span>
-              ))}
+        {/* SEZIONE C: Analisi Posizionamento - estratta da AI */}
+        <div className="mb-8">
+          <div className="flex items-center gap-3 mb-6">
+            <Target className="w-6 h-6 text-primary" />
+            <h2 className="font-display text-2xl font-bold text-foreground">
+              Analisi Posizionamento
+            </h2>
+          </div>
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Punti di Forza */}
+            <div className="bg-green-500/5 border border-green-500/20 rounded-xl p-6">
+              <h3 className="flex items-center gap-2 text-green-500 font-semibold mb-4">
+                <Globe className="w-5 h-5" />
+                Punti di Forza
+              </h3>
+              {(() => {
+                const strengths = parsedPredictions.freelance_positioning?.opportunities || 
+                                  extractFromAnalysis(aiAnalysis.freelance_positioning, "punti_forza") ||
+                                  (profile?.competenze || []);
+                if (strengths.length > 0) {
+                  return (
+                    <ul className="space-y-3">
+                      {strengths.slice(0, 5).map((item, index) => (
+                        <li key={index} className="flex items-start gap-3">
+                          <div className="w-2 h-2 rounded-full bg-green-500 mt-2 flex-shrink-0" />
+                          <span className="text-foreground text-sm">{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  );
+                }
+                return (
+                  <p className="text-muted-foreground text-sm italic">
+                    Aggiungi competenze o genera un'analisi AI
+                  </p>
+                );
+              })()}
             </div>
-          ) : (
-            <div className="bg-secondary/30 rounded-xl p-8 text-center">
-              <Globe className="w-12 h-12 text-muted-foreground/50 mx-auto mb-3" />
-              <p className="text-muted-foreground">
-                Aggiungi le tue competenze nel <Link to="/profile" className="text-primary underline">profilo</Link>.
-              </p>
+
+            {/* Aree da Migliorare */}
+            <div className="bg-accent/5 border border-accent/20 rounded-xl p-6">
+              <h3 className="flex items-center gap-2 text-accent font-semibold mb-4">
+                <TrendingUp className="w-5 h-5" />
+                Aree da Migliorare
+              </h3>
+              {(() => {
+                const risks = parsedPredictions.freelance_positioning?.risks || 
+                              extractFromAnalysis(aiAnalysis.freelance_positioning, "aree_attenzione") ||
+                              extractFromAnalysis(aiAnalysis.freelance_pricing, "aree_attenzione");
+                if (risks.length > 0) {
+                  return (
+                    <ul className="space-y-3">
+                      {risks.map((item, index) => (
+                        <li key={index} className="flex items-start gap-3">
+                          <div className="w-2 h-2 rounded-full bg-accent mt-2 flex-shrink-0" />
+                          <span className="text-foreground text-sm">{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  );
+                }
+                return (
+                  <p className="text-muted-foreground text-sm italic">
+                    Genera un'analisi AI per vedere le aree da migliorare
+                  </p>
+                );
+              })()}
             </div>
-          )}
-        </DashboardCard>
+          </div>
+        </div>
 
         {/* SEZIONE D: Target Clienti */}
         <DashboardCard 

@@ -121,6 +121,28 @@ const Aziende = () => {
   const hasCompanyData = company && company.name;
   const isAziendaProfile = profileType === "azienda";
 
+  // Helper per estrarre dati strutturati dal testo AI
+  const extractFromAnalysis = (analysisText: string | undefined, section: "punti_forza" | "aree_attenzione" | "azioni"): string[] => {
+    if (!analysisText) return [];
+    
+    const patterns: Record<string, RegExp> = {
+      punti_forza: /\*\*Punti di forza\*\*:?\s*([\s\S]*?)(?=\*\*|$)/i,
+      aree_attenzione: /\*\*Aree di attenzione\*\*:?\s*([\s\S]*?)(?=\*\*|$)/i,
+      azioni: /\*\*Azioni suggerite\*\*:?\s*([\s\S]*?)(?=\*\*|$)/i,
+    };
+    
+    const match = analysisText.match(patterns[section]);
+    if (!match) return [];
+    
+    const lines = match[1].match(/[-•]\s*([^\n-•]+)/g);
+    if (!lines) return [];
+    
+    return lines
+      .map(line => line.replace(/^[-•]\s*/, "").trim())
+      .filter(line => line.length > 10)
+      .slice(0, 5);
+  };
+
   const getAutomazioneLabel = (level: string | null) => {
     if (!level || level === "non_specificato") return null;
     if (level === "basso") return "Basso - Processi manuali";
@@ -320,7 +342,7 @@ const Aziende = () => {
           </div>
         )}
 
-        {/* SEZIONE C: Driver placeholder - basato su AI */}
+        {/* SEZIONE C: Driver e Rischi - estratti da AI */}
         <div className="mb-8">
           <div className="flex items-center gap-3 mb-6">
             <AlertTriangle className="w-6 h-6 text-primary" />
@@ -328,13 +350,65 @@ const Aziende = () => {
               Driver e Rischi
             </h2>
           </div>
-          {aiAnalysis.aziende_trend ? (
-            <p className="text-muted-foreground">
-              I driver sono identificati nell'analisi AI sopra. Usa le sezioni di input per aggiungere dettagli.
-            </p>
-          ) : (
-            <DriversList positive={[]} negative={[]} />
-          )}
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Punti di Forza */}
+            <div className="bg-green-500/5 border border-green-500/20 rounded-xl p-6">
+              <h3 className="flex items-center gap-2 text-green-500 font-semibold mb-4">
+                <CheckCircle className="w-5 h-5" />
+                Punti di Forza
+              </h3>
+              {(() => {
+                const strengths = parsedPredictions.aziende_trend?.opportunities || 
+                                  extractFromAnalysis(aiAnalysis.aziende_trend, "punti_forza");
+                if (strengths.length > 0) {
+                  return (
+                    <ul className="space-y-3">
+                      {strengths.map((item, index) => (
+                        <li key={index} className="flex items-start gap-3">
+                          <div className="w-2 h-2 rounded-full bg-green-500 mt-2 flex-shrink-0" />
+                          <span className="text-foreground text-sm">{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  );
+                }
+                return (
+                  <p className="text-muted-foreground text-sm italic">
+                    Genera un'analisi AI per vedere i punti di forza
+                  </p>
+                );
+              })()}
+            </div>
+
+            {/* Aree di Attenzione */}
+            <div className="bg-accent/5 border border-accent/20 rounded-xl p-6">
+              <h3 className="flex items-center gap-2 text-accent font-semibold mb-4">
+                <Target className="w-5 h-5" />
+                Aree di Attenzione
+              </h3>
+              {(() => {
+                const risks = parsedPredictions.aziende_trend?.risks || 
+                              extractFromAnalysis(aiAnalysis.aziende_trend, "aree_attenzione");
+                if (risks.length > 0) {
+                  return (
+                    <ul className="space-y-3">
+                      {risks.map((item, index) => (
+                        <li key={index} className="flex items-start gap-3">
+                          <div className="w-2 h-2 rounded-full bg-accent mt-2 flex-shrink-0" />
+                          <span className="text-foreground text-sm">{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  );
+                }
+                return (
+                  <p className="text-muted-foreground text-sm italic">
+                    Genera un'analisi AI per vedere le aree di attenzione
+                  </p>
+                );
+              })()}
+            </div>
+          </div>
         </div>
 
         {/* AI Analysis - Actions */}
