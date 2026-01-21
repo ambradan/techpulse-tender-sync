@@ -11,6 +11,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { ArrowLeft, Save, Building2, Cpu, Users, User, Briefcase } from "lucide-react";
+import { DocumentUpload } from "@/components/profile/DocumentUpload";
 
 type ProfileType = "azienda" | "privato" | "freelance";
 
@@ -373,6 +374,59 @@ const SimpleProfile = () => {
             </div>
           </CardContent>
         </Card>
+
+        {/* Document Upload - Shows for all profile types */}
+        <div className="mb-6">
+          <DocumentUpload
+            profileType={formData.profile_type}
+            onDataExtracted={(data) => {
+              // Apply extracted data based on profile type
+              if (formData.profile_type === "privato") {
+                setFormData(prev => ({
+                  ...prev,
+                  ruolo_attuale: data.ruolo_attuale || prev.ruolo_attuale,
+                  esperienza_anni: data.esperienza_anni ?? prev.esperienza_anni,
+                  ruolo_target: data.ruolo_target || prev.ruolo_target,
+                  settore_interesse: data.settore || prev.settore_interesse,
+                }));
+                if (data.competenze && data.competenze.length > 0) {
+                  setCompetenzeInput(data.competenze.join(", "));
+                }
+              } else if (formData.profile_type === "freelance") {
+                setFormData(prev => ({
+                  ...prev,
+                  nicchia: data.nicchia || prev.nicchia,
+                  anni_freelance: data.anni_freelance ?? prev.anni_freelance,
+                  tariffa_oraria: data.tariffa_oraria ?? prev.tariffa_oraria,
+                  settore_interesse: data.settore || prev.settore_interesse,
+                }));
+                if (data.servizi_offerti && data.servizi_offerti.length > 0) {
+                  setServiziInput(data.servizi_offerti.join(", "));
+                }
+                if (data.competenze && data.competenze.length > 0) {
+                  setCompetenzeInput(data.competenze.join(", "));
+                }
+                if (data.clienti_tipo && data.clienti_tipo.length > 0) {
+                  setClientiInput(data.clienti_tipo.join(", "));
+                }
+              } else if (formData.profile_type === "azienda") {
+                setFormData(prev => ({
+                  ...prev,
+                  sector: data.settore || prev.sector,
+                  description: data.descrizione || prev.description,
+                }));
+                if (data.tecnologie && data.tecnologie.length > 0) {
+                  setTechInput(data.tecnologie.join(", "));
+                }
+              }
+              
+              toast({
+                title: "Dati importati",
+                description: "I campi sono stati aggiornati con i dati estratti dal documento.",
+              });
+            }}
+          />
+        </div>
 
         {/* Azienda Fields */}
         {formData.profile_type === "azienda" && (
