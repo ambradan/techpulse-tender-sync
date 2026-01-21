@@ -9,6 +9,17 @@ import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/component
 import { Brain, ChevronDown, ChevronUp, Save, Loader2 } from "lucide-react";
 import type { Json } from "@/integrations/supabase/types";
 
+export interface ParsedPrediction {
+  summary?: string;
+  recommendations?: string[];
+  risks?: string[];
+  opportunities?: string[];
+  timeline?: string;
+  priority?: "alta" | "media" | "bassa";
+  confidence?: number;
+  raw_analysis?: string;
+}
+
 interface SectionInputProps {
   sectionKey: string;
   title: string;
@@ -18,7 +29,7 @@ interface SectionInputProps {
   structuredData?: Record<string, unknown>;
   profileType?: "azienda" | "privato" | "freelance";
   profileContext?: Record<string, unknown>;
-  onAnalysisComplete?: (analysis: string) => void;
+  onAnalysisComplete?: (analysis: string, parsed?: ParsedPrediction) => void;
 }
 
 export function SectionInput({
@@ -151,24 +162,37 @@ export function SectionInput({
       if (error) throw error;
 
       const analysis = data?.analysis;
+      const parsedPrediction = data?.parsed as ParsedPrediction | undefined;
+      
       if (analysis) {
         setAiAnalysis(analysis);
         
-        // Save the analysis to the database
+        // Save the analysis and structured data to the database
+        const structuredAnalysis: Json = parsedPrediction ? {
+          summary: parsedPrediction.summary,
+          recommendations: parsedPrediction.recommendations,
+          risks: parsedPrediction.risks,
+          opportunities: parsedPrediction.opportunities,
+          timeline: parsedPrediction.timeline,
+          priority: parsedPrediction.priority,
+          confidence: parsedPrediction.confidence,
+        } : {};
+
         await supabase
           .from("section_inputs")
           .update({
             ai_analysis: analysis,
             ai_analyzed_at: new Date().toISOString(),
+            structured_data: structuredAnalysis,
           })
           .eq("user_id", user.id)
           .eq("section_key", sectionKey);
 
-        onAnalysisComplete?.(analysis);
+        onAnalysisComplete?.(analysis, parsedPrediction);
 
         toast({
           title: "Analisi completata",
-          description: "L'analisi AI è stata generata.",
+          description: "L'analisi AI è stata generata e salvata.",
         });
       }
     } catch (error: any) {

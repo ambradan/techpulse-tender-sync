@@ -5,7 +5,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import ConditionalNavbar from "@/components/ConditionalNavbar";
 import MainFooter from "@/components/MainFooter";
 import { DashboardCard } from "@/components/dashboard/shared/DashboardCard";
-import { SectionInput } from "@/components/dashboard/SectionInput";
+import { SectionInput, type ParsedPrediction } from "@/components/dashboard/SectionInput";
+import { ReportGenerator } from "@/components/dashboard/ReportGenerator";
 import { useAuth } from "@/hooks/useAuth";
 import { supabase } from "@/integrations/backend/client";
 import { 
@@ -43,6 +44,7 @@ const Freelance = () => {
   const [profile, setProfile] = useState<FreelanceProfile | null>(null);
   const [profileContext, setProfileContext] = useState<Record<string, unknown>>({});
   const [aiAnalysis, setAiAnalysis] = useState<Record<string, string>>({});
+  const [parsedPredictions, setParsedPredictions] = useState<Record<string, ParsedPrediction>>({});
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -73,19 +75,24 @@ const Freelance = () => {
         setProfileContext(data as unknown as Record<string, unknown>);
       }
 
-      // Load saved AI analyses
+      // Load saved AI analyses with structured data
       const { data: analyses } = await supabase
         .from("section_inputs")
-        .select("section_key, ai_analysis")
+        .select("section_key, ai_analysis, structured_data")
         .eq("user_id", user.id)
         .in("section_key", ["freelance_positioning", "freelance_pricing", "freelance_leads"]);
 
       if (analyses) {
         const analysisMap: Record<string, string> = {};
+        const predictionsMap: Record<string, ParsedPrediction> = {};
         analyses.forEach((a) => {
           if (a.ai_analysis) analysisMap[a.section_key] = a.ai_analysis;
+          if (a.structured_data && typeof a.structured_data === 'object') {
+            predictionsMap[a.section_key] = a.structured_data as ParsedPrediction;
+          }
         });
         setAiAnalysis(analysisMap);
+        setParsedPredictions(predictionsMap);
       }
 
       setLoading(false);
@@ -122,6 +129,13 @@ const Freelance = () => {
                 Modifica Profilo
               </Button>
             </Link>
+            {user && (
+              <ReportGenerator 
+                profileType="freelance" 
+                sectionKeys={["freelance_positioning", "freelance_pricing", "freelance_leads"]}
+                title="Genera Report"
+              />
+            )}
             {!user && (
               <Link to="/auth">
                 <Button className="gap-2">
@@ -168,7 +182,10 @@ const Freelance = () => {
               description="Aggiungi dettagli su nicchia, differenziazione e offerta."
               profileType="freelance"
               profileContext={profileContext}
-              onAnalysisComplete={(analysis) => setAiAnalysis(prev => ({ ...prev, freelance_positioning: analysis }))}
+              onAnalysisComplete={(analysis, parsed) => {
+                setAiAnalysis(prev => ({ ...prev, freelance_positioning: analysis }));
+                if (parsed) setParsedPredictions(prev => ({ ...prev, freelance_positioning: parsed }));
+              }}
             />
             <SectionInput
               sectionKey="freelance_pricing"
@@ -176,7 +193,10 @@ const Freelance = () => {
               description="Scrivi vincoli, obiettivi e modello prezzi."
               profileType="freelance"
               profileContext={profileContext}
-              onAnalysisComplete={(analysis) => setAiAnalysis(prev => ({ ...prev, freelance_pricing: analysis }))}
+              onAnalysisComplete={(analysis, parsed) => {
+                setAiAnalysis(prev => ({ ...prev, freelance_pricing: analysis }));
+                if (parsed) setParsedPredictions(prev => ({ ...prev, freelance_pricing: parsed }));
+              }}
             />
             <SectionInput
               sectionKey="freelance_leads"
@@ -184,7 +204,10 @@ const Freelance = () => {
               description="Aggiungi target, canali e messaggi."
               profileType="freelance"
               profileContext={profileContext}
-              onAnalysisComplete={(analysis) => setAiAnalysis(prev => ({ ...prev, freelance_leads: analysis }))}
+              onAnalysisComplete={(analysis, parsed) => {
+                setAiAnalysis(prev => ({ ...prev, freelance_leads: analysis }));
+                if (parsed) setParsedPredictions(prev => ({ ...prev, freelance_leads: parsed }));
+              }}
             />
           </div>
         )}

@@ -13,6 +13,67 @@ interface AnalyzeRequest {
   profile_context: Record<string, unknown>;
 }
 
+interface ParsedPrediction {
+  summary?: string;
+  recommendations?: string[];
+  risks?: string[];
+  opportunities?: string[];
+  timeline?: string;
+  priority?: string;
+}
+
+// Parse AI analysis into structured data
+function parseAnalysis(analysis: string, sectionKey: string): ParsedPrediction {
+  const parsed: ParsedPrediction = {};
+  
+  // Extract summary (first paragraph or Sintesi section)
+  const sintesiMatch = analysis.match(/\*\*Sintesi\*\*:?\s*([\s\S]*?)(?=\*\*|$)/i);
+  if (sintesiMatch) {
+    parsed.summary = sintesiMatch[1].trim().replace(/\n+/g, " ").slice(0, 500);
+  }
+  
+  // Extract recommendations from "Azioni suggerite"
+  const azioniMatch = analysis.match(/\*\*Azioni suggerite\*\*:?\s*([\s\S]*?)(?=\*\*|$)/i);
+  if (azioniMatch) {
+    const actions = azioniMatch[1].match(/[-•]\s*([^\n-•]+)/g);
+    if (actions) {
+      parsed.recommendations = actions.map(a => a.replace(/^[-•]\s*/, "").trim()).filter(a => a.length > 0);
+    }
+  }
+  
+  // Extract risks from "Aree di attenzione"
+  const riskMatch = analysis.match(/\*\*Aree di attenzione\*\*:?\s*([\s\S]*?)(?=\*\*|$)/i);
+  if (riskMatch) {
+    const risks = riskMatch[1].match(/[-•]\s*([^\n-•]+)/g);
+    if (risks) {
+      parsed.risks = risks.map(r => r.replace(/^[-•]\s*/, "").trim()).filter(r => r.length > 0);
+    }
+  }
+  
+  // Extract opportunities from "Punti di forza"
+  const oppsMatch = analysis.match(/\*\*Punti di forza\*\*:?\s*([\s\S]*?)(?=\*\*|$)/i);
+  if (oppsMatch) {
+    const opps = oppsMatch[1].match(/[-•]\s*([^\n-•]+)/g);
+    if (opps) {
+      parsed.opportunities = opps.map(o => o.replace(/^[-•]\s*/, "").trim()).filter(o => o.length > 0);
+    }
+  }
+  
+  // Extract priority
+  const priorityMatch = analysis.match(/\*\*Priorità\*\*:?\s*(alta|media|bassa)/i);
+  if (priorityMatch) {
+    parsed.priority = priorityMatch[1].toLowerCase();
+  }
+  
+  // Extract timeline
+  const timelineMatch = analysis.match(/\*\*Timeline[^*]*\*\*:?\s*([^\n*]+)/i);
+  if (timelineMatch) {
+    parsed.timeline = timelineMatch[1].trim();
+  }
+  
+  return parsed;
+}
+
 const SECTION_PROMPTS: Record<string, string> = {
   // Aziende sections
   aziende_trend: "Analizza le note dell'utente sui trend di mercato e fornisci insight strategici per la sua azienda.",
@@ -77,9 +138,11 @@ ${sectionPrompt}
 
 Fornisci l'analisi in formato strutturato con:
 - **Sintesi**: 2-3 frasi chiave
-- **Punti di forza**: elementi positivi identificati
-- **Aree di attenzione**: aspetti da monitorare o migliorare
-- **Azioni suggerite**: 2-3 azioni concrete e immediate`;
+- **Punti di forza**: elementi positivi identificati (lista con -)
+- **Aree di attenzione**: aspetti da monitorare o migliorare (lista con -)
+- **Azioni suggerite**: 2-3 azioni concrete e immediate (lista con -)
+- **Priorità**: alta, media, o bassa
+- **Timeline consigliata**: breve, medio, o lungo termine`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -119,9 +182,13 @@ Fornisci l'analisi in formato strutturato con:
     const aiResponse = await response.json();
     const analysis = aiResponse.choices?.[0]?.message?.content || "Analisi non disponibile.";
 
+    // Parse structured data from the analysis
+    const parsed = parseAnalysis(analysis, section_key);
+
     return new Response(
       JSON.stringify({ 
         analysis,
+        parsed,
         analyzed_at: new Date().toISOString()
       }),
       { headers: { ...corsHeaders, "Content-Type": "application/json" } }
