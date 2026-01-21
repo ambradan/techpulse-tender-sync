@@ -8,6 +8,7 @@ import ConditionalNavbar from "@/components/ConditionalNavbar";
 import MainFooter from "@/components/MainFooter";
 import { DashboardCard } from "@/components/dashboard/shared/DashboardCard";
 import { FreelancePrediction } from "@/types/predictions";
+import { useAuth } from "@/hooks/useAuth";
 import { 
   ArrowRight, 
   Briefcase,
@@ -23,6 +24,7 @@ import {
 } from "lucide-react";
 
 const Freelance = () => {
+  const { user } = useAuth();
   // State for API data - will be populated by external API calls
   const [freelancePrediction] = useState<FreelancePrediction | null>(null);
 
@@ -68,12 +70,22 @@ const Freelance = () => {
               <Users className="w-4 h-4" />
               Scopri i Lead
             </Button>
-            <Link to="/auth">
-              <Button className="gap-2">
-                Inizia Ora
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-            </Link>
+            {!user && (
+              <Link to="/auth">
+                <Button className="gap-2">
+                  Inizia Ora
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </Link>
+            )}
+            {user && (
+              <Link to="/dashboard">
+                <Button className="gap-2">
+                  Vai alla Dashboard
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
 

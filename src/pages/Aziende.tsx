@@ -10,6 +10,7 @@ import { DriversList } from "@/components/dashboard/shared/DriversList";
 import { ActionCard } from "@/components/dashboard/shared/ActionCard";
 import { ScenarioTabs } from "@/components/dashboard/shared/ScenarioTabs";
 import { CompanyPrediction } from "@/types/predictions";
+import { useAuth } from "@/hooks/useAuth";
 import { 
   ArrowRight, 
   Building2,
@@ -28,6 +29,7 @@ import {
 } from "lucide-react";
 
 const Aziende = () => {
+  const { user } = useAuth();
   // State for API data - will be populated by external API calls
   const [companyPrediction] = useState<CompanyPrediction | null>(null);
 
@@ -57,12 +59,22 @@ const Aziende = () => {
                 Prenota Demo
               </a>
             </Button>
-            <Link to="/auth">
-              <Button className="gap-2">
-                Inizia Ora
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-            </Link>
+            {!user && (
+              <Link to="/auth">
+                <Button className="gap-2">
+                  Inizia Ora
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </Link>
+            )}
+            {user && (
+              <Link to="/dashboard">
+                <Button className="gap-2">
+                  Vai alla Dashboard
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
 

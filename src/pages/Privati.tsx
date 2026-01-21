@@ -7,6 +7,7 @@ import ConditionalNavbar from "@/components/ConditionalNavbar";
 import MainFooter from "@/components/MainFooter";
 import { DashboardCard } from "@/components/dashboard/shared/DashboardCard";
 import { PrivatePrediction } from "@/types/predictions";
+import { useAuth } from "@/hooks/useAuth";
 import { 
   ArrowRight, 
   User,
@@ -24,6 +25,7 @@ import {
 } from "lucide-react";
 
 const Privati = () => {
+  const { user } = useAuth();
   // State for API data - will be populated by external API calls
   const [privatePrediction] = useState<PrivatePrediction | null>(null);
 
@@ -55,12 +57,22 @@ const Privati = () => {
               <FileText className="w-4 h-4" />
               Esempio Roadmap
             </Button>
-            <Link to="/auth">
-              <Button className="gap-2 bg-accent hover:bg-accent/90">
-                Inizia Ora
-                <ArrowRight className="w-4 h-4" />
-              </Button>
-            </Link>
+            {!user && (
+              <Link to="/auth">
+                <Button className="gap-2 bg-accent hover:bg-accent/90">
+                  Inizia Ora
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </Link>
+            )}
+            {user && (
+              <Link to="/dashboard">
+                <Button className="gap-2 bg-accent hover:bg-accent/90">
+                  Vai alla Dashboard
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </Link>
+            )}
           </div>
         </div>
 
